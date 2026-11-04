@@ -11,6 +11,8 @@ import CategoryBar from "../components/CategoryBar";
 import FoodCard from "../components/FoodCard";
 import CartDrawer from "../components/CartDrawer";
 
+import SharedOrders from "../components/SharedOrders";
+
 const Menu = () => {
   const { token } = useParams();
   const navigate = useNavigate();
@@ -110,6 +112,8 @@ const Menu = () => {
       </section>
 
       <main className="menu-content">
+
+        <SharedOrders token={token} />
 
         <div className="menu-title">
           <div>
