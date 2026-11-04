@@ -92,6 +92,75 @@ const signup = async (req, res) => {
 };
 
 // Manager Login
+// const login = async (req, res) => {
+//   try {
+//     const { email, password } = req.body;
+
+//     if (!email || !password) {
+//       return res.status(400).json({
+//         success: false,
+//         message: "Email and password are required",
+//       });
+//     }
+
+//     const user = await User.findOne({
+//       where: {
+//         email: email.trim().toLowerCase(),
+//       },
+//     });
+
+//     if (!user) {
+//       return res.status(401).json({
+//         success: false,
+//         message: "Invalid email or password",
+//       });
+//     }
+
+//     if (!user.isActive) {
+//       return res.status(403).json({
+//         success: false,
+//         message: "Account is disabled",
+//       });
+//     }
+
+//     // Verify password
+//     const isMatch = await bcrypt.compare(
+//       password,
+//       user.password
+//     );
+
+//     if (!isMatch) {
+//       return res.status(401).json({
+//         success: false,
+//         message: "Invalid email or password",
+//       });
+//     }
+
+//     const token = generateToken(user);
+
+//     return res.status(200).json({
+//       success: true,
+//       message: "Login successful",
+//       token,
+//       user: {
+//         id: user.id,
+//         name: user.name,
+//         email: user.email,
+//         role: user.role,
+//       },
+//     });
+
+//   } catch (error) {
+//     console.error("Login Error:", error);
+
+//     return res.status(500).json({
+//       success: false,
+//       message: "Login failed",
+//     });
+//   }
+// };
+
+
 const login = async (req, res) => {
   try {
     const { email, password } = req.body;
@@ -119,11 +188,10 @@ const login = async (req, res) => {
     if (!user.isActive) {
       return res.status(403).json({
         success: false,
-        message: "Account is disabled",
+        message: "Your account is disabled",
       });
     }
 
-    // Verify password
     const isMatch = await bcrypt.compare(
       password,
       user.password
@@ -133,6 +201,13 @@ const login = async (req, res) => {
       return res.status(401).json({
         success: false,
         message: "Invalid email or password",
+      });
+    }
+
+    if (!["manager", "admin"].includes(user.role)) {
+      return res.status(403).json({
+        success: false,
+        message: "You are not authorized to access manager dashboard",
       });
     }
 
@@ -159,6 +234,7 @@ const login = async (req, res) => {
     });
   }
 };
+
 
 // Get Logged-in Manager
 const getProfile = async (req, res) => {
