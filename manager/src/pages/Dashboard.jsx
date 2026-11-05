@@ -1,3 +1,5 @@
+import { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
 
 import {
   ShoppingBag,
@@ -7,70 +9,97 @@ import {
 } from "lucide-react";
 
 import StatCard from "../components/StatCard";
+import api from "../services/api";
 import "./Dashboard.css";
 
+const formatCurrency = (amount) =>
+  `Rs. ${Number(amount || 0).toLocaleString("en-PK")}`;
+
+const formatDate = (date) =>
+  new Date(date).toLocaleDateString("en-PK", {
+    day: "2-digit",
+    month: "short",
+    year: "numeric",
+  });
+
 const Dashboard = () => {
-  const stats = [
+  const [stats, setStats] = useState(null);
+  const [orders, setOrders] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+
+  useEffect(() => {
+    const fetchDashboard = async () => {
+      try {
+        setLoading(true);
+        setError("");
+
+        const response = await api.get("/dashboard/stats");
+
+        setStats(response.data.stats);
+        setOrders(response.data.recentOrders || []);
+      } catch (err) {
+        setError(
+          err.response?.data?.message ||
+          "Dashboard data load nahi ho saka."
+        );
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchDashboard();
+  }, []);
+
+  const cards = [
     {
       title: "Total Orders",
-      value: "125",
-      change: "+12% this month",
+      value: stats?.totalOrders ?? 0,
+      change: "All orders",
       icon: ShoppingBag,
     },
     {
       title: "Total Revenue",
-      value: "Rs. 85,000",
-      change: "+8% this month",
+      value: formatCurrency(stats?.totalRevenue),
+      change: "Completed orders only",
       icon: DollarSign,
     },
     {
       title: "Food Items",
-      value: "48",
-      change: "Available menu items",
+      value: stats?.totalProducts ?? 0,
+      change: "Total menu items",
       icon: Utensils,
     },
     {
       title: "Customers",
-      value: "96",
-      change: "Total customers",
+      value: stats?.totalCustomers ?? 0,
+      change: "Unique guest sessions",
       icon: Users,
     },
   ];
 
-  const orders = [
-    {
-      id: "#ORD001",
-      customer: "Ali Ahmed",
-      item: "Chicken Burger",
-      amount: "Rs. 850",
-      status: "Completed",
-    },
-    {
-      id: "#ORD002",
-      customer: "Ahmed Khan",
-      item: "Large Pizza",
-      amount: "Rs. 1800",
-      status: "Preparing",
-    },
-    {
-      id: "#ORD003",
-      customer: "Sara Ali",
-      item: "French Fries",
-      amount: "Rs. 450",
-      status: "Pending",
-    },
-    {
-      id: "#ORD004",
-      customer: "Usman",
-      item: "Zinger Burger",
-      amount: "Rs. 700",
-      status: "Completed",
-    },
-  ];
+  if (loading) {
+    return (
+      <div className="dashboard-page">
+        <h2>Loading dashboard...</h2>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="dashboard-page">
+        <h2>Dashboard</h2>
+        <p>{error}</p>
+        <button onClick={() => window.location.reload()}>
+          Retry
+        </button>
+      </div>
+    );
+  }
 
   return (
     <div className="dashboard-page">
-
       <div className="page-heading">
         <div>
           <h1>Dashboard</h1>
@@ -83,15 +112,15 @@ const Dashboard = () => {
       </div>
 
       <div className="stats-grid">
-        {stats.map((stat, index) => (
-          <StatCard key={index} {...stat} />
+        {cards.map((card) => (
+          <StatCard key={card.title} {...card} />
         ))}
       </div>
 
       <div className="orders-section">
         <div className="section-heading">
           <h2>Recent Orders</h2>
-          <button>View All</button>
+          <Link to="/orders">View All</Link>
         </div>
 
         <div className="table-wrapper">
@@ -100,33 +129,64 @@ const Dashboard = () => {
               <tr>
                 <th>Order ID</th>
                 <th>Customer</th>
-                <th>Item</th>
+                <th>Table</th>
+                <th>Items</th>
                 <th>Amount</th>
+                <th>Date</th>
                 <th>Status</th>
               </tr>
             </thead>
 
             <tbody>
-              {orders.map((order) => (
-                <tr key={order.id}>
-                  <td>{order.id}</td>
-                  <td>{order.customer}</td>
-                  <td>{order.item}</td>
-                  <td>{order.amount}</td>
-                  <td>
-                    <span
-                      className={`status ${order.status.toLowerCase()}`}
-                    >
-                      {order.status}
-                    </span>
-                  </td>
+              {orders.length === 0 ? (
+                <tr>
+                  <td colSpan="7">No orders found.</td>
                 </tr>
-              ))}
+              ) : (
+                orders.map((order) => {
+                  const items = order.OrderItems || [];
+
+                  const itemNames = items
+                    .map((item) => item.Product?.name)
+                    .filter(Boolean)
+                    .join(", ");
+
+                  const status = order.status || "pending";
+
+                  return (
+                    <tr key={order.id}>
+                      <td>
+                        {order.orderNumber || `#${order.id}`}
+                      </td>
+
+                      <td>
+                        {order.customerName || "Guest"}
+                      </td>
+
+                      <td>
+                        {order.RestaurantTable?.tableNumber || "-"}
+                      </td>
+
+                      <td>{itemNames || "-"}</td>
+
+                      <td>{formatCurrency(order.totalAmount)}</td>
+
+                      <td>{formatDate(order.createdAt)}</td>
+
+                      <td>
+                        <span className={`status ${status}`}>
+                          {status.charAt(0).toUpperCase() +
+                            status.slice(1)}
+                        </span>
+                      </td>
+                    </tr>
+                  );
+                })
+              )}
             </tbody>
           </table>
         </div>
       </div>
-
     </div>
   );
 };
