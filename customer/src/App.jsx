@@ -10,6 +10,7 @@ import { CartProvider } from "./context/CartContext";
 
 import Menu from "./pages/Menu";
 import Checkout from "./pages/Checkout";
+import MyOrders from "./pages/MyOrders";
 
 function App() {
   return (
@@ -25,6 +26,11 @@ function App() {
           <Route
             path="/checkout/:token"
             element={<Checkout />}
+          />
+
+          <Route
+            path="/my-orders/:token"
+            element={<MyOrders />}
           />
 
           <Route

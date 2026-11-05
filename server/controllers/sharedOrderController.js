@@ -338,10 +338,77 @@ const updateOrderStatus = async (req, res) => {
   }
 };
 
+// Get orders belonging to the current customer session
+const getMyOrders = async (req, res) => {
+    try {
+        const { token } = req.params;
+        const { guestId } = req.query;
+
+        if (
+            !guestId ||
+            typeof guestId !== "string" ||
+            guestId.length > 64
+        ) {
+            return res.status(400).json({
+                success: false,
+                message: "Valid customer session is required",
+            });
+        }
+
+        const table = await RestaurantTable.findOne({
+            where: {
+                qrToken: token,
+                isActive: true,
+            },
+        });
+
+        if (!table) {
+            return res.status(404).json({
+                success: false,
+                message: "Invalid or inactive table",
+            });
+        }
+
+        const orders = await Order.findAll({
+            where: {
+                tableId: table.id,
+                guestId,
+            },
+            include: [
+                {
+                    model: OrderItem,
+                    include: [
+                        {
+                            model: Product,
+                            attributes: ["id", "name", "image"],
+                        },
+                    ],
+                },
+            ],
+            order: [["createdAt", "DESC"]],
+        });
+
+        return res.status(200).json({
+            success: true,
+            count: orders.length,
+            orders,
+        });
+
+    } catch (error) {
+        console.error("CUSTOMER ORDER HISTORY ERROR:", error);
+
+        return res.status(500).json({
+            success: false,
+            message: "Unable to fetch your orders",
+        });
+    }
+};
+
 
 module.exports = {
     placeSharedOrder,
     getSharedOrders,
     getAllOrders,
     updateOrderStatus,
+    getMyOrders,
 };

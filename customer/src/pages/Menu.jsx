@@ -122,6 +122,22 @@ const Menu = () => {
           </div>
         </div>
 
+        <button
+          onClick={() => navigate(`/my-orders/${token}`)}
+          style={{
+            padding: "12px 18px",
+            marginBottom: "20px",
+            border: "1px solid #c99a43",
+            background: "#fff",
+            borderRadius: "8px",
+            color: "#98712e",
+            fontWeight: "bold",
+            cursor: "pointer",
+          }}
+        >
+          My Orders
+        </button>
+
         <div className="menu-search">
           <Search size={19} />
 

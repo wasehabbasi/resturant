@@ -1,43 +1,3 @@
-
-// // const express = require("express");
-// // const router = express.Router();
-
-// // const {
-// //   getPublicMenu,
-// // } = require("../controllers/menuController");
-
-// // router.get("/:token", getPublicMenu);
-
-// // module.exports = router;
-
-
-
-
-// const express = require("express");
-// const router = express.Router();
-
-// const {
-//   getPublicMenu,
-// } = require("../controllers/menuController");
-
-// const {
-//   placeSharedOrder,
-//   getSharedOrders,
-// } = require("../controllers/sharedOrderController");
-
-// // Shared table orders
-// router.get("/:token/orders", getSharedOrders);
-// router.post("/:token/orders", placeSharedOrder);
-
-// // Public restaurant menu
-// router.get("/:token", getPublicMenu);
-
-// module.exports = router;
-
-
-
-
-
 const express = require("express");
 const router = express.Router();
 
@@ -46,8 +6,9 @@ const {
 } = require("../controllers/menuController");
 
 const {
-  placeSharedOrder,
-  getSharedOrders,
+    placeSharedOrder,
+    getSharedOrders,
+    getMyOrders,
 } = require("../controllers/sharedOrderController");
 
 // Get all shared orders for a table
@@ -58,5 +19,7 @@ router.post("/:token/orders", placeSharedOrder);
 
 // Get restaurant menu
 router.get("/:token", getPublicMenu);
+
+router.get("/:token/my-orders", getMyOrders);
 
 module.exports = router;
