@@ -1,6 +1,3 @@
-
-const { Op } = require("sequelize");
-
 const {
     Order,
     OrderItem,
@@ -8,7 +5,7 @@ const {
     RestaurantTable,
 } = require("../models");
 
-// Get all restaurant orders for manager dashboard
+// Get all restaurant orders
 const getAllOrders = async (req, res) => {
     try {
         const orders = await Order.findAll({
@@ -35,16 +32,24 @@ const getAllOrders = async (req, res) => {
             count: orders.length,
             orders,
         });
-
     } catch (error) {
         console.error("GET ALL ORDERS ERROR:", error);
 
         return res.status(500).json({
             success: false,
             message: "Unable to fetch orders",
-            error: error.message,
         });
     }
+};
+
+// Valid order status transitions
+const allowedTransitions = {
+    pending: ["accepted", "cancelled"],
+    accepted: ["preparing", "cancelled"],
+    preparing: ["ready", "cancelled"],
+    ready: ["completed", "cancelled"],
+    completed: [],
+    cancelled: [],
 };
 
 // Update order status
@@ -53,19 +58,10 @@ const updateOrderStatus = async (req, res) => {
         const { id } = req.params;
         const { status } = req.body;
 
-        const allowedStatuses = [
-            "pending",
-            "accepted",
-            "preparing",
-            "ready",
-            "completed",
-            "cancelled",
-        ];
-
-        if (!allowedStatuses.includes(status)) {
+        if (!status || typeof status !== "string") {
             return res.status(400).json({
                 success: false,
-                message: "Invalid order status",
+                message: "Please provide a valid order status",
             });
         }
 
@@ -78,21 +74,50 @@ const updateOrderStatus = async (req, res) => {
             });
         }
 
-        await order.update({ status });
+        const currentStatus = order.status;
+        const allowedNextStatuses =
+            allowedTransitions[currentStatus] || [];
 
-        return res.json({
+        if (!allowedNextStatuses.includes(status)) {
+            return res.status(400).json({
+                success: false,
+                message: `Cannot change order status from ${currentStatus} to ${status}`,
+                currentStatus,
+                allowedNextStatuses,
+            });
+        }
+
+        // Prevent overwriting a status changed by another request
+        const [updatedRows] = await Order.update(
+            { status },
+            {
+                where: {
+                    id: order.id,
+                    status: currentStatus,
+                },
+            }
+        );
+
+        if (updatedRows === 0) {
+            return res.status(409).json({
+                success: false,
+                message: "Order status has changed. Please refresh and try again.",
+            });
+        }
+
+        await order.reload();
+
+        return res.status(200).json({
             success: true,
             message: "Order status updated successfully",
             order,
         });
-
     } catch (error) {
         console.error("UPDATE ORDER STATUS ERROR:", error);
 
         return res.status(500).json({
             success: false,
             message: "Unable to update order status",
-            error: error.message,
         });
     }
 };
