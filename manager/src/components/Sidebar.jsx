@@ -8,6 +8,7 @@ import {
   Table2,
   LogOut,
   Store,
+  BarChart3,
 } from "lucide-react";
 
 const Sidebar = () => {
@@ -36,6 +37,11 @@ const Sidebar = () => {
       name: "Tables & QR",
       path: "/tables",
       icon: Table2,
+    },
+    {
+      name: "Reports",
+      path: "/reports",
+      icon: BarChart3,
     },
   ];
 

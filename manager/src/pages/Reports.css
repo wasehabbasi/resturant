@@ -1,0 +1,393 @@
+.reports-page {
+  width: 100%;
+  padding-bottom: 30px;
+}
+
+.reports-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 15px;
+  margin-bottom: 25px;
+}
+
+.reports-header h1 {
+  font-size: 25px;
+  margin-bottom: 7px;
+}
+
+.reports-header p,
+.report-panel-header p {
+  color: #9ca3af;
+  font-size: 13px;
+}
+
+.reports-refresh {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 15px;
+  border: none;
+  border-radius: 8px;
+  background: #fff0e5;
+  color: #ea580c;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.reports-summary {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 18px;
+  margin-bottom: 22px;
+}
+
+.report-card,
+.report-panel {
+  background: #fff;
+  border: 1px solid #e5e7eb;
+  border-radius: 13px;
+  padding: 22px;
+}
+
+.report-card {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.report-card-icon {
+  width: 42px;
+  height: 42px;
+  display: grid;
+  place-items: center;
+  border-radius: 10px;
+}
+
+.report-card-icon.orange {
+  background: #fff0e5;
+  color: #ea580c;
+}
+
+.report-card-icon.blue {
+  background: #dbeafe;
+  color: #2563eb;
+}
+
+.report-card-icon.green {
+  background: #dcfce7;
+  color: #15803d;
+}
+
+.report-card-icon.purple {
+  background: #ede9fe;
+  color: #7c3aed;
+}
+
+.report-card > span {
+  color: #6b7280;
+  font-size: 13px;
+}
+
+.report-card h2 {
+  font-size: 23px;
+  overflow-wrap: anywhere;
+}
+
+.report-card small {
+  color: #9ca3af;
+  font-size: 12px;
+}
+
+.report-panel {
+  margin-bottom: 22px;
+}
+
+.report-panel-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 15px;
+  margin-bottom: 25px;
+}
+
+.report-panel-header h2 {
+  font-size: 17px;
+  margin-bottom: 6px;
+}
+
+.report-period {
+  display: flex;
+  gap: 5px;
+  padding: 4px;
+  background: #f3f4f6;
+  border-radius: 8px;
+}
+
+.report-period button {
+  border: none;
+  background: transparent;
+  color: #6b7280;
+  padding: 8px 11px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 12px;
+}
+
+.report-period button.active {
+  background: #fff;
+  color: #ea580c;
+  font-weight: 700;
+  box-shadow: 0 1px 3px #00000012;
+}
+
+.sales-chart {
+  min-height: 260px;
+  display: flex;
+  align-items: stretch;
+  justify-content: space-around;
+  gap: 12px;
+  padding-top: 10px;
+}
+
+.sales-chart-column {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 9px;
+}
+
+.sales-chart-column > strong {
+  font-size: 10px;
+  color: #6b7280;
+  text-align: center;
+  overflow-wrap: anywhere;
+}
+
+.sales-bar-area {
+  width: 100%;
+  height: 185px;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  border-bottom: 1px solid #e5e7eb;
+  background: repeating-linear-gradient(
+    to top,
+    transparent 0,
+    transparent 44px,
+    #f3f4f6 45px
+  );
+}
+
+.sales-bar {
+  width: min(42px, 75%);
+  min-height: 3px;
+  background: #f97316;
+  border-radius: 6px 6px 0 0;
+  transition: height 0.3s ease;
+}
+
+.sales-chart-column > span {
+  color: #6b7280;
+  font-size: 11px;
+  text-align: center;
+}
+
+.reports-bottom-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+}
+
+.reports-bottom-grid .report-panel {
+  margin-bottom: 0;
+}
+
+.top-products-list {
+  display: flex;
+  flex-direction: column;
+  gap: 17px;
+}
+
+.top-product-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.product-rank {
+  width: 30px;
+  height: 30px;
+  flex-shrink: 0;
+  display: grid;
+  place-items: center;
+  border-radius: 8px;
+  background: #fff0e5;
+  color: #ea580c;
+  font-weight: 700;
+}
+
+.top-product-info {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.top-product-info strong {
+  font-size: 13px;
+  overflow-wrap: anywhere;
+}
+
+.top-product-info span {
+  color: #9ca3af;
+  font-size: 11px;
+}
+
+.top-product-row > strong {
+  font-size: 12px;
+  white-space: nowrap;
+}
+
+.status-total {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin-bottom: 22px;
+}
+
+.status-total strong {
+  font-size: 27px;
+}
+
+.status-total span {
+  color: #9ca3af;
+  font-size: 12px;
+}
+
+.status-breakdown {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.status-breakdown-label {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 7px;
+  font-size: 12px;
+  text-transform: capitalize;
+}
+
+.status-breakdown-label span {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.status-breakdown-label i {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+}
+
+.status-progress {
+  height: 7px;
+  background: #f3f4f6;
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.status-progress > div {
+  height: 100%;
+  border-radius: 10px;
+}
+
+.report-empty {
+  color: #9ca3af;
+  font-size: 13px;
+  padding: 25px 0;
+  text-align: center;
+}
+
+.reports-message {
+  min-height: 250px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  color: #6b7280;
+}
+
+.reports-message button {
+  padding: 9px 16px;
+  border: none;
+  border-radius: 7px;
+  background: #f97316;
+  color: #fff;
+  cursor: pointer;
+}
+
+.reports-spin {
+  animation: reports-rotate 1s linear infinite;
+}
+
+@keyframes reports-rotate {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@media (max-width: 1100px) {
+  .reports-summary {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 700px) {
+  .reports-bottom-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .report-panel-header {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .sales-chart {
+    gap: 5px;
+  }
+
+  .sales-chart-column > strong {
+    font-size: 9px;
+  }
+}
+
+@media (max-width: 500px) {
+  .reports-summary {
+    grid-template-columns: 1fr;
+  }
+
+  .reports-header {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .report-card,
+  .report-panel {
+    padding: 16px;
+  }
+
+  .report-period {
+    width: 100%;
+  }
+
+  .report-period button {
+    flex: 1;
+    padding: 8px 5px;
+  }
+}

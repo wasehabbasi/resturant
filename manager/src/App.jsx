@@ -12,6 +12,7 @@ import Categories from "./pages/Categories";
 import Tables from "./pages/Tables";
 import Login from "./pages/Login";
 import Orders from "./pages/Orders";
+import Reports from "./pages/Reports";
 
 const getSession = () => {
   const token =
@@ -88,23 +89,23 @@ function App() {
           }
         />
 
-        {/* <Route
-          path="/orders"
-          element={
-            <ProtectedRoute>
-              <DashboardLayout>
-                <Placeholder title="Orders Management" />
-              </DashboardLayout>
-            </ProtectedRoute>
-          }
-        /> */}
-
         <Route
           path="/orders"
           element={
             <ProtectedRoute>
               <DashboardLayout>
                 <Orders />
+              </DashboardLayout>
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/reports"
+          element={
+            <ProtectedRoute>
+              <DashboardLayout>
+                <Reports />
               </DashboardLayout>
             </ProtectedRoute>
           }
