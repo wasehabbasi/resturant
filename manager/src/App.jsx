@@ -13,6 +13,7 @@ import Tables from "./pages/Tables";
 import Login from "./pages/Login";
 import Orders from "./pages/Orders";
 import Reports from "./pages/Reports";
+import Register from "./pages/Register";
 
 const getSession = () => {
   const token =

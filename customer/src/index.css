@@ -512,3 +512,291 @@ button {
     margin: 20px auto;
   }
 }
+
+
+
+
+/* ================================
+   CUSTOMER APP RESPONSIVE IMPROVEMENTS
+================================ */
+
+html {
+  width: 100%;
+  overflow-x: hidden;
+  scroll-behavior: smooth;
+}
+
+body {
+  width: 100%;
+  min-width: 320px;
+  overflow-x: hidden;
+}
+
+#root {
+  width: 100%;
+  min-height: 100vh;
+}
+
+img {
+  max-width: 100%;
+}
+
+button,
+input {
+  max-width: 100%;
+}
+
+/* Tablet */
+@media (max-width: 900px) {
+  .menu-hero {
+    padding: 50px 5%;
+  }
+
+  .menu-content {
+    padding: 30px 5%;
+  }
+
+  .food-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 16px;
+  }
+
+  .food-image,
+  .food-placeholder {
+    height: 180px;
+  }
+}
+
+/* Mobile */
+@media (max-width: 550px) {
+  .customer-header {
+    padding: 11px 12px;
+    gap: 8px;
+  }
+
+  .brand {
+    min-width: 0;
+    gap: 7px;
+  }
+
+  .brand-icon {
+    padding: 8px;
+    flex-shrink: 0;
+  }
+
+  .brand-icon svg {
+    width: 18px;
+    height: 18px;
+  }
+
+  .brand h2 {
+    font-size: 14px;
+    white-space: nowrap;
+  }
+
+  .brand span {
+    display: none;
+  }
+
+  .header-right {
+    min-width: 0;
+    gap: 6px;
+  }
+
+  .table-number {
+    padding: 7px 9px;
+    font-size: 10px;
+    white-space: nowrap;
+  }
+
+  .cart-button {
+    padding: 9px 10px;
+    gap: 5px;
+    font-size: 11px;
+    white-space: nowrap;
+  }
+
+  .cart-button svg {
+    width: 16px;
+    height: 16px;
+  }
+
+  .menu-hero {
+    padding: 38px 20px;
+  }
+
+  .menu-hero h1 {
+    font-size: 29px;
+    line-height: 1.2;
+  }
+
+  .menu-hero p {
+    font-size: 13px;
+  }
+
+  .menu-content {
+    padding: 22px 14px 100px;
+  }
+
+  .menu-title h2 {
+    font-size: 22px;
+  }
+
+  .menu-search {
+    margin: 18px 0;
+    padding: 12px;
+  }
+
+  .category-bar {
+    margin-right: -14px;
+    padding: 5px 14px 16px 0;
+    overflow-x: auto;
+    overflow-y: hidden;
+    scrollbar-width: thin;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .category-bar button {
+    flex-shrink: 0;
+    padding: 9px 14px;
+  }
+
+  .food-grid {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 15px;
+  }
+
+  .food-card {
+    display: grid;
+    grid-template-columns: 115px minmax(0, 1fr);
+    align-items: stretch;
+  }
+
+  .food-image,
+  .food-placeholder {
+    height: 100%;
+    min-height: 150px;
+    object-fit: cover;
+  }
+
+  .food-details {
+    min-width: 0;
+    padding: 12px;
+  }
+
+  .food-details h3 {
+    font-size: 14px;
+    overflow-wrap: anywhere;
+  }
+
+  .food-details p {
+    font-size: 11px;
+    min-height: 0;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  .food-bottom {
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .food-bottom strong {
+    font-size: 13px;
+  }
+
+  .food-bottom button {
+    padding: 8px 10px;
+    font-size: 11px;
+  }
+
+  .floating-cart {
+    width: calc(100% - 28px);
+    bottom: 12px;
+    padding: 14px 12px;
+    gap: 8px;
+    justify-content: space-between;
+    font-size: 12px;
+    white-space: normal;
+  }
+
+  .cart-drawer {
+    width: 100%;
+    max-width: none;
+    padding: 18px 15px;
+    padding-bottom: max(18px, env(safe-area-inset-bottom));
+  }
+
+  .cart-item {
+    gap: 8px;
+  }
+
+  .cart-item-info {
+    min-width: 0;
+  }
+
+  .cart-item h4 {
+    overflow-wrap: anywhere;
+  }
+
+  .checkout-page {
+    margin: 15px auto;
+    padding: 12px;
+  }
+
+  .checkout-box {
+    padding: 16px;
+  }
+
+  .checkout-item {
+    font-size: 12px;
+    overflow-wrap: anywhere;
+  }
+
+  .page-message,
+  .empty-menu {
+    padding: 55px 16px;
+  }
+}
+
+/* Very small phones */
+@media (max-width: 360px) {
+  .brand h2 {
+    font-size: 12px;
+  }
+
+  .table-number {
+    padding: 6px;
+    font-size: 9px;
+  }
+
+  .cart-button {
+    padding: 8px;
+  }
+
+  .food-card {
+    grid-template-columns: 95px minmax(0, 1fr);
+  }
+
+  .food-details {
+    padding: 9px;
+  }
+
+  .food-bottom {
+    gap: 5px;
+  }
+}
+
+/* Accessibility: reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    scroll-behavior: auto !important;
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+  }
+}
