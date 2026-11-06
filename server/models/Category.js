@@ -8,17 +8,18 @@ const Category = sequelize.define("Category", {
     primaryKey: true,
     autoIncrement: true,
   },
-
+  restaurantId: {
+    type: DataTypes.INTEGER,
+    allowNull: false,
+  },
   name: {
     type: DataTypes.STRING(100),
     allowNull: false,
   },
-
   description: {
     type: DataTypes.TEXT,
     allowNull: true,
   },
-
   isActive: {
     type: DataTypes.BOOLEAN,
     defaultValue: true,
