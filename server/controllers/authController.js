@@ -4,6 +4,7 @@ const jwt = require("jsonwebtoken");
 const { sequelize } = require("../config/database");
 const { User, Restaurant, Branch } = require("../models");
 
+
 // Generate JWT Token
 const generateToken = (user) => {
   return jwt.sign(
@@ -216,6 +217,7 @@ const signup = async (req, res) => {
         email: result.user.email,
         role: result.user.role,
         restaurantId: result.restaurant.id,
+        branchId: defaultBranch.id,
       },
       restaurant: {
         id: result.restaurant.id,
@@ -266,6 +268,8 @@ const signup = async (req, res) => {
   }
 };
 
+
+
 // Login
 const login = async (req, res) => {
   try {
@@ -298,6 +302,21 @@ const login = async (req, res) => {
       });
     }
 
+    const defaultBranch = await Branch.findOne({
+      where: {
+        restaurantId: user.restaurantId,
+        isDefault: true,
+        isActive: true,
+      },
+    });
+
+    if (!defaultBranch) {
+      return res.status(403).json({
+        success: false,
+        message: "No active default branch found for this restaurant",
+      });
+    }
+
     const isMatch = await bcrypt.compare(password, user.password);
 
     if (!isMatch) {
@@ -326,6 +345,7 @@ const login = async (req, res) => {
         email: user.email,
         role: user.role,
         restaurantId: user.restaurantId,
+        branchId: defaultBranch.id,
       },
     });
   } catch (error) {
