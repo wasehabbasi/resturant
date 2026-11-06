@@ -1,10 +1,52 @@
-
 const User = require("./User");
+const Restaurant = require("./Restaurant");
+const Branch = require("./Branch");
+const BranchProduct = require("./BranchProduct");
+
 const Category = require("./Category");
 const Product = require("./Product");
 const RestaurantTable = require("./RestaurantTable");
 const Order = require("./Order");
 const OrderItem = require("./OrderItem");
+
+// Restaurant relationships
+Restaurant.hasMany(User, { foreignKey: "restaurantId" });
+User.belongsTo(Restaurant, { foreignKey: "restaurantId" });
+
+Restaurant.hasMany(Branch, { foreignKey: "restaurantId" });
+Branch.belongsTo(Restaurant, { foreignKey: "restaurantId" });
+
+Restaurant.hasMany(Category, { foreignKey: "restaurantId" });
+Category.belongsTo(Restaurant, { foreignKey: "restaurantId" });
+
+Restaurant.hasMany(Product, { foreignKey: "restaurantId" });
+Product.belongsTo(Restaurant, { foreignKey: "restaurantId" });
+
+// Branch relationships
+Branch.hasMany(RestaurantTable, { foreignKey: "branchId" });
+RestaurantTable.belongsTo(Branch, { foreignKey: "branchId" });
+
+Branch.hasMany(Order, { foreignKey: "branchId" });
+Order.belongsTo(Branch, { foreignKey: "branchId" });
+
+// Branch-specific product overrides
+Branch.hasMany(BranchProduct, { foreignKey: "branchId" });
+BranchProduct.belongsTo(Branch, { foreignKey: "branchId" });
+
+Product.hasMany(BranchProduct, { foreignKey: "productId" });
+BranchProduct.belongsTo(Product, { foreignKey: "productId" });
+
+Branch.belongsToMany(Product, {
+  through: BranchProduct,
+  foreignKey: "branchId",
+  otherKey: "productId",
+});
+
+Product.belongsToMany(Branch, {
+  through: BranchProduct,
+  foreignKey: "productId",
+  otherKey: "branchId",
+});
 
 // Category - Product
 Category.hasMany(Product, {
@@ -48,6 +90,9 @@ OrderItem.belongsTo(Product, {
 
 module.exports = {
   User,
+  Restaurant,
+  Branch,
+  BranchProduct,
   Category,
   Product,
   RestaurantTable,
