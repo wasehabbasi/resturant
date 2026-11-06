@@ -79,6 +79,17 @@ function App() {
           }
         />
 
+
+        <Route
+          path="/register"
+          element={
+            <PublicRoute>
+              <Register />
+            </PublicRoute>
+          }
+        />
+
+
         <Route
           path="/"
           element={

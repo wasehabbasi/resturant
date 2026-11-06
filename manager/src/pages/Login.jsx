@@ -1,6 +1,6 @@
 
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import api from "../services/api";
 
 const Login = () => {
@@ -172,6 +172,10 @@ const Login = () => {
           >
             {loading ? "Signing in..." : "Sign In →"}
           </button>
+
+          <div style={styles.bottom}>
+            Don't have an account? <Link to="/register" style={{ color: "#a67a2c", fontWeight: "bold" }}>Create one</Link>
+          </div>
 
           <div style={styles.bottom}>
             Authorized manager and admin access only.
