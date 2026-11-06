@@ -1,6 +1,4 @@
-
 const express = require("express");
-
 const router = express.Router();
 
 const {
@@ -15,16 +13,18 @@ const upload = require("../middleware/uploadMiddleware");
 const {
   protect,
   authorize,
+  requireRestaurant,
 } = require("../middleware/authMiddleware");
 
-router.use(protect, authorize("manager", "admin"));
+router.use(
+  protect,
+  authorize("manager", "admin"),
+  requireRestaurant
+);
 
 router.get("/", getProducts);
-
 router.post("/", upload.single("image"), addProduct);
-
 router.put("/:id", upload.single("image"), updateProduct);
-
 router.delete("/:id", deleteProduct);
 
 module.exports = router;

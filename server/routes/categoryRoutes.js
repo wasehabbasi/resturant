@@ -1,6 +1,4 @@
-
 const express = require("express");
-
 const router = express.Router();
 
 const {
@@ -13,16 +11,18 @@ const {
 const {
   protect,
   authorize,
+  requireRestaurant,
 } = require("../middleware/authMiddleware");
 
-router.use(protect, authorize("manager", "admin"));
+router.use(
+  protect,
+  authorize("manager", "admin"),
+  requireRestaurant
+);
 
 router.get("/", getCategories);
-
 router.post("/", addCategory);
-
 router.put("/:id", updateCategory);
-
 router.delete("/:id", deleteCategory);
 
 module.exports = router;

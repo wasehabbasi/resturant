@@ -1,19 +1,17 @@
-
 const { Category, Product } = require("../models");
 
-// Get all categories
+// Get categories of logged-in restaurant
 const getCategories = async (req, res) => {
   try {
     const categories = await Category.findAll({
+      where: { restaurantId: req.restaurantId },
       order: [["createdAt", "DESC"]],
     });
 
-    res.json({
-      success: true,
-      categories,
-    });
+    return res.json({ success: true, categories });
   } catch (error) {
-    res.status(500).json({
+    console.error("GET CATEGORIES ERROR:", error);
+    return res.status(500).json({
       success: false,
       message: "Failed to fetch categories",
     });
@@ -25,7 +23,7 @@ const addCategory = async (req, res) => {
   try {
     const { name, description } = req.body;
 
-    if (!name || !name.trim()) {
+    if (!name?.trim()) {
       return res.status(400).json({
         success: false,
         message: "Category name is required",
@@ -33,17 +31,19 @@ const addCategory = async (req, res) => {
     }
 
     const category = await Category.create({
+      restaurantId: req.restaurantId,
       name: name.trim(),
       description,
     });
 
-    res.status(201).json({
+    return res.status(201).json({
       success: true,
       message: "Category created successfully",
       category,
     });
   } catch (error) {
-    res.status(500).json({
+    console.error("ADD CATEGORY ERROR:", error);
+    return res.status(500).json({
       success: false,
       message: "Failed to create category",
     });
@@ -53,7 +53,12 @@ const addCategory = async (req, res) => {
 // Update category
 const updateCategory = async (req, res) => {
   try {
-    const category = await Category.findByPk(req.params.id);
+    const category = await Category.findOne({
+      where: {
+        id: req.params.id,
+        restaurantId: req.restaurantId,
+      },
+    });
 
     if (!category) {
       return res.status(404).json({
@@ -64,19 +69,29 @@ const updateCategory = async (req, res) => {
 
     const { name, description, isActive } = req.body;
 
+    if (name !== undefined && !name.trim()) {
+      return res.status(400).json({
+        success: false,
+        message: "Category name cannot be empty",
+      });
+    }
+
     await category.update({
       ...(name !== undefined && { name: name.trim() }),
       ...(description !== undefined && { description }),
-      ...(isActive !== undefined && { isActive }),
+      ...(isActive !== undefined && {
+        isActive: isActive === true || isActive === "true",
+      }),
     });
 
-    res.json({
+    return res.json({
       success: true,
       message: "Category updated successfully",
       category,
     });
   } catch (error) {
-    res.status(500).json({
+    console.error("UPDATE CATEGORY ERROR:", error);
+    return res.status(500).json({
       success: false,
       message: "Failed to update category",
     });
@@ -86,7 +101,12 @@ const updateCategory = async (req, res) => {
 // Delete category
 const deleteCategory = async (req, res) => {
   try {
-    const category = await Category.findByPk(req.params.id);
+    const category = await Category.findOne({
+      where: {
+        id: req.params.id,
+        restaurantId: req.restaurantId,
+      },
+    });
 
     if (!category) {
       return res.status(404).json({
@@ -96,7 +116,10 @@ const deleteCategory = async (req, res) => {
     }
 
     const productCount = await Product.count({
-      where: { categoryId: category.id },
+      where: {
+        categoryId: category.id,
+        restaurantId: req.restaurantId,
+      },
     });
 
     if (productCount > 0) {
@@ -108,12 +131,13 @@ const deleteCategory = async (req, res) => {
 
     await category.destroy();
 
-    res.json({
+    return res.json({
       success: true,
       message: "Category deleted successfully",
     });
   } catch (error) {
-    res.status(500).json({
+    console.error("DELETE CATEGORY ERROR:", error);
+    return res.status(500).json({
       success: false,
       message: "Failed to delete category",
     });

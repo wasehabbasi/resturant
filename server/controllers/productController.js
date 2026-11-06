@@ -1,10 +1,10 @@
-
 const { Product, Category } = require("../models");
 
-// Get all products
+// Get products of logged-in restaurant
 const getProducts = async (req, res) => {
   try {
     const products = await Product.findAll({
+      where: { restaurantId: req.restaurantId },
       include: [
         {
           model: Category,
@@ -14,36 +14,22 @@ const getProducts = async (req, res) => {
       order: [["createdAt", "DESC"]],
     });
 
-    res.json({
-      success: true,
-      products,
-    });
+    return res.json({ success: true, products });
   } catch (error) {
-    console.error(error);
-
-    res.status(500).json({
+    console.error("GET PRODUCTS ERROR:", error);
+    return res.status(500).json({
       success: false,
       message: "Failed to fetch products",
     });
   }
 };
 
-// Add product
+// Add product to logged-in restaurant
 const addProduct = async (req, res) => {
   try {
-    const {
-      name,
-      description,
-      price,
-      categoryId,
-    } = req.body;
+    const { name, description, price, categoryId } = req.body;
 
-    if (
-      !name?.trim() ||
-      price === undefined ||
-      price === "" ||
-      !categoryId
-    ) {
+    if (!name?.trim() || price === undefined || price === "" || !categoryId) {
       return res.status(400).json({
         success: false,
         message: "Name, price and category are required",
@@ -59,44 +45,53 @@ const addProduct = async (req, res) => {
       });
     }
 
-    const category = await Category.findByPk(categoryId);
+    const category = await Category.findOne({
+      where: {
+        id: categoryId,
+        restaurantId: req.restaurantId,
+        isActive: true,
+      },
+    });
 
-    if (!category || !category.isActive) {
+    if (!category) {
       return res.status(400).json({
         success: false,
-        message: "Select an active category",
+        message: "Select an active category from your restaurant",
       });
     }
 
     const product = await Product.create({
+      restaurantId: req.restaurantId,
+      categoryId: category.id,
       name: name.trim(),
       description,
       price: numericPrice,
-      categoryId,
-      image: req.file
-        ? `/uploads/products/${req.file.filename}`
-        : null,
+      image: req.file ? `/uploads/products/${req.file.filename}` : null,
     });
 
-    res.status(201).json({
+    return res.status(201).json({
       success: true,
       message: "Product created successfully",
       product,
     });
   } catch (error) {
-    console.error(error);
-
-    res.status(500).json({
+    console.error("ADD PRODUCT ERROR:", error);
+    return res.status(500).json({
       success: false,
       message: "Failed to create product",
     });
   }
 };
 
-// Update product
+// Update product belonging to logged-in restaurant
 const updateProduct = async (req, res) => {
   try {
-    const product = await Product.findByPk(req.params.id);
+    const product = await Product.findOne({
+      where: {
+        id: req.params.id,
+        restaurantId: req.restaurantId,
+      },
+    });
 
     if (!product) {
       return res.status(404).json({
@@ -105,13 +100,14 @@ const updateProduct = async (req, res) => {
       });
     }
 
-    const {
-      name,
-      description,
-      price,
-      categoryId,
-      isAvailable,
-    } = req.body;
+    const { name, description, price, categoryId, isAvailable } = req.body;
+
+    if (name !== undefined && !name.trim()) {
+      return res.status(400).json({
+        success: false,
+        message: "Product name cannot be empty",
+      });
+    }
 
     if (price !== undefined) {
       const numericPrice = Number(price);
@@ -119,18 +115,24 @@ const updateProduct = async (req, res) => {
       if (!Number.isFinite(numericPrice) || numericPrice < 0) {
         return res.status(400).json({
           success: false,
-          message: "Enter a valid price",
+          message: "Enter a valid non-negative price",
         });
       }
     }
 
     if (categoryId !== undefined) {
-      const category = await Category.findByPk(categoryId);
+      const category = await Category.findOne({
+        where: {
+          id: categoryId,
+          restaurantId: req.restaurantId,
+          isActive: true,
+        },
+      });
 
-      if (!category || !category.isActive) {
+      if (!category) {
         return res.status(400).json({
           success: false,
-          message: "Select an active category",
+          message: "Select an active category from your restaurant",
         });
       }
     }
@@ -148,25 +150,29 @@ const updateProduct = async (req, res) => {
       }),
     });
 
-    res.json({
+    return res.json({
       success: true,
       message: "Product updated successfully",
       product,
     });
   } catch (error) {
-    console.error(error);
-
-    res.status(500).json({
+    console.error("UPDATE PRODUCT ERROR:", error);
+    return res.status(500).json({
       success: false,
       message: "Failed to update product",
     });
   }
 };
 
-// Delete product
+// Delete product belonging to logged-in restaurant
 const deleteProduct = async (req, res) => {
   try {
-    const product = await Product.findByPk(req.params.id);
+    const product = await Product.findOne({
+      where: {
+        id: req.params.id,
+        restaurantId: req.restaurantId,
+      },
+    });
 
     if (!product) {
       return res.status(404).json({
@@ -177,7 +183,7 @@ const deleteProduct = async (req, res) => {
 
     await product.destroy();
 
-    res.json({
+    return res.json({
       success: true,
       message: "Product deleted successfully",
     });
@@ -189,7 +195,8 @@ const deleteProduct = async (req, res) => {
       });
     }
 
-    res.status(500).json({
+    console.error("DELETE PRODUCT ERROR:", error);
+    return res.status(500).json({
       success: false,
       message: "Failed to delete product",
     });
