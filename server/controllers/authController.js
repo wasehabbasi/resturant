@@ -217,7 +217,7 @@ const signup = async (req, res) => {
         email: result.user.email,
         role: result.user.role,
         restaurantId: result.restaurant.id,
-        branchId: defaultBranch.id,
+        branchId: result.branch.id,
       },
       restaurant: {
         id: result.restaurant.id,

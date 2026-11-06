@@ -6,9 +6,14 @@ const {
     Order,
     OrderItem,
     Product,
+    Branch,
 } = require("../models");
 
 const { sequelize } = require("../config/database");
+
+const {
+    createBranchNotification,
+} = require("../services/notificationService");
 
 // Place a customer's order for a QR table
 const placeSharedOrder = async (req, res) => {
@@ -64,6 +69,22 @@ const placeSharedOrder = async (req, res) => {
             return res.status(404).json({
                 success: false,
                 message: "Invalid or inactive table",
+            });
+        }
+
+        const branch = await Branch.findOne({
+            where: {
+                id: table.branchId,
+                isActive: true,
+            },
+            transaction,
+        });
+
+        if (!branch) {
+            await transaction.rollback();
+            return res.status(400).json({
+                success: false,
+                message: "This restaurant branch is inactive",
             });
         }
 
@@ -139,6 +160,8 @@ const placeSharedOrder = async (req, res) => {
         const order = await Order.create(
             {
                 orderNumber,
+                restaurantId: branch.restaurantId,
+                branchId: branch.id,
                 tableId: table.id,
                 customerName: customerName.trim(),
                 guestId,
@@ -157,6 +180,30 @@ const placeSharedOrder = async (req, res) => {
         );
 
         await transaction.commit();
+
+        try {
+            const io = req.app.get("io");
+
+            await createBranchNotification({
+                io,
+                restaurantId: branch.restaurantId,
+                branchId: branch.id,
+                type: "new_order",
+                title: "New Order Received",
+                message: `New order ${order.orderNumber} received from ${customerName.trim()}`,
+                data: {
+                    orderId: order.id,
+                    orderNumber: order.orderNumber,
+                    tableId: table.id,
+                    tableNumber: table.tableNumber,
+                    totalAmount: order.totalAmount,
+                },
+            });
+        } catch (notificationError) {
+            // Order is already committed. Notification failure
+            // must not make the customer order appear unsuccessful.
+            console.error("NEW ORDER NOTIFICATION ERROR:", notificationError);
+        }
 
         return res.status(201).json({
             success: true,
@@ -253,89 +300,89 @@ const getSharedOrders = async (req, res) => {
 
 
 const getAllOrders = async (req, res) => {
-  try {
-    const orders = await Order.findAll({
-      include: [
-        {
-          model: RestaurantTable,
-          attributes: ["id", "tableNumber"],
-        },
-        {
-          model: OrderItem,
-          include: [
-            {
-              model: Product,
-              attributes: ["id", "name", "image"],
-            },
-          ],
-        },
-      ],
-      order: [["createdAt", "DESC"]],
-    });
+    try {
+        const orders = await Order.findAll({
+            include: [
+                {
+                    model: RestaurantTable,
+                    attributes: ["id", "tableNumber"],
+                },
+                {
+                    model: OrderItem,
+                    include: [
+                        {
+                            model: Product,
+                            attributes: ["id", "name", "image"],
+                        },
+                    ],
+                },
+            ],
+            order: [["createdAt", "DESC"]],
+        });
 
-    return res.status(200).json({
-      success: true,
-      count: orders.length,
-      orders,
-    });
+        return res.status(200).json({
+            success: true,
+            count: orders.length,
+            orders,
+        });
 
-  } catch (error) {
-    console.error("GET ALL ORDERS ERROR:", error);
+    } catch (error) {
+        console.error("GET ALL ORDERS ERROR:", error);
 
-    return res.status(500).json({
-      success: false,
-      message: "Unable to fetch orders",
-    });
-  }
+        return res.status(500).json({
+            success: false,
+            message: "Unable to fetch orders",
+        });
+    }
 };
 
 
 const updateOrderStatus = async (req, res) => {
-  try {
-    const { id } = req.params;
-    const { status } = req.body;
+    try {
+        const { id } = req.params;
+        const { status } = req.body;
 
-    const allowedStatuses = [
-      "pending",
-      "accepted",
-      "preparing",
-      "ready",
-      "completed",
-      "cancelled",
-    ];
+        const allowedStatuses = [
+            "pending",
+            "accepted",
+            "preparing",
+            "ready",
+            "completed",
+            "cancelled",
+        ];
 
-    if (!allowedStatuses.includes(status)) {
-      return res.status(400).json({
-        success: false,
-        message: "Invalid order status",
-      });
+        if (!allowedStatuses.includes(status)) {
+            return res.status(400).json({
+                success: false,
+                message: "Invalid order status",
+            });
+        }
+
+        const order = await Order.findByPk(id);
+
+        if (!order) {
+            return res.status(404).json({
+                success: false,
+                message: "Order not found",
+            });
+        }
+
+        await order.update({ status });
+
+        return res.status(200).json({
+            success: true,
+            message: "Order status updated successfully",
+            order,
+        });
+
+    } catch (error) {
+        console.error("UPDATE ORDER STATUS ERROR:", error);
+
+        return res.status(500).json({
+            success: false,
+            message: "Unable to update order status",
+        });
     }
-
-    const order = await Order.findByPk(id);
-
-    if (!order) {
-      return res.status(404).json({
-        success: false,
-        message: "Order not found",
-      });
-    }
-
-    await order.update({ status });
-
-    return res.status(200).json({
-      success: true,
-      message: "Order status updated successfully",
-      order,
-    });
-
-  } catch (error) {
-    console.error("UPDATE ORDER STATUS ERROR:", error);
-
-    return res.status(500).json({
-      success: false,
-      message: "Unable to update order status",
-    });
-  }
 };
 
 // Get orders belonging to the current customer session
