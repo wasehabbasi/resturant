@@ -10,6 +10,10 @@ const User = sequelize.define(
       primaryKey: true,
       autoIncrement: true,
     },
+    restaurantId: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+    },
     name: {
       type: DataTypes.STRING(25),
       allowNull: false,

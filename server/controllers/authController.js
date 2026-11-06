@@ -1,7 +1,8 @@
 
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
-const { User } = require("../models");
+const { sequelize } = require("../config/database");
+const { User, Restaurant, Branch } = require("../models");
 
 // Generate JWT Token
 const generateToken = (user) => {
@@ -9,6 +10,7 @@ const generateToken = (user) => {
     {
       id: user.id,
       role: user.role,
+      restaurantId: user.restaurantId,
     },
     process.env.JWT_SECRET,
     {
@@ -17,81 +19,254 @@ const generateToken = (user) => {
   );
 };
 
-// Manager Signup
+// Generate a URL-friendly restaurant slug
+const createSlug = (value) => {
+  return value
+    .toLowerCase()
+    .trim()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "")
+    .slice(0, 170);
+};
+
+// Restaurant Registration
 const signup = async (req, res) => {
   try {
-    const { name, email, password } = req.body;
+    const {
+      restaurantName,
+      restaurantSlug,
+      logo,
+      portalTheme,
+      customerTheme,
+      branchName,
+      address,
+      city,
+      phone,
+      ownerName,
+      email,
+      password,
+    } = req.body;
 
-    // Validate fields
-    if (!name || !email || !password) {
+    // Required fields
+    if (
+      !restaurantName ||
+      !branchName ||
+      !ownerName ||
+      !email ||
+      !password
+    ) {
       return res.status(400).json({
         success: false,
-        message: "All fields are required",
+        message:
+          "Restaurant name, branch name, owner name, email and password are required",
       });
     }
 
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+    // Normalize values
+    const normalizedEmail = String(email).trim().toLowerCase();
+    const normalizedRestaurantName = String(restaurantName).trim();
+    const normalizedBranchName = String(branchName).trim();
+    const normalizedOwnerName = String(ownerName).trim();
+
+    if (
+      !normalizedRestaurantName ||
+      !normalizedBranchName ||
+      !normalizedOwnerName
+    ) {
+      return res.status(400).json({
+        success: false,
+        message: "Names cannot be empty",
+      });
+    }
+
+    if (normalizedRestaurantName.length > 150) {
+      return res.status(400).json({
+        success: false,
+        message: "Restaurant name cannot exceed 150 characters",
+      });
+    }
+
+    if (normalizedBranchName.length > 150) {
+      return res.status(400).json({
+        success: false,
+        message: "Branch name cannot exceed 150 characters",
+      });
+    }
+
+    if (normalizedOwnerName.length > 25) {
+      return res.status(400).json({
+        success: false,
+        message: "Owner name cannot exceed 25 characters",
+      });
+    }
+
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(normalizedEmail)) {
       return res.status(400).json({
         success: false,
         message: "Invalid email address",
       });
     }
 
-    if (password.length < 8) {
+    if (typeof password !== "string" || password.length < 8) {
       return res.status(400).json({
         success: false,
         message: "Password must be at least 8 characters",
       });
     }
 
-    // Check existing user
-    const existingUser = await User.findOne({
-      where: { email: email.trim().toLowerCase() },
+    // Validate optional theme values
+    const validTheme = (theme) =>
+      theme === undefined ||
+      theme === null ||
+      (typeof theme === "object" && !Array.isArray(theme));
+
+    if (!validTheme(portalTheme) || !validTheme(customerTheme)) {
+      return res.status(400).json({
+        success: false,
+        message: "Theme settings must be valid objects",
+      });
+    }
+
+    const slug = createSlug(
+      restaurantSlug || normalizedRestaurantName
+    );
+
+    if (!slug) {
+      return res.status(400).json({
+        success: false,
+        message: "Please provide a valid restaurant name or slug",
+      });
+    }
+
+    const hashedPassword = await bcrypt.hash(password, 12);
+
+    // Create all records atomically
+    const result = await sequelize.transaction(async (transaction) => {
+      const existingUser = await User.findOne({
+        where: { email: normalizedEmail },
+        transaction,
+      });
+
+      if (existingUser) {
+        const error = new Error("EMAIL_ALREADY_REGISTERED");
+        error.code = "EMAIL_ALREADY_REGISTERED";
+        throw error;
+      }
+
+      const existingRestaurant = await Restaurant.findOne({
+        where: { slug },
+        transaction,
+      });
+
+      if (existingRestaurant) {
+        const error = new Error("RESTAURANT_SLUG_ALREADY_EXISTS");
+        error.code = "RESTAURANT_SLUG_ALREADY_EXISTS";
+        throw error;
+      }
+
+      const restaurant = await Restaurant.create(
+        {
+          name: normalizedRestaurantName,
+          slug,
+          logo: logo || null,
+          portalTheme: portalTheme || {},
+          customerTheme: customerTheme || {},
+          status: "active",
+        },
+        { transaction }
+      );
+
+      const branch = await Branch.create(
+        {
+          restaurantId: restaurant.id,
+          name: normalizedBranchName,
+          address: address || null,
+          city: city || null,
+          phone: phone || null,
+          isDefault: true,
+          isActive: true,
+        },
+        { transaction }
+      );
+
+      const user = await User.create(
+        {
+          restaurantId: restaurant.id,
+          name: normalizedOwnerName,
+          email: normalizedEmail,
+          password: hashedPassword,
+          role: "manager",
+          isActive: true,
+        },
+        { transaction }
+      );
+
+      return { restaurant, branch, user };
     });
 
-    if (existingUser) {
+    const token = generateToken(result.user);
+
+    return res.status(201).json({
+      success: true,
+      message: "Restaurant registered successfully",
+      token,
+      user: {
+        id: result.user.id,
+        name: result.user.name,
+        email: result.user.email,
+        role: result.user.role,
+        restaurantId: result.restaurant.id,
+      },
+      restaurant: {
+        id: result.restaurant.id,
+        name: result.restaurant.name,
+        slug: result.restaurant.slug,
+        logo: result.restaurant.logo,
+        portalTheme: result.restaurant.portalTheme,
+        customerTheme: result.restaurant.customerTheme,
+      },
+      branch: {
+        id: result.branch.id,
+        name: result.branch.name,
+        address: result.branch.address,
+        city: result.branch.city,
+        phone: result.branch.phone,
+        isDefault: result.branch.isDefault,
+      },
+    });
+  } catch (error) {
+    console.error("Signup Error:", error);
+
+    if (error.code === "EMAIL_ALREADY_REGISTERED") {
       return res.status(409).json({
         success: false,
         message: "Email already registered",
       });
     }
 
-    // Hash password
-    const hashedPassword = await bcrypt.hash(password, 12);
+    if (error.code === "RESTAURANT_SLUG_ALREADY_EXISTS") {
+      return res.status(409).json({
+        success: false,
+        message: "Restaurant URL is already taken. Please choose another slug.",
+      });
+    }
 
-    // Create manager
-    const user = await User.create({
-      name: name.trim(),
-      email: email.trim().toLowerCase(),
-      password: hashedPassword,
-      role: "manager",
-    });
-
-    const token = generateToken(user);
-
-    return res.status(201).json({
-      success: true,
-      message: "Manager registered successfully",
-      token,
-      user: {
-        id: user.id,
-        name: user.name,
-        email: user.email,
-        role: user.role,
-      },
-    });
-
-  } catch (error) {
-    console.error("Signup Error:", error);
+    // Handle database unique constraint race conditions
+    if (error.name === "SequelizeUniqueConstraintError") {
+      return res.status(409).json({
+        success: false,
+        message: "Email or restaurant URL is already registered",
+      });
+    }
 
     return res.status(500).json({
       success: false,
-      message: "Registration failed",
+      message: "Restaurant registration failed",
     });
   }
 };
 
-
+// Login
 const login = async (req, res) => {
   try {
     const { email, password } = req.body;
@@ -105,7 +280,7 @@ const login = async (req, res) => {
 
     const user = await User.findOne({
       where: {
-        email: email.trim().toLowerCase(),
+        email: String(email).trim().toLowerCase(),
       },
     });
 
@@ -123,10 +298,7 @@ const login = async (req, res) => {
       });
     }
 
-    const isMatch = await bcrypt.compare(
-      password,
-      user.password
-    );
+    const isMatch = await bcrypt.compare(password, user.password);
 
     if (!isMatch) {
       return res.status(401).json({
@@ -153,9 +325,9 @@ const login = async (req, res) => {
         name: user.name,
         email: user.email,
         role: user.role,
+        restaurantId: user.restaurantId,
       },
     });
-
   } catch (error) {
     console.error("Login Error:", error);
 
@@ -165,7 +337,6 @@ const login = async (req, res) => {
     });
   }
 };
-
 
 // Get Logged-in Manager
 const getProfile = async (req, res) => {
@@ -177,10 +348,12 @@ const getProfile = async (req, res) => {
         name: req.user.name,
         email: req.user.email,
         role: req.user.role,
+        restaurantId: req.user.restaurantId,
       },
     });
-
   } catch (error) {
+    console.error("Profile Error:", error);
+
     return res.status(500).json({
       success: false,
       message: "Unable to fetch profile",
