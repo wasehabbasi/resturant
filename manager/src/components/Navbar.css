@@ -74,3 +74,48 @@
     display: none;
   }
 }
+
+
+.branch-selector {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  color: #a67a2c;
+  background: #fff;
+}
+
+.branch-selector select {
+  border: none;
+  outline: none;
+  background: transparent;
+  color: #374151;
+  font-size: 13px;
+  min-width: 130px;
+  max-width: 200px;
+  cursor: pointer;
+}
+
+.branch-error {
+  color: #b9382d;
+  font-size: 11px;
+}
+
+@media (max-width: 650px) {
+  .navbar-right {
+    gap: 10px;
+  }
+
+  .branch-selector {
+    padding: 7px;
+    max-width: 150px;
+  }
+
+  .branch-selector select {
+    min-width: 85px;
+    max-width: 110px;
+    font-size: 11px;
+  }
+}
