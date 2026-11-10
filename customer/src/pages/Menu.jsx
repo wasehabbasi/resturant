@@ -58,7 +58,12 @@ const Menu = () => {
   }, [token]);
 
 
-  const theme = restaurant?.customerTheme || {};
+  const rawTheme = restaurant?.customerTheme;
+
+  const theme =
+    typeof rawTheme === "string"
+      ? JSON.parse(rawTheme)
+      : rawTheme || {};
 
   const primaryColor = theme.primary || "#8b0000";
   const secondaryColor = theme.secondary || "#d4a017";
