@@ -46,11 +46,13 @@ const Login = () => {
 
       storage.setItem("token", token);
       storage.setItem("user", JSON.stringify(user));
+      storage.setItem("branchId", String(user.branchId));
 
       // Remove old sessions from the other storage
       const otherStorage = remember ? sessionStorage : localStorage;
       otherStorage.removeItem("token");
       otherStorage.removeItem("user");
+      otherStorage.removeItem("branchId");
 
       navigate("/", { replace: true });
 

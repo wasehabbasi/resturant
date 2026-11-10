@@ -212,3 +212,102 @@
     flex-direction: column;
   }
 }
+
+
+.branch-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 20px;
+}
+
+.branch-card {
+  background: #fff;
+  border: 1px solid #e8e8e8;
+  border-radius: 12px;
+  padding: 20px;
+}
+
+.branch-card-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+.branch-card-header h3 {
+  margin: 0 0 6px;
+  font-size: 17px;
+}
+
+.branch-icon {
+  width: 45px;
+  height: 45px;
+  display: grid;
+  place-items: center;
+  background: #f7f0e3;
+  color: #a67a2c;
+  border-radius: 10px;
+}
+
+.branch-active,
+.branch-inactive {
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.branch-active {
+  color: #16834a;
+}
+
+.branch-inactive {
+  color: #c0392b;
+}
+
+.default-badge {
+  margin-left: auto;
+  background: #f7f0e3;
+  color: #946b25;
+  padding: 5px 9px;
+  border-radius: 20px;
+  font-size: 11px;
+  font-weight: bold;
+}
+
+.branch-details {
+  border-top: 1px solid #eee;
+  padding-top: 12px;
+  margin-bottom: 15px;
+}
+
+.branch-details p {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  color: #666;
+  font-size: 13px;
+  margin: 10px 0;
+  overflow-wrap: anywhere;
+}
+
+.branch-details svg {
+  flex-shrink: 0;
+}
+
+.branch-card .row-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.branch-card .row-actions button {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 12px;
+}
+
+@media (max-width: 600px) {
+  .branch-grid {
+    grid-template-columns: 1fr;
+  }
+}

@@ -1,3 +1,4 @@
+
 import axios from "axios";
 
 const api = axios.create({
@@ -9,8 +10,16 @@ api.interceptors.request.use((config) => {
     localStorage.getItem("token") ||
     sessionStorage.getItem("token");
 
+  const branchId =
+    localStorage.getItem("branchId") ||
+    sessionStorage.getItem("branchId");
+
   if (token) {
     config.headers.Authorization = `Bearer ${token}`;
+  }
+
+  if (branchId) {
+    config.headers["x-branch-id"] = branchId;
   }
 
   return config;

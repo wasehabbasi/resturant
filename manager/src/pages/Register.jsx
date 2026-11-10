@@ -82,7 +82,7 @@ const Register = () => {
 
       const response = await api.post("/auth/signup", payload);
 
-      const { token, user } = response.data;
+      const { token, user, branch } = response.data;
 
       if (!token || !user) {
         throw new Error("Invalid server response.");
@@ -90,6 +90,7 @@ const Register = () => {
 
       localStorage.setItem("token", token);
       localStorage.setItem("user", JSON.stringify(user));
+      localStorage.setItem("branchId", String(branch.id));
 
       sessionStorage.removeItem("token");
       sessionStorage.removeItem("user");

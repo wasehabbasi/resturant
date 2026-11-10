@@ -9,6 +9,7 @@ import {
   LogOut,
   Store,
   BarChart3,
+  GitBranch,
 } from "lucide-react";
 
 const Sidebar = () => {
@@ -42,6 +43,11 @@ const Sidebar = () => {
       name: "Reports",
       path: "/reports",
       icon: BarChart3,
+    },
+    {
+      name: "Branches",
+      path: "/branches",
+      icon: GitBranch,
     },
   ];
 

@@ -1,27 +1,3 @@
-
-// import Sidebar from "../components/Sidebar";
-// import Navbar from "../components/Navbar";
-
-// const DashboardLayout = ({ children }) => {
-//   return (
-//     <div className="dashboard-container">
-//       <Sidebar />
-
-//       <main className="main-content">
-//         <Navbar />
-//         {children}
-//       </main>
-//     </div>
-//   );
-// };
-
-// export default DashboardLayout;
-
-
-
-
-
-
 import { useNavigate } from "react-router-dom";
 import Sidebar from "../components/Sidebar";
 import Navbar from "../components/Navbar";
@@ -32,9 +8,11 @@ const DashboardLayout = ({ children }) => {
   const handleLogout = () => {
     localStorage.removeItem("token");
     localStorage.removeItem("user");
-
+    localStorage.removeItem("branchId");
+    
     sessionStorage.removeItem("token");
     sessionStorage.removeItem("user");
+    sessionStorage.removeItem("branchId");
 
     navigate("/login", { replace: true });
   };

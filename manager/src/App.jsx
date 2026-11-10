@@ -14,6 +14,7 @@ import Login from "./pages/Login";
 import Orders from "./pages/Orders";
 import Reports from "./pages/Reports";
 import Register from "./pages/Register";
+import Branches from "./pages/Branches";
 
 const getSession = () => {
   const token =
@@ -151,6 +152,17 @@ function App() {
             <ProtectedRoute>
               <DashboardLayout>
                 <Tables />
+              </DashboardLayout>
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/branches"
+          element={
+            <ProtectedRoute>
+              <DashboardLayout>
+                <Branches />
               </DashboardLayout>
             </ProtectedRoute>
           }

@@ -20,6 +20,7 @@ const orderRoutes = require("./routes/orderRoutes");
 const dashboardRoutes = require("./routes/dashboardRoutes");
 const reportRoutes = require("./routes/reportRoutes");
 const notificationRoutes = require("./routes/notificationRoutes");
+const branchRoutes = require("./routes/branchRoutes");
 
 const app = express();
 const httpServer = http.createServer(app);
@@ -155,6 +156,7 @@ app.use("/api/orders", orderRoutes);
 app.use("/api/dashboard", dashboardRoutes);
 app.use("/api/reports", reportRoutes);
 app.use("/api/notifications", notificationRoutes);
+app.use("/api/branches", branchRoutes);
 
 // Error handler
 app.use((err, req, res, next) => {
