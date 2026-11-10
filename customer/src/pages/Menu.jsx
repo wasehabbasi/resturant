@@ -57,21 +57,21 @@ const Menu = () => {
     fetchMenu();
   }, [token]);
 
+
   const theme = restaurant?.customerTheme || {};
 
-  const primaryColor = theme.primaryColor || "#f97316";
-  const secondaryColor = theme.secondaryColor || "#9a3412";
-  const accentColor = theme.accentColor || "#fff0e5";
-  const textColor = theme.textColor || "#292524";
-  const backgroundColor = theme.backgroundColor || "#fffaf5";
+  const primaryColor = theme.primary || "#8b0000";
+  const secondaryColor = theme.secondary || "#d4a017";
+  const accentColor = theme.accent || "#fff0e5";
 
   const themeStyles = {
     "--brand-primary": primaryColor,
     "--brand-secondary": secondaryColor,
     "--brand-accent": accentColor,
-    "--brand-text": textColor,
-    "--brand-background": backgroundColor,
+    "--brand-text": "#292524",
+    "--brand-background": "#fffaf5",
   };
+
 
   const filteredProducts = products.filter((product) => {
     const matchesCategory =

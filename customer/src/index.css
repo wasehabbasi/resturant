@@ -856,3 +856,57 @@ input {
   background: var(--brand-accent, #fff0e5);
   color: var(--brand-primary, #f97316);
 }
+
+
+
+/* Customer dynamic theme application */
+
+.customer-page .customer-header {
+  border-bottom-color: var(--brand-secondary);
+}
+
+.customer-page .brand-icon {
+  background: var(--brand-primary);
+}
+
+.customer-page .cart-button,
+.customer-page .floating-cart,
+.customer-page .category-bar button.selected {
+  background: var(--brand-primary);
+  border-color: var(--brand-primary);
+}
+
+.customer-page .table-number {
+  background: var(--brand-accent);
+  color: var(--brand-primary);
+}
+
+.customer-page .menu-hero {
+  background: linear-gradient(
+    120deg,
+    var(--brand-secondary),
+    var(--brand-primary)
+  );
+}
+
+.customer-page .food-bottom strong {
+  color: var(--brand-primary);
+}
+
+.customer-page .food-bottom button {
+  background: var(--brand-accent);
+  color: var(--brand-primary);
+}
+
+.customer-page .checkout-button {
+  background: var(--brand-primary);
+}
+
+.customer-page .checkout-page > button {
+  color: var(--brand-primary);
+}
+
+.customer-page .checkout-note {
+  background: var(--brand-accent);
+  color: var(--brand-primary);
+}
