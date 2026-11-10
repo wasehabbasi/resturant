@@ -1,5 +1,6 @@
 
 const {
+  Restaurant,
   RestaurantTable,
   Branch,
   BranchProduct,
@@ -39,6 +40,27 @@ const getPublicMenu = async (req, res) => {
       return res.status(404).json({
         success: false,
         message: "Restaurant branch is unavailable",
+      });
+    }
+
+    // Get restaurant branding
+    const restaurant = await Restaurant.findByPk(
+      branch.restaurantId,
+      {
+        attributes: [
+          "id",
+          "name",
+          "slug",
+          "logo",
+          "customerTheme",
+        ],
+      }
+    );
+
+    if (!restaurant) {
+      return res.status(404).json({
+        success: false,
+        message: "Restaurant not found",
       });
     }
 
@@ -92,13 +114,13 @@ const getPublicMenu = async (req, res) => {
 
         const effectivePrice =
           override?.priceOverride !== null &&
-          override?.priceOverride !== undefined
+            override?.priceOverride !== undefined
             ? Number(override.priceOverride)
             : Number(item.price);
 
         const effectiveAvailability =
           override?.isAvailable !== null &&
-          override?.isAvailable !== undefined
+            override?.isAvailable !== undefined
             ? override.isAvailable
             : item.isAvailable;
 
@@ -115,7 +137,11 @@ const getPublicMenu = async (req, res) => {
     return res.json({
       success: true,
       restaurant: {
-        id: branch.restaurantId,
+        id: restaurant.id,
+        name: restaurant.name,
+        slug: restaurant.slug,
+        logo: restaurant.logo,
+        customerTheme: restaurant.customerTheme || {},
       },
       branch: {
         id: branch.id,

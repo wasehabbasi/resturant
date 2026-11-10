@@ -10,19 +10,16 @@ import Header from "../components/Header";
 import CategoryBar from "../components/CategoryBar";
 import FoodCard from "../components/FoodCard";
 import CartDrawer from "../components/CartDrawer";
-
 import SharedOrders from "../components/SharedOrders";
 
 const Menu = () => {
   const { token } = useParams();
   const navigate = useNavigate();
 
-  const {
-    addToCart,
-    totalItems,
-    totalPrice,
-  } = useCart();
+  const { addToCart, totalItems, totalPrice } = useCart();
 
+  const [restaurant, setRestaurant] = useState(null);
+  const [branch, setBranch] = useState(null);
   const [table, setTable] = useState(null);
   const [categories, setCategories] = useState([]);
   const [products, setProducts] = useState([]);
@@ -37,13 +34,16 @@ const Menu = () => {
     const fetchMenu = async () => {
       try {
         setLoading(true);
+        setError("");
 
         const response = await api.get(`/menu/${token}`);
+        const data = response.data;
 
-        setTable(response.data.table);
-        setCategories(response.data.categories);
-        setProducts(response.data.products);
-
+        setRestaurant(data.restaurant);
+        setBranch(data.branch);
+        setTable(data.table);
+        setCategories(data.categories || []);
+        setProducts(data.products || []);
       } catch (err) {
         setError(
           err.response?.data?.message ||
@@ -56,6 +56,22 @@ const Menu = () => {
 
     fetchMenu();
   }, [token]);
+
+  const theme = restaurant?.customerTheme || {};
+
+  const primaryColor = theme.primaryColor || "#f97316";
+  const secondaryColor = theme.secondaryColor || "#9a3412";
+  const accentColor = theme.accentColor || "#fff0e5";
+  const textColor = theme.textColor || "#292524";
+  const backgroundColor = theme.backgroundColor || "#fffaf5";
+
+  const themeStyles = {
+    "--brand-primary": primaryColor,
+    "--brand-secondary": secondaryColor,
+    "--brand-accent": accentColor,
+    "--brand-text": textColor,
+    "--brand-background": backgroundColor,
+  };
 
   const filteredProducts = products.filter((product) => {
     const matchesCategory =
@@ -87,16 +103,19 @@ const Menu = () => {
   };
 
   return (
-    <div className="customer-page">
-
+    <div className="customer-page" style={themeStyles}>
       <Header
+        restaurant={restaurant}
+        branch={branch}
         tableNumber={table.tableNumber}
         onCartClick={() => setCartOpen(true)}
       />
 
       <section className="menu-hero">
         <div>
-          <span className="hero-tag">WELCOME TO FOOD CORNER</span>
+          <span className="hero-tag">
+            WELCOME TO {restaurant?.name || "OUR RESTAURANT"}
+          </span>
 
           <h1>Discover Our Delicious Menu</h1>
 
@@ -106,13 +125,13 @@ const Menu = () => {
 
           <span className="hero-table">
             <ShoppingBag size={16} />
+            {branch?.name ? `${branch.name} · ` : ""}
             Ordering for Table {table.tableNumber}
           </span>
         </div>
       </section>
 
       <main className="menu-content">
-
         <SharedOrders token={token} />
 
         <div className="menu-title">
@@ -127,10 +146,10 @@ const Menu = () => {
           style={{
             padding: "12px 18px",
             marginBottom: "20px",
-            border: "1px solid #c99a43",
-            background: "#fff",
+            border: "1px solid var(--brand-primary)",
+            background: "var(--brand-accent)",
             borderRadius: "8px",
-            color: "#98712e",
+            color: "var(--brand-primary)",
             fontWeight: "bold",
             cursor: "pointer",
           }}
@@ -140,7 +159,6 @@ const Menu = () => {
 
         <div className="menu-search">
           <Search size={19} />
-
           <input
             placeholder="Search food items..."
             value={search}
@@ -170,7 +188,6 @@ const Menu = () => {
             <p>Try another category or search term.</p>
           </div>
         )}
-
       </main>
 
       {totalItems > 0 && (
@@ -180,7 +197,9 @@ const Menu = () => {
         >
           <ShoppingBag size={19} />
           View Cart ({totalItems})
-          <strong>Rs. {totalPrice.toLocaleString("en-PK")}</strong>
+          <strong>
+            Rs. {totalPrice.toLocaleString("en-PK")}
+          </strong>
         </button>
       )}
 
@@ -189,7 +208,6 @@ const Menu = () => {
         onClose={() => setCartOpen(false)}
         onCheckout={handleCheckout}
       />
-
     </div>
   );
 };

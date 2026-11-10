@@ -6,20 +6,24 @@ const api = axios.create({
 });
 
 api.interceptors.request.use((config) => {
-  const token =
-    localStorage.getItem("token") ||
-    sessionStorage.getItem("token");
+  const storage = localStorage.getItem("token")
+    ? localStorage
+    : sessionStorage;
 
+  const token = storage.getItem("token");
+
+  // Current selected branch takes priority.
+  // branchId remains as fallback for existing login sessions.
   const branchId =
-    localStorage.getItem("branchId") ||
-    sessionStorage.getItem("branchId");
+    storage.getItem("currentBranchId") ||
+    storage.getItem("branchId");
 
   if (token) {
     config.headers.Authorization = `Bearer ${token}`;
   }
 
   if (branchId) {
-    config.headers["x-branch-id"] = branchId;
+    config.headers["x-branch-id"] = String(branchId);
   }
 
   return config;

@@ -800,3 +800,59 @@ input {
     animation-duration: 0.01ms !important;
   }
 }
+
+
+
+/* Dynamic restaurant branding */
+
+.customer-page {
+  background: var(--brand-background, #fffaf5);
+  color: var(--brand-text, #292524);
+  min-height: 100vh;
+}
+
+.restaurant-logo {
+  width: 48px;
+  height: 48px;
+  object-fit: contain;
+  border-radius: 10px;
+  background: white;
+}
+
+.brand-icon {
+  background: var(--brand-primary, #f97316);
+}
+
+.cart-button,
+.floating-cart,
+.category-bar button.selected {
+  background: var(--brand-primary, #f97316);
+}
+
+.cart-button,
+.floating-cart,
+.category-bar button.selected {
+  border-color: var(--brand-primary, #f97316);
+}
+
+.food-bottom strong {
+  color: var(--brand-primary, #f97316);
+}
+
+.food-bottom button {
+  background: var(--brand-accent, #fff0e5);
+  color: var(--brand-primary, #f97316);
+}
+
+.menu-hero {
+  background: linear-gradient(
+    120deg,
+    var(--brand-secondary, #431407),
+    var(--brand-primary, #f97316)
+  );
+}
+
+.table-number {
+  background: var(--brand-accent, #fff0e5);
+  color: var(--brand-primary, #f97316);
+}
