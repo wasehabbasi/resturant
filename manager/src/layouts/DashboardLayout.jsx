@@ -1,20 +1,68 @@
+
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Sidebar from "../components/Sidebar";
 import Navbar from "../components/Navbar";
+import api from "../services/api";
+
+const DEFAULT_THEME = {
+  primary: "#171c1a",
+  secondary: "#c99a43",
+  accent: "#e0b45c",
+};
 
 const DashboardLayout = ({ children }) => {
   const navigate = useNavigate();
+  const [restaurant, setRestaurant] = useState(null);
+
+  useEffect(() => {
+    const loadRestaurant = async () => {
+      try {
+        const response = await api.get("/restaurant");
+        const data = response.data.restaurant;
+
+        const parseTheme = (value) => {
+          if (typeof value === "string") {
+            try {
+              return JSON.parse(value);
+            } catch {
+              return {};
+            }
+          }
+          return value || {};
+        };
+
+        setRestaurant({
+          ...data,
+          portalTheme: {
+            ...DEFAULT_THEME,
+            ...parseTheme(data.portalTheme),
+          },
+        });
+      } catch (error) {
+        console.error("Restaurant branding error:", error);
+      }
+    };
+
+    loadRestaurant();
+  }, []);
 
   const handleLogout = () => {
     localStorage.removeItem("token");
     localStorage.removeItem("user");
     localStorage.removeItem("branchId");
-    
     sessionStorage.removeItem("token");
     sessionStorage.removeItem("user");
     sessionStorage.removeItem("branchId");
-
     navigate("/login", { replace: true });
+  };
+
+  const theme = restaurant?.portalTheme || DEFAULT_THEME;
+
+  const themeStyles = {
+    "--portal-primary": theme.primary,
+    "--portal-secondary": theme.secondary,
+    "--portal-accent": theme.accent,
   };
 
   const userData =
@@ -30,39 +78,18 @@ const DashboardLayout = ({ children }) => {
   }
 
   return (
-    <div className="dashboard-container">
-      <Sidebar />
+    <div className="dashboard-container" style={themeStyles}>
+      <Sidebar restaurant={restaurant} />
 
       <main className="main-content">
         <Navbar />
 
-        <div
-          style={{
-            display: "flex",
-            justifyContent: "flex-end",
-            alignItems: "center",
-            gap: "15px",
-            padding: "12px 24px",
-            borderBottom: "1px solid #eee",
-            background: "#fff",
-          }}
-        >
-          <span style={{ fontSize: "13px", color: "#555" }}>
+        <div className="dashboard-user-bar">
+          <span>
             Welcome, <strong>{user?.name || "Manager"}</strong>
           </span>
 
-          <button
-            onClick={handleLogout}
-            style={{
-              background: "#b9382d",
-              color: "#fff",
-              border: "none",
-              borderRadius: "7px",
-              padding: "10px 17px",
-              cursor: "pointer",
-              fontWeight: "bold",
-            }}
-          >
+          <button onClick={handleLogout} className="dashboard-logout">
             Logout
           </button>
         </div>

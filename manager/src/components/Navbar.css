@@ -81,9 +81,9 @@
   align-items: center;
   gap: 8px;
   padding: 8px 12px;
-  border: 1px solid #e5e7eb;
+  border: 1px solid var(--portal-secondary, #e5e7eb);
   border-radius: 8px;
-  color: #a67a2c;
+  color: var(--portal-secondary, #a67a2c);
   background: #fff;
 }
 

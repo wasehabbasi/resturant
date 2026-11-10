@@ -1,3 +1,4 @@
+
 import "./Sidebar.css";
 import { NavLink } from "react-router-dom";
 import {
@@ -13,59 +14,41 @@ import {
   Settings,
 } from "lucide-react";
 
-const Sidebar = () => {
+const Sidebar = ({ restaurant }) => {
   const menuItems = [
-    {
-      name: "Dashboard",
-      path: "/",
-      icon: LayoutDashboard,
-    },
-    {
-      name: "Orders",
-      path: "/orders",
-      icon: ShoppingBag,
-    },
-    {
-      name: "Products",
-      path: "/products",
-      icon: Utensils,
-    },
-    {
-      name: "Categories",
-      path: "/categories",
-      icon: Tags,
-    },
-    {
-      name: "Tables & QR",
-      path: "/tables",
-      icon: Table2,
-    },
-    {
-      name: "Reports",
-      path: "/reports",
-      icon: BarChart3,
-    },
-    {
-      name: "Branches",
-      path: "/branches",
-      icon: GitBranch,
-    },
-    {
-      name: "Settings",
-      path: "/settings",
-      icon: Settings,
-    },
+    { name: "Dashboard", path: "/", icon: LayoutDashboard },
+    { name: "Orders", path: "/orders", icon: ShoppingBag },
+    { name: "Products", path: "/products", icon: Utensils },
+    { name: "Categories", path: "/categories", icon: Tags },
+    { name: "Tables & QR", path: "/tables", icon: Table2 },
+    { name: "Reports", path: "/reports", icon: BarChart3 },
+    { name: "Branches", path: "/branches", icon: GitBranch },
+    { name: "Settings", path: "/settings", icon: Settings },
   ];
+
+  const logoUrl = restaurant?.logo
+    ? restaurant.logo.startsWith("http")
+      ? restaurant.logo
+      : `http://localhost:5000${restaurant.logo}`
+    : null;
 
   return (
     <aside className="sidebar">
       <div className="sidebar-logo">
-        <div className="logo-icon">
-          <Store size={23} />
-        </div>
+        {logoUrl ? (
+          <img
+            src={logoUrl}
+            alt={restaurant?.name || "Restaurant"}
+            className="sidebar-restaurant-logo"
+          />
+        ) : (
+          <div className="logo-icon">
+            <Store size={23} />
+          </div>
+        )}
 
         <div>
-          <h2>RestroHub</h2>
+          <h2>{restaurant?.name || "Restaurant"}</h2>
           <span>Management Panel</span>
         </div>
       </div>
@@ -97,6 +80,7 @@ const Sidebar = () => {
           className="logout-button"
           onClick={() => {
             localStorage.removeItem("token");
+            sessionStorage.removeItem("token");
             window.location.href = "/login";
           }}
         >

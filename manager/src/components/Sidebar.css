@@ -23,7 +23,7 @@
 .logo-icon {
   width: 44px;
   height: 44px;
-  background: #f97316;
+  background: var(--portal-primary, #f97316);
   color: white;
   border-radius: 12px;
   display: grid;
@@ -66,13 +66,13 @@
 }
 
 .menu-item:hover {
-  background: #fff7ed;
-  color: #ea580c;
+  background: var(--portal-accent, #fff7ed);
+  color: var(--portal-primary, #ea580c);
 }
 
 .menu-item.active {
-  background: #fff0e5;
-  color: #ea580c;
+  background: var(--portal-accent, #fff0e5);
+  color: var(--portal-primary, #ea580c);
   font-weight: 700;
 }
 
@@ -90,4 +90,80 @@
   border: none;
   color: #ef4444;
   font-size: 14px;
+}
+
+
+/* Restaurant branding */
+.logo-icon {
+  background: var(--portal-primary, #171c1a);
+}
+
+.sidebar-restaurant-logo {
+  width: 44px;
+  height: 44px;
+  object-fit: contain;
+  border-radius: 8px;
+}
+
+/* Portal theme */
+.menu-item:hover {
+  background: var(--portal-secondary, #c99a43);
+  color: #ffffff;
+}
+
+.menu-item.active {
+  background: var(--portal-primary, #171c1a);
+  color: #ffffff;
+  font-weight: 700;
+}
+
+
+
+/* Dynamic restaurant branding */
+.sidebar .logo-icon {
+  background: var(--portal-primary, #171c1a);
+}
+
+.sidebar-restaurant-logo {
+  width: 44px;
+  height: 44px;
+  object-fit: contain;
+  border-radius: 8px;
+}
+
+/* Dynamic portal navigation theme */
+.sidebar .menu-item:hover {
+  background: var(--portal-secondary, #c99a43);
+  color: #ffffff;
+}
+
+.sidebar .menu-item.active {
+  background: var(--portal-primary, #171c1a);
+  color: #ffffff;
+  font-weight: 700;
+}
+
+
+/* Dynamic restaurant branding */
+.sidebar .logo-icon {
+  background: var(--portal-primary, #171c1a);
+}
+
+.sidebar-restaurant-logo {
+  width: 44px;
+  height: 44px;
+  object-fit: contain;
+  border-radius: 8px;
+}
+
+/* Dynamic portal navigation theme */
+.sidebar .menu-item:hover {
+  background: var(--portal-secondary, #c99a43);
+  color: #ffffff;
+}
+
+.sidebar .menu-item.active {
+  background: var(--portal-primary, #171c1a);
+  color: #ffffff;
+  font-weight: 700;
 }
