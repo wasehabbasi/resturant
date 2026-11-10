@@ -133,7 +133,7 @@ io.on("connection", (socket) => {
   });
 });
 
-app.use(express.json({ limit: "10kb" }));
+app.use(express.json({ limit: "1mb" }));
 
 app.use(
   "/uploads",

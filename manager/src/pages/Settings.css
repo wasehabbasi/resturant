@@ -1,0 +1,264 @@
+
+.settings-page {
+  width: 100%;
+  max-width: 1100px;
+  margin: 0 auto;
+  padding-bottom: 40px;
+}
+
+.settings-heading {
+  margin-bottom: 25px;
+}
+
+.settings-heading h1 {
+  font-size: 27px;
+  margin-bottom: 7px;
+  color: #1f2937;
+}
+
+.settings-heading p,
+.settings-card-heading p {
+  color: #6b7280;
+  font-size: 13px;
+}
+
+.settings-card {
+  background: #fff;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  padding: 24px;
+  margin-bottom: 20px;
+}
+
+.settings-card-heading {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  margin-bottom: 23px;
+  color: #ea580c;
+}
+
+.settings-card-heading h2 {
+  color: #1f2937;
+  font-size: 17px;
+  margin-bottom: 5px;
+}
+
+.settings-field {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 18px;
+}
+
+.settings-field label {
+  font-size: 13px;
+  font-weight: 600;
+  color: #374151;
+}
+
+.settings-field input:not([type="color"]) {
+  width: 100%;
+  padding: 12px;
+  border: 1px solid #d1d5db;
+  border-radius: 7px;
+  outline: none;
+  font-family: inherit;
+}
+
+.settings-field input:focus {
+  border-color: #ea580c;
+}
+
+.settings-field input:disabled {
+  background: #f3f4f6;
+  color: #6b7280;
+}
+
+.settings-field small,
+.logo-controls small {
+  font-size: 11px;
+  color: #9ca3af;
+}
+
+.logo-management {
+  display: flex;
+  align-items: center;
+  gap: 25px;
+  flex-wrap: wrap;
+}
+
+.logo-preview {
+  width: 125px;
+  height: 125px;
+  border: 1px dashed #d1d5db;
+  border-radius: 10px;
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+  background: #f9fafb;
+  color: #9ca3af;
+  font-size: 12px;
+}
+
+.logo-preview img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.logo-controls {
+  flex: 1;
+  min-width: 220px;
+}
+
+.logo-controls input {
+  display: block;
+  margin-bottom: 10px;
+  max-width: 100%;
+}
+
+.settings-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 15px;
+}
+
+.settings-primary-btn,
+.settings-danger-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  border: none;
+  border-radius: 7px;
+  padding: 11px 16px;
+  color: #fff;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.settings-primary-btn {
+  background: #ea580c;
+}
+
+.settings-primary-btn:hover {
+  background: #c2410c;
+}
+
+.settings-danger-btn {
+  background: #dc2626;
+}
+
+.settings-danger-btn:hover {
+  background: #b91c1c;
+}
+
+.settings-primary-btn:disabled,
+.settings-danger-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.theme-fields {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 18px;
+}
+
+.color-input-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  border: 1px solid #e5e7eb;
+  border-radius: 7px;
+  padding: 7px;
+}
+
+.color-input-wrapper input {
+  width: 42px;
+  height: 32px;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+}
+
+.color-input-wrapper span {
+  font-size: 12px;
+  color: #4b5563;
+  text-transform: uppercase;
+}
+
+.theme-preview,
+.customer-theme-preview {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 22px;
+  border-radius: 9px;
+  margin-top: 10px;
+  border: 1px solid transparent;
+}
+
+.theme-preview span,
+.customer-theme-preview span {
+  font-size: 12px;
+}
+
+.theme-preview button,
+.customer-theme-preview button {
+  border: none;
+  border-radius: 6px;
+  padding: 9px 15px;
+  font-weight: 600;
+  cursor: default;
+}
+
+.settings-save-area {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.settings-success,
+.settings-error {
+  padding: 12px 15px;
+  border-radius: 7px;
+  margin-bottom: 18px;
+  font-size: 13px;
+}
+
+.settings-success {
+  background: #ecfdf5;
+  color: #047857;
+}
+
+.settings-error {
+  background: #fef2f2;
+  color: #b91c1c;
+}
+
+@media (max-width: 650px) {
+  .settings-card {
+    padding: 17px;
+  }
+
+  .theme-fields {
+    grid-template-columns: 1fr;
+    gap: 5px;
+  }
+
+  .settings-heading h1 {
+    font-size: 22px;
+  }
+
+  .settings-save-area {
+    justify-content: stretch;
+  }
+
+  .settings-save-area button {
+    width: 100%;
+  }
+}

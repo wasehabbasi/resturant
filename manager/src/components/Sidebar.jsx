@@ -10,6 +10,7 @@ import {
   Store,
   BarChart3,
   GitBranch,
+  Settings,
 } from "lucide-react";
 
 const Sidebar = () => {
@@ -48,6 +49,11 @@ const Sidebar = () => {
       name: "Branches",
       path: "/branches",
       icon: GitBranch,
+    },
+    {
+      name: "Settings",
+      path: "/settings",
+      icon: Settings,
     },
   ];
 

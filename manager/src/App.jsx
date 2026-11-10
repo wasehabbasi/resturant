@@ -15,6 +15,7 @@ import Orders from "./pages/Orders";
 import Reports from "./pages/Reports";
 import Register from "./pages/Register";
 import Branches from "./pages/Branches";
+import Settings from "./pages/Settings";
 
 const getSession = () => {
   const token =
@@ -163,6 +164,17 @@ function App() {
             <ProtectedRoute>
               <DashboardLayout>
                 <Branches />
+              </DashboardLayout>
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/settings"
+          element={
+            <ProtectedRoute>
+              <DashboardLayout>
+                <Settings />
               </DashboardLayout>
             </ProtectedRoute>
           }
