@@ -14,13 +14,20 @@ const {
 const {
   protect,
   authorize,
+  requireRestaurant,
+  requireBranch,
 } = require("../middleware/authMiddleware");
 
 // Public route: customer QR validation
 router.get("/qr/:token", getPublicTable);
 
-// Manager-only routes
-router.use(protect, authorize("manager", "admin"));
+// Manager routes require authentication and selected branch
+router.use(
+  protect,
+  authorize("manager", "admin"),
+  requireRestaurant,
+  requireBranch
+);
 
 router.get("/", getTables);
 router.post("/", addTable);

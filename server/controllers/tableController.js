@@ -3,14 +3,14 @@ const { RestaurantTable } = require("../models");
 const QRCode = require("qrcode");
 const { randomUUID } = require("crypto");
 
-// Customer website URL
 const CUSTOMER_URL =
   process.env.CUSTOMER_URL || "http://localhost:5173";
 
-// Get all tables
+// Get tables of selected branch only
 const getTables = async (req, res) => {
   try {
     const tables = await RestaurantTable.findAll({
+      where: { branchId: req.branchId },
       order: [["id", "DESC"]],
     });
 
@@ -19,29 +19,29 @@ const getTables = async (req, res) => {
       menuUrl: `${CUSTOMER_URL}/menu/${table.qrToken}`,
     }));
 
-    res.json({
-      success: true,
-      tables: result,
-    });
+    return res.json({ success: true, tables: result });
   } catch (error) {
     console.error("GET TABLES ERROR:", error);
-
-    res.status(500).json({
+    return res.status(500).json({
       success: false,
       message: "Failed to fetch tables",
     });
   }
 };
 
-// Add table
+// Add table to selected branch
 const addTable = async (req, res) => {
   try {
     const { tableNumber, capacity } = req.body;
 
-    if (!tableNumber || !tableNumber.trim()) {
+    if (
+      typeof tableNumber !== "string" ||
+      !tableNumber.trim() ||
+      tableNumber.trim().length > 30
+    ) {
       return res.status(400).json({
         success: false,
-        message: "Table number is required",
+        message: "Table number is required (maximum 30 characters)",
       });
     }
 
@@ -58,74 +58,92 @@ const addTable = async (req, res) => {
       });
     }
 
+    const normalizedNumber = tableNumber.trim();
+
     const existing = await RestaurantTable.findOne({
-      where: { tableNumber: tableNumber.trim() },
+      where: {
+        branchId: req.branchId,
+        tableNumber: normalizedNumber,
+      },
     });
 
     if (existing) {
       return res.status(409).json({
         success: false,
-        message: "Table number already exists",
+        message: "Table number already exists in this branch",
       });
     }
 
     const table = await RestaurantTable.create({
-      tableNumber: tableNumber.trim(),
+      branchId: req.branchId,
+      tableNumber: normalizedNumber,
       capacity: parsedCapacity,
       qrToken: randomUUID(),
     });
 
-    res.status(201).json({
+    return res.status(201).json({
       success: true,
       message: "Table created successfully",
       table,
     });
   } catch (error) {
     console.error("ADD TABLE ERROR:", error);
-
-    res.status(500).json({
+    return res.status(500).json({
       success: false,
       message: "Failed to create table",
     });
   }
 };
 
-// Update table
+// Update table only inside selected branch
 const updateTable = async (req, res) => {
   try {
-    const table = await RestaurantTable.findByPk(req.params.id);
+    const table = await RestaurantTable.findOne({
+      where: {
+        id: req.params.id,
+        branchId: req.branchId,
+      },
+    });
 
     if (!table) {
       return res.status(404).json({
         success: false,
-        message: "Table not found",
+        message: "Table not found in selected branch",
       });
     }
 
     const { tableNumber, capacity, isActive } = req.body;
-
     const updates = {};
 
     if (tableNumber !== undefined) {
-      if (!tableNumber.trim()) {
+      if (
+        typeof tableNumber !== "string" ||
+        !tableNumber.trim() ||
+        tableNumber.trim().length > 30
+      ) {
         return res.status(400).json({
           success: false,
-          message: "Table number cannot be empty",
+          message: "Invalid table number",
         });
       }
 
+      const normalizedNumber = tableNumber.trim();
+
       const duplicate = await RestaurantTable.findOne({
-        where: { tableNumber: tableNumber.trim() },
+        where: {
+          branchId: req.branchId,
+          tableNumber: normalizedNumber,
+        },
       });
 
       if (duplicate && duplicate.id !== table.id) {
         return res.status(409).json({
           success: false,
-          message: "Table number already exists",
+          message: "Table number already exists in this branch",
         });
       }
 
-      updates.tableNumber = tableNumber.trim();
+      updates.tableNumber = normalizedNumber;
     }
 
     if (capacity !== undefined) {
@@ -138,7 +156,7 @@ const updateTable = async (req, res) => {
       ) {
         return res.status(400).json({
           success: false,
-          message: "Invalid table capacity",
+          message: "Capacity must be between 1 and 50",
         });
       }
 
@@ -146,69 +164,82 @@ const updateTable = async (req, res) => {
     }
 
     if (isActive !== undefined) {
-      updates.isActive = isActive === true || isActive === "true";
+      if (typeof isActive !== "boolean") {
+        return res.status(400).json({
+          success: false,
+          message: "isActive must be true or false",
+        });
+      }
+
+      updates.isActive = isActive;
     }
 
     await table.update(updates);
 
-    res.json({
+    return res.json({
       success: true,
       message: "Table updated successfully",
       table,
     });
   } catch (error) {
     console.error("UPDATE TABLE ERROR:", error);
-
-    res.status(500).json({
+    return res.status(500).json({
       success: false,
       message: "Failed to update table",
     });
   }
 };
 
-// Delete table
+// Deactivate table (preserve order history)
 const deleteTable = async (req, res) => {
   try {
-    const table = await RestaurantTable.findByPk(req.params.id);
+    const table = await RestaurantTable.findOne({
+      where: {
+        id: req.params.id,
+        branchId: req.branchId,
+      },
+    });
 
     if (!table) {
       return res.status(404).json({
         success: false,
-        message: "Table not found",
+        message: "Table not found in selected branch",
       });
     }
 
-    // Disable instead of deleting to preserve table history.
     await table.update({ isActive: false });
 
-    res.json({
+    return res.json({
       success: true,
       message: "Table deactivated successfully",
     });
   } catch (error) {
     console.error("DELETE TABLE ERROR:", error);
-
-    res.status(500).json({
+    return res.status(500).json({
       success: false,
       message: "Failed to deactivate table",
     });
   }
 };
 
-// Generate QR code
+// Generate QR only for selected branch's table
 const generateQR = async (req, res) => {
   try {
-    const table = await RestaurantTable.findByPk(req.params.id);
+    const table = await RestaurantTable.findOne({
+      where: {
+        id: req.params.id,
+        branchId: req.branchId,
+      },
+    });
 
     if (!table) {
       return res.status(404).json({
         success: false,
-        message: "Table not found",
+        message: "Table not found in selected branch",
       });
     }
 
-    const menuUrl =
-      `${CUSTOMER_URL}/menu/${table.qrToken}`;
+    const menuUrl = `${CUSTOMER_URL}/menu/${table.qrToken}`;
 
     const qrCode = await QRCode.toDataURL(menuUrl, {
       width: 400,
@@ -216,22 +247,21 @@ const generateQR = async (req, res) => {
       errorCorrectionLevel: "H",
     });
 
-    res.json({
+    return res.json({
       success: true,
       qrCode,
       menuUrl,
     });
   } catch (error) {
     console.error("QR ERROR:", error);
-
-    res.status(500).json({
+    return res.status(500).json({
       success: false,
       message: "QR generation failed",
     });
   }
 };
 
-// Public table validation
+// Public table validation by QR token
 const getPublicTable = async (req, res) => {
   try {
     const table = await RestaurantTable.findOne({
@@ -239,7 +269,7 @@ const getPublicTable = async (req, res) => {
         qrToken: req.params.token,
         isActive: true,
       },
-      attributes: ["id", "tableNumber", "capacity"],
+      attributes: ["id", "branchId", "tableNumber", "capacity"],
     });
 
     if (!table) {
@@ -249,14 +279,13 @@ const getPublicTable = async (req, res) => {
       });
     }
 
-    res.json({
+    return res.json({
       success: true,
       table,
     });
   } catch (error) {
     console.error("PUBLIC TABLE ERROR:", error);
-
-    res.status(500).json({
+    return res.status(500).json({
       success: false,
       message: "Unable to verify table",
     });
