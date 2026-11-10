@@ -1,6 +1,8 @@
 
 const {
   RestaurantTable,
+  Branch,
+  BranchProduct,
   Category,
   Product,
 } = require("../models");
@@ -9,13 +11,12 @@ const getPublicMenu = async (req, res) => {
   try {
     const { token } = req.params;
 
-    // Verify table QR token
+    // Find active table and its branch
     const table = await RestaurantTable.findOne({
       where: {
         qrToken: token,
         isActive: true,
       },
-      attributes: ["id", "tableNumber", "capacity"],
     });
 
     if (!table) {
@@ -25,25 +26,43 @@ const getPublicMenu = async (req, res) => {
       });
     }
 
-    // Fetch active categories
+    // Verify branch
+    const branch = await Branch.findOne({
+      where: {
+        id: table.branchId,
+        isActive: true,
+      },
+      attributes: ["id", "restaurantId", "name", "city"],
+    });
+
+    if (!branch) {
+      return res.status(404).json({
+        success: false,
+        message: "Restaurant branch is unavailable",
+      });
+    }
+
+    // Get active categories of this restaurant
     const categories = await Category.findAll({
       where: {
+        restaurantId: branch.restaurantId,
         isActive: true,
       },
       attributes: ["id", "name", "description"],
       order: [["id", "ASC"]],
     });
 
-    // Fetch available products
+    // Get restaurant's products
     const products = await Product.findAll({
       where: {
-        isAvailable: true,
+        restaurantId: branch.restaurantId,
       },
       include: [
         {
           model: Category,
           attributes: ["id", "name"],
           where: {
+            restaurantId: branch.restaurantId,
             isActive: true,
           },
         },
@@ -51,17 +70,70 @@ const getPublicMenu = async (req, res) => {
       order: [["id", "DESC"]],
     });
 
-    res.json({
-      success: true,
-      table,
-      categories,
-      products,
+    // Get branch-specific product overrides
+    const overrides = await BranchProduct.findAll({
+      where: {
+        branchId: branch.id,
+      },
     });
 
+    const overrideMap = new Map(
+      overrides.map((item) => [
+        Number(item.productId),
+        item,
+      ])
+    );
+
+    // Apply branch price and availability overrides
+    const branchProducts = products
+      .map((product) => {
+        const item = product.toJSON();
+        const override = overrideMap.get(Number(item.id));
+
+        const effectivePrice =
+          override?.priceOverride !== null &&
+          override?.priceOverride !== undefined
+            ? Number(override.priceOverride)
+            : Number(item.price);
+
+        const effectiveAvailability =
+          override?.isAvailable !== null &&
+          override?.isAvailable !== undefined
+            ? override.isAvailable
+            : item.isAvailable;
+
+        return {
+          ...item,
+          basePrice: Number(item.price),
+          price: effectivePrice,
+          isAvailable: Boolean(effectiveAvailability),
+          branchId: branch.id,
+        };
+      })
+      .filter((product) => product.isAvailable);
+
+    return res.json({
+      success: true,
+      restaurant: {
+        id: branch.restaurantId,
+      },
+      branch: {
+        id: branch.id,
+        name: branch.name,
+        city: branch.city,
+      },
+      table: {
+        id: table.id,
+        tableNumber: table.tableNumber,
+        capacity: table.capacity,
+      },
+      categories,
+      products: branchProducts,
+    });
   } catch (error) {
     console.error("PUBLIC MENU ERROR:", error);
 
-    res.status(500).json({
+    return res.status(500).json({
       success: false,
       message: "Failed to load restaurant menu",
     });

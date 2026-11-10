@@ -7,6 +7,7 @@ const {
     OrderItem,
     Product,
     Branch,
+    BranchProduct,
 } = require("../models");
 
 const { sequelize } = require("../config/database");
@@ -117,10 +118,12 @@ const placeSharedOrder = async (req, res) => {
 
         const productIds = [...quantities.keys()];
 
+
+        // Fetch only products belonging to this restaurant
         const products = await Product.findAll({
             where: {
                 id: { [Op.in]: productIds },
-                isAvailable: true,
+                restaurantId: branch.restaurantId,
             },
             transaction,
         });
@@ -129,27 +132,76 @@ const placeSharedOrder = async (req, res) => {
             await transaction.rollback();
             return res.status(400).json({
                 success: false,
-                message: "One or more products are unavailable",
+                message: "One or more products are invalid",
             });
         }
 
-        // Always calculate prices from the database
-        const orderItems = products.map((product) => {
-            const quantity = quantities.get(product.id);
-            const price = Number(product.price);
+        // Fetch branch-specific overrides
+        const overrides = await BranchProduct.findAll({
+            where: {
+                branchId: branch.id,
+                productId: { [Op.in]: productIds },
+            },
+            transaction,
+        });
 
-            return {
+        const overrideMap = new Map(
+            overrides.map((item) => [
+                Number(item.productId),
+                item,
+            ])
+        );
+
+        // Calculate actual branch prices and availability
+        const orderItems = [];
+
+        for (const product of products) {
+            const override = overrideMap.get(Number(product.id));
+
+            const isAvailable =
+                override?.isAvailable !== null &&
+                    override?.isAvailable !== undefined
+                    ? override.isAvailable
+                    : product.isAvailable;
+
+            if (!isAvailable) {
+                await transaction.rollback();
+                return res.status(400).json({
+                    success: false,
+                    message: `Product "${product.name}" is unavailable at this branch`,
+                });
+            }
+
+            const price =
+                override?.priceOverride !== null &&
+                    override?.priceOverride !== undefined
+                    ? Number(override.priceOverride)
+                    : Number(product.price);
+
+            if (!Number.isFinite(price) || price < 0) {
+                await transaction.rollback();
+                return res.status(400).json({
+                    success: false,
+                    message: "Invalid product price",
+                });
+            }
+
+            const quantity = quantities.get(product.id);
+
+            orderItems.push({
                 productId: product.id,
                 quantity,
                 price,
-                subtotal: price * quantity,
-            };
-        });
+                subtotal: Number((price * quantity).toFixed(2)),
+            });
+        }
 
-        const totalAmount = orderItems.reduce(
-            (sum, item) => sum + item.subtotal,
-            0
+        const totalAmount = Number(
+            orderItems
+                .reduce((sum, item) => sum + item.subtotal, 0)
+                .toFixed(2)
         );
+
 
         const orderNumber =
             "ORD-" +
