@@ -465,3 +465,23 @@
     flex-direction: column;
   }
 }
+
+.orders-sound-btn {
+  padding: 11px 17px;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  background: white;
+  color: #374151;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.orders-sound-btn.sound-enabled {
+  background: #dcfce7;
+  border-color: #86efac;
+  color: #166534;
+}
+
+.orders-header > button {
+  flex-shrink: 0;
+}

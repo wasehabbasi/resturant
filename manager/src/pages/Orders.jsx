@@ -1,5 +1,4 @@
-
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import {
   RefreshCw,
   ShoppingBag,
@@ -56,6 +55,77 @@ const Orders = () => {
   const [message, setMessage] = useState("");
   const [filter, setFilter] = useState("all");
   const [search, setSearch] = useState("");
+
+  const [soundEnabled, setSoundEnabled] = useState(false);
+
+  const audioContextRef = useRef(null);
+  const soundEnabledRef = useRef(false);
+
+  // Play a short notification sound
+  const playNewOrderSound = () => {
+    const audioContext = audioContextRef.current;
+
+    if (!soundEnabledRef.current || !audioContext) return;
+
+    const oscillator = audioContext.createOscillator();
+    const gain = audioContext.createGain();
+
+    oscillator.type = "sine";
+    oscillator.frequency.setValueAtTime(
+      880,
+      audioContext.currentTime
+    );
+
+    gain.gain.setValueAtTime(0.001, audioContext.currentTime);
+    gain.gain.exponentialRampToValueAtTime(
+      0.2,
+      audioContext.currentTime + 0.03
+    );
+    gain.gain.exponentialRampToValueAtTime(
+      0.001,
+      audioContext.currentTime + 0.35
+    );
+
+    oscillator.connect(gain);
+    gain.connect(audioContext.destination);
+
+    oscillator.start();
+    oscillator.stop(audioContext.currentTime + 0.36);
+  };
+
+  // Enable or disable sound alerts
+  const toggleSoundAlerts = async () => {
+    if (soundEnabled) {
+      soundEnabledRef.current = false;
+      setSoundEnabled(false);
+      return;
+    }
+
+    try {
+      const AudioContextClass =
+        window.AudioContext || window.webkitAudioContext;
+
+      if (!AudioContextClass) {
+        setError("Your browser does not support sound alerts.");
+        return;
+      }
+
+      if (!audioContextRef.current) {
+        audioContextRef.current = new AudioContextClass();
+      }
+
+      await audioContextRef.current.resume();
+
+      soundEnabledRef.current = true;
+      setSoundEnabled(true);
+
+      // Test sound when enabling
+      playNewOrderSound();
+    } catch (error) {
+      console.error("SOUND ALERT ERROR:", error);
+      setError("Unable to enable sound alerts.");
+    }
+  };
 
   // Fetch orders from backend
   const fetchOrders = useCallback(async (manual = false) => {
@@ -114,6 +184,7 @@ const Orders = () => {
       if (notification.type === "new_order") {
         console.log("New order received:", notification.data);
         fetchOrders();
+        playNewOrderSound();
       }
     });
 
@@ -225,6 +296,15 @@ const Orders = () => {
             Manage customer orders and track restaurant activity.
           </p>
         </div>
+
+        <button
+          type="button"
+          className={`orders-sound-btn ${soundEnabled ? "sound-enabled" : ""
+            }`}
+          onClick={toggleSoundAlerts}
+        >
+          {soundEnabled ? "Sound: ON" : "Enable Sound"}
+        </button>
 
         <button
           className="orders-refresh-btn"
