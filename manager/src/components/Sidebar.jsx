@@ -12,12 +12,14 @@ import {
   BarChart3,
   GitBranch,
   Settings,
+  ChefHat,
 } from "lucide-react";
 
 const Sidebar = ({ restaurant }) => {
   const menuItems = [
     { name: "Dashboard", path: "/", icon: LayoutDashboard },
     { name: "Orders", path: "/orders", icon: ShoppingBag },
+    { name: "Kitchen Display", path: "/kitchen", icon: ChefHat },
     { name: "Products", path: "/products", icon: Utensils },
     { name: "Categories", path: "/categories", icon: Tags },
     { name: "Tables & QR", path: "/tables", icon: Table2 },
