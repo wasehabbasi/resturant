@@ -9,7 +9,7 @@ const { Server } = require("socket.io");
 
 const { connectDB, sequelize } = require("./config/database");
 
-const { User, Branch } = require("./models");
+const { User, Branch, RestaurantTable } = require("./models");
 
 const authRoutes = require("./routes/authRoutes");
 const categoryRoutes = require("./routes/categoryRoutes");
@@ -72,8 +72,45 @@ const io = new Server(httpServer, {
 app.set("io", io);
 
 // Authenticate every socket connection
+
+// Authenticate manager sockets and QR-table customer sockets
 io.use(async (socket, next) => {
   try {
+    // Customer connection through QR table token
+    const tableToken = socket.handshake.auth?.tableToken;
+
+    if (tableToken) {
+      const table = await RestaurantTable.findOne({
+        where: {
+          qrToken: tableToken,
+          isActive: true,
+        },
+      });
+
+      if (!table) {
+        return next(new Error("Invalid or inactive table QR"));
+      }
+
+      const branch = await Branch.findOne({
+        where: {
+          id: table.branchId,
+          isActive: true,
+        },
+      });
+
+      if (!branch) {
+        return next(new Error("Restaurant branch is inactive"));
+      }
+
+      socket.data.customerTableId = table.id;
+      socket.data.restaurantId = branch.restaurantId;
+      socket.data.branchId = branch.id;
+      socket.data.isCustomer = true;
+
+      return next();
+    }
+
+    // Existing manager authentication
     const token = socket.handshake.auth?.token;
     const branchId = socket.handshake.auth?.branchId;
 
@@ -86,14 +123,12 @@ io.use(async (socket, next) => {
     }
 
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
-
     const user = await User.findByPk(decoded.id);
 
     if (!user || !user.isActive) {
       return next(new Error("Invalid or inactive account"));
     }
 
-    // Always derive restaurant access from the database user
     const branch = await Branch.findOne({
       where: {
         id: Number(branchId),
@@ -110,6 +145,7 @@ io.use(async (socket, next) => {
     socket.data.restaurantId = user.restaurantId;
     socket.data.branchId = branch.id;
     socket.data.role = user.role;
+    socket.data.isCustomer = false;
 
     next();
   } catch (error) {
@@ -118,21 +154,39 @@ io.use(async (socket, next) => {
   }
 });
 
+
 // Join the verified branch room
+
 io.on("connection", (socket) => {
-  const room =
-    `restaurant:${socket.data.restaurantId}:branch:${socket.data.branchId}`;
+  if (socket.data.isCustomer) {
+    // Customer joins only their own QR table room
+    socket.join(`table:${socket.data.customerTableId}`);
 
-  socket.join(room);
+    console.log(
+      `Customer socket connected: Table ${socket.data.customerTableId}`
+    );
+  } else {
+    // Manager joins their assigned branch room
+    const room = `restaurant:${socket.data.restaurantId}:branch:${socket.data.branchId}`;
 
-  console.log(
-    `Socket connected: User ${socket.data.userId}, Branch ${socket.data.branchId}`
-  );
+    socket.join(room);
+
+    console.log(
+      `Socket connected: User ${socket.data.userId}, Branch ${socket.data.branchId}`
+    );
+  }
 
   socket.on("disconnect", () => {
-    console.log(`Socket disconnected: User ${socket.data.userId}`);
+    if (socket.data.isCustomer) {
+      console.log(
+        `Customer socket disconnected: Table ${socket.data.customerTableId}`
+      );
+    } else {
+      console.log(`Socket disconnected: User ${socket.data.userId}`);
+    }
   });
 });
+
 
 app.use(express.json({ limit: "5mb" }));
 

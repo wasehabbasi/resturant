@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { RefreshCw, ClipboardList, ArrowLeft } from "lucide-react";
 import api from "../services/api";
+import { io } from "socket.io-client";
 
 const statuses = [
     "pending",
@@ -48,13 +49,57 @@ const MyOrders = () => {
         }
     };
 
+
     useEffect(() => {
+        // Load orders initially
         fetchOrders();
 
-        const interval = setInterval(fetchOrders, 5000);
+        // Connect customer through QR table token
+        const socketUrl = import.meta.env.VITE_API_URL?.replace(
+            /\/api\/?$/,
+            ""
+        );
 
-        return () => clearInterval(interval);
+        if (!socketUrl) {
+            console.error("Socket URL is not configured");
+            return;
+        }
+
+        const socket = io(socketUrl, {
+            auth: {
+                tableToken: token,
+            },
+            transports: ["websocket"],
+        });
+
+        socket.on("connect", () => {
+            console.log("Customer live tracking connected");
+        });
+
+        socket.on("connect_error", (error) => {
+            console.error("Customer socket error:", error.message);
+        });
+
+        // Receive live order status updates
+        socket.on("order:status_updated", (data) => {
+            setOrders((previousOrders) =>
+                previousOrders.map((order) =>
+                    String(order.id) === String(data.orderId)
+                        ? { ...order, status: data.status }
+                        : order
+                )
+            );
+        });
+
+        // Backup refresh in case a socket event is missed
+        const interval = setInterval(fetchOrders, 30000);
+
+        return () => {
+            clearInterval(interval);
+            socket.disconnect();
+        };
     }, [token]);
+
 
     const formatDate = (date) =>
         new Date(date).toLocaleString("en-PK");
@@ -189,7 +234,7 @@ const MyOrders = () => {
 
                 <p style={styles.refresh}>
                     <RefreshCw size={13} />
-                    Automatically refreshes every 5 seconds
+                    Live updates enabled • Backup refresh every 30 seconds
                 </p>
             </div>
         </div>

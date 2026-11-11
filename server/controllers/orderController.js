@@ -121,7 +121,9 @@ const updateOrderStatus = async (req, res) => {
     // Broadcast order status update to all connected branch managers
     const io = req.app.get("io");
 
+
     if (io) {
+      // Update manager dashboard and kitchen
       io.to(getBranchRoom(req.restaurantId, req.branchId)).emit(
         "order:updated",
         {
@@ -131,7 +133,16 @@ const updateOrderStatus = async (req, res) => {
           branchId: req.branchId,
         }
       );
+
+      // Notify customers connected through this table's QR code
+      io.to(`table:${order.tableId}`).emit("order:status_updated", {
+        orderId: order.id,
+        orderNumber: order.orderNumber,
+        status: order.status,
+        tableId: order.tableId,
+      });
     }
+
 
     return res.status(200).json({
       success: true,
