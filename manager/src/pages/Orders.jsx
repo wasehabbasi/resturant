@@ -13,6 +13,7 @@ import {
 
 import api from "../services/api";
 import "./Orders.css";
+import { io } from "socket.io-client";
 
 const statuses = [
   "pending",
@@ -79,14 +80,55 @@ const Orders = () => {
   }, []);
 
   // Initial load and automatic refresh
+  // Initial load and real-time new order updates
   useEffect(() => {
     fetchOrders();
 
-    const interval = setInterval(() => {
-      fetchOrders();
-    }, 5000);
+    const storage = localStorage.getItem("token")
+      ? localStorage
+      : sessionStorage;
 
-    return () => clearInterval(interval);
+    const token = storage.getItem("token");
+
+    const branchId =
+      storage.getItem("currentBranchId") ||
+      storage.getItem("branchId");
+
+    if (!token || !branchId) {
+      console.error("Socket connection: token or branch ID missing");
+      return;
+    }
+
+    const socket = io("http://localhost:5000", {
+      auth: {
+        token,
+        branchId,
+      },
+    });
+
+    socket.on("connect", () => {
+      console.log("Orders Socket Connected:", socket.id);
+    });
+
+    socket.on("notification:new", (notification) => {
+      if (notification.type === "new_order") {
+        console.log("New order received:", notification.data);
+        fetchOrders();
+      }
+    });
+
+    socket.on("order:updated", (data) => {
+      console.log("Order status updated:", data);
+      fetchOrders();
+    });
+
+    socket.on("connect_error", (error) => {
+      console.error("Orders Socket Error:", error.message);
+    });
+
+    return () => {
+      socket.disconnect();
+    };
   }, [fetchOrders]);
 
   // Update order status
@@ -432,20 +474,20 @@ const Orders = () => {
                       "preparing",
                       "ready",
                     ].includes(order.status) && (
-                      <button
-                        className="cancel-order-btn"
-                        disabled={updatingId === order.id}
-                        onClick={() =>
-                          handleStatusUpdate(
-                            order.id,
-                            "cancelled"
-                          )
-                        }
-                      >
-                        <XCircle size={15} />
-                        Cancel
-                      </button>
-                    )}
+                        <button
+                          className="cancel-order-btn"
+                          disabled={updatingId === order.id}
+                          onClick={() =>
+                            handleStatusUpdate(
+                              order.id,
+                              "cancelled"
+                            )
+                          }
+                        >
+                          <XCircle size={15} />
+                          Cancel
+                        </button>
+                      )}
 
                   </div>
 

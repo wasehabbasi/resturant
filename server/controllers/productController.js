@@ -205,7 +205,29 @@ const deleteProduct = async (req, res) => {
       });
     }
 
+    const imageToDelete = product.image;
+
     await product.destroy();
+
+    // Delete product image after successful database deletion
+    if (imageToDelete?.startsWith("/uploads/products/")) {
+      const filename = path.basename(imageToDelete);
+
+      const imagePath = path.join(
+        __dirname,
+        "../uploads/products",
+        filename
+      );
+
+      try {
+        await fs.promises.unlink(imagePath);
+        console.log("Product image deleted:", filename);
+      } catch (error) {
+        if (error.code !== "ENOENT") {
+          console.error("PRODUCT IMAGE DELETE ERROR:", error);
+        }
+      }
+    }
 
     return res.json({
       success: true,
