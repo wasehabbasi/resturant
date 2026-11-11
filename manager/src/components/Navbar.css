@@ -119,3 +119,16 @@
     font-size: 11px;
   }
 }
+
+/* Dynamic portal branding */
+.navbar {
+  border-color: var(--portal-secondary, #e5e7eb);
+}
+
+.branch-selector {
+  border-color: var(--portal-secondary, #c99a43);
+}
+
+.branch-selector > svg {
+  color: var(--portal-primary, #171c1a);
+}

@@ -9,6 +9,8 @@ const Products = () => {
   const [categories, setCategories] = useState([]);
   const [editId, setEditId] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [currentImage, setCurrentImage] = useState(null);
+  const [imagePreview, setImagePreview] = useState("");
 
   const [form, setForm] = useState({
     name: "",
@@ -38,6 +40,18 @@ const Products = () => {
     fetchData();
   }, []);
 
+  useEffect(() => {
+    if (!form.image) {
+      setImagePreview("");
+      return;
+    }
+
+    const previewUrl = URL.createObjectURL(form.image);
+    setImagePreview(previewUrl);
+
+    return () => URL.revokeObjectURL(previewUrl);
+  }, [form.image]);
+
   const handleChange = (e) => {
     const { name, value, files } = e.target;
 
@@ -57,6 +71,8 @@ const Products = () => {
     });
 
     setEditId(null);
+
+    setCurrentImage(null);
   };
 
   const handleSubmit = async (e) => {
@@ -96,6 +112,8 @@ const Products = () => {
 
   const handleEdit = (product) => {
     setEditId(product.id);
+
+    setCurrentImage(product.image || null);
 
     setForm({
       name: product.name,
@@ -201,6 +219,28 @@ const Products = () => {
             onChange={handleChange}
           />
         </label>
+
+        {(imagePreview || currentImage) && (
+          <div className="product-image-preview">
+            <p>
+              {imagePreview
+                ? "New Image Preview"
+                : "Current Product Image"}
+            </p>
+
+            <img
+              src={
+                imagePreview ||
+                `http://localhost:5000${currentImage}`
+              }
+              alt="Product preview"
+            />
+
+            {imagePreview && (
+              <small>New image selected. Save to replace the existing image.</small>
+            )}
+          </div>
+        )}
 
         {form.image && (
           <p>Selected: {form.image.name}</p>

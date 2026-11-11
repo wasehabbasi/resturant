@@ -131,7 +131,10 @@ const Navbar = () => {
         </button>
 
         <div className="profile-info">
-          <UserCircle size={35} color="#f97316" />
+          <UserCircle
+            size={35}
+            color="var(--portal-primary, #171c1a)"
+          />
 
           <div>
             <h4>{user?.name || "Restaurant Manager"}</h4>
