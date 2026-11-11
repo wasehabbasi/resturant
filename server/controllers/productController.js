@@ -1,4 +1,6 @@
 const { Product, Category } = require("../models");
+const fs = require("fs");
+const path = require("path");
 
 // Get products of logged-in restaurant
 const getProducts = async (req, res) => {
@@ -137,6 +139,8 @@ const updateProduct = async (req, res) => {
       }
     }
 
+    const oldImage = product.image;
+
     await product.update({
       ...(name !== undefined && { name: name.trim() }),
       ...(description !== undefined && { description }),
@@ -149,6 +153,26 @@ const updateProduct = async (req, res) => {
         image: `/uploads/products/${req.file.filename}`,
       }),
     });
+
+    // Delete old image after successful database update
+    if (req.file && oldImage) {
+      const oldFilename = path.basename(oldImage);
+
+      const oldImagePath = path.join(
+        __dirname,
+        "../uploads/products",
+        oldFilename
+      );
+
+      try {
+        await fs.promises.unlink(oldImagePath);
+        console.log("Old product image deleted:", oldFilename);
+      } catch (error) {
+        if (error.code !== "ENOENT") {
+          console.error("Old image deletion failed:", error);
+        }
+      }
+    }
 
     return res.json({
       success: true,
