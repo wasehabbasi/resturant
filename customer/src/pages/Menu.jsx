@@ -16,7 +16,12 @@ const Menu = () => {
   const { token } = useParams();
   const navigate = useNavigate();
 
-  const { addToCart, totalItems, totalPrice } = useCart();
+  const {
+    addToCart,
+    totalItems,
+    totalPrice,
+    setCartScope,
+  } = useCart();
 
   const [restaurant, setRestaurant] = useState(null);
   const [branch, setBranch] = useState(null);
@@ -38,6 +43,8 @@ const Menu = () => {
 
         const response = await api.get(`/menu/${token}`);
         const data = response.data;
+
+        setCartScope(token);
 
         setRestaurant(data.restaurant);
         setBranch(data.branch);
@@ -182,7 +189,7 @@ const Menu = () => {
             <FoodCard
               key={product.id}
               product={product}
-              onAdd={addToCart}
+              onAdd={(product) => addToCart(product, token)}
             />
           ))}
         </div>
