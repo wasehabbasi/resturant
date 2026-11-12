@@ -391,3 +391,64 @@
     padding: 8px 5px;
   }
 }
+
+.report-date-filter > div:first-child h2 {
+  font-size: 17px;
+  margin-bottom: 6px;
+}
+
+.report-date-filter > div:first-child p {
+  color: #9ca3af;
+  font-size: 13px;
+}
+
+.report-date-controls {
+  display: flex;
+  align-items: flex-end;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: 20px;
+}
+
+.report-date-controls label {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  color: #6b7280;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.report-date-controls input {
+  min-height: 40px;
+  padding: 8px 10px;
+  border: 1px solid #d1d5db;
+  border-radius: 7px;
+  color: #374151;
+}
+
+.report-date-controls button {
+  min-height: 40px;
+  padding: 0 16px;
+  border: none;
+  border-radius: 7px;
+  background: #f97316;
+  color: white;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.report-date-controls button.clear-date-filter {
+  background: #f3f4f6;
+  color: #374151;
+}
+
+.date-filter-error {
+  color: #dc2626;
+  font-size: 12px;
+  margin-top: 12px;
+}
+
+.reports-summary-filtered {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}

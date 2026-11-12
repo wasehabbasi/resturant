@@ -18,13 +18,24 @@ const Reports = () => {
   const [period, setPeriod] = useState("daily");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [startDate, setStartDate] = useState("");
+  const [endDate, setEndDate] = useState("");
+  const [filterError, setFilterError] = useState("");
 
-  const fetchReports = async () => {
+  const fetchReports = async (range = { startDate, endDate }) => {
     try {
       setLoading(true);
       setError("");
 
-      const response = await api.get("/reports");
+      const params =
+        range.startDate && range.endDate
+          ? {
+              startDate: range.startDate,
+              endDate: range.endDate,
+            }
+          : {};
+
+      const response = await api.get("/reports", { params });
       setData(response.data);
     } catch (err) {
       setError(
@@ -34,6 +45,28 @@ const Reports = () => {
     } finally {
       setLoading(false);
     }
+  };
+
+  const applyDateFilter = () => {
+  if (!startDate || !endDate) {
+    setFilterError("Please select both start and end dates.");
+    return;
+  }
+
+  if (startDate > endDate) {
+    setFilterError("Start date cannot be after end date.");
+    return;
+  }
+
+  setFilterError("");
+    fetchReports({ startDate, endDate });
+  };
+
+  const clearDateFilter = () => {
+    setStartDate("");
+    setEndDate("");
+    setFilterError("");
+    fetchReports({ startDate: "", endDate: "" });
   };
 
   useEffect(() => {
@@ -101,6 +134,51 @@ const Reports = () => {
         </button>
       </div>
 
+      {/* DATE RANGE FILTER */}
+      <section className="report-panel report-date-filter">
+        <div>
+          <h2>Filter Reports by Date</h2>
+          <p>Select a date range to view filtered reports.</p>
+        </div>
+
+        <div className="report-date-controls">
+          <label>
+            Start Date
+            <input
+              type="date"
+              value={startDate}
+              max={endDate || undefined}
+              onChange={(e) => setStartDate(e.target.value)}
+            />
+          </label>
+
+          <label>
+            End Date
+            <input
+              type="date"
+              value={endDate}
+              min={startDate || undefined}
+              onChange={(e) => setEndDate(e.target.value)}
+            />
+          </label>
+
+          <button onClick={applyDateFilter}>
+            Apply Filter
+          </button>
+
+          <button
+            className="clear-date-filter"
+            onClick={clearDateFilter}
+          >
+            Clear
+          </button>
+        </div>
+
+        {filterError && (
+          <p className="date-filter-error">{filterError}</p>
+        )}
+      </section>
+
       {/* SUMMARY */}
       <div className="reports-summary">
         <div className="report-card">
@@ -143,6 +221,26 @@ const Reports = () => {
           <small>All order statuses</small>
         </div>
       </div>
+
+      {data.summary.selectedRange && (
+        <div className="reports-summary reports-summary-filtered">
+          <div className="report-card">
+            <div className="report-card-icon orange">
+              <DollarSign size={22} />
+            </div>
+            <span>Selected Range Revenue</span>
+            <h2>{currency(data.summary.selectedRange.revenue)}</h2>
+          </div>
+
+          <div className="report-card">
+            <div className="report-card-icon blue">
+              <ShoppingBag size={22} />
+            </div>
+            <span>Selected Range Orders</span>
+            <h2>{data.summary.selectedRange.totalOrders}</h2>
+          </div>
+        </div>
+      )}
 
       {/* SALES CHART */}
       <section className="report-panel">
