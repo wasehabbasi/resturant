@@ -59,7 +59,11 @@ const Reports = () => {
   }
 
   const currentSales =
-    period === "daily" ? data.dailySales : data.monthlySales;
+    period === "daily"
+      ? data.dailySales
+      : period === "weekly"
+      ? data.weeklySales
+      : data.monthlySales;
 
   const maxRevenue = Math.max(
     ...currentSales.map((item) => Number(item.revenue || 0)),
@@ -153,14 +157,21 @@ const Reports = () => {
               className={period === "daily" ? "active" : ""}
               onClick={() => setPeriod("daily")}
             >
-              Last 7 Days
+              Daily
+            </button>
+
+            <button
+              className={period === "weekly" ? "active" : ""}
+              onClick={() => setPeriod("weekly")}
+            >
+              Weekly
             </button>
 
             <button
               className={period === "monthly" ? "active" : ""}
               onClick={() => setPeriod("monthly")}
             >
-              Last 12 Months
+              Monthly
             </button>
           </div>
         </div>
@@ -174,17 +185,16 @@ const Reports = () => {
                 (Number(item.revenue || 0) / maxRevenue) * 100;
 
               const label =
-                period === "daily"
-                  ? new Date(`${item.label}T00:00:00`)
-                      .toLocaleDateString("en-PK", {
-                        day: "2-digit",
-                        month: "short",
-                      })
-                  : new Date(`${item.label}-01T00:00:00`)
-                      .toLocaleDateString("en-PK", {
-                        month: "short",
-                        year: "2-digit",
-                      });
+  period === "monthly"
+    ? new Date(`${item.label}-01T00:00:00`).toLocaleDateString("en-PK", {
+        month: "short",
+        year: "2-digit",
+      })
+    : new Date(`${item.label}T00:00:00`).toLocaleDateString("en-PK", {
+        day: "2-digit",
+        month: "short",
+        year: period === "weekly" ? "2-digit" : undefined,
+      });
 
               return (
                 <div className="sales-chart-column" key={item.label}>

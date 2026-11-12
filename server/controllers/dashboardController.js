@@ -1,3 +1,4 @@
+
 const { Op } = require("sequelize");
 
 const {
@@ -9,6 +10,9 @@ const {
 
 const getDashboardStats = async (req, res) => {
     try {
+        const branchId = req.branchId;
+        const restaurantId = req.restaurantId;
+
         const [
             totalOrders,
             totalRevenue,
@@ -16,23 +20,32 @@ const getDashboardStats = async (req, res) => {
             totalCustomers,
             recentOrders,
         ] = await Promise.all([
-            Order.count(),
-
-            Order.sum("totalAmount", {
-                where: { status: "completed" },
+            Order.count({
+                where: { branchId },
             }),
 
-            Product.count(),
+            Order.sum("totalAmount", {
+                where: {
+                    branchId,
+                    status: "completed",
+                },
+            }),
+
+            Product.count({
+                where: { restaurantId },
+            }),
 
             Order.count({
                 distinct: true,
                 col: "guestId",
                 where: {
+                    branchId,
                     guestId: { [Op.ne]: null },
                 },
             }),
 
             Order.findAll({
+                where: { branchId },
                 limit: 5,
                 order: [["createdAt", "DESC"]],
                 include: [

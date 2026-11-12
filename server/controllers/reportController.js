@@ -1,12 +1,21 @@
+
 const { QueryTypes } = require("sequelize");
 const { sequelize } = require("../config/database");
 
 const getReports = async (req, res) => {
     try {
+        const branchId = req.branchId;
+
+        const queryOptions = {
+            type: QueryTypes.SELECT,
+            replacements: { branchId },
+        };
+
         const [
             todayStats,
             monthlyStats,
             dailySales,
+            weeklySales,
             monthlySales,
             topProducts,
             orderStatus,
@@ -21,8 +30,9 @@ const getReports = async (req, res) => {
                         THEN totalAmount ELSE 0 END
                     ) AS revenue
                 FROM Orders
-                WHERE DATE(createdAt) = CURDATE()
-            `, { type: QueryTypes.SELECT }),
+                WHERE branchId = :branchId
+                AND DATE(createdAt) = CURDATE()
+            `, queryOptions),
 
             // Current month's orders and completed revenue
             sequelize.query(`
@@ -33,9 +43,10 @@ const getReports = async (req, res) => {
                         THEN totalAmount ELSE 0 END
                     ) AS revenue
                 FROM Orders
-                WHERE YEAR(createdAt) = YEAR(CURDATE())
+                WHERE branchId = :branchId
+                AND YEAR(createdAt) = YEAR(CURDATE())
                 AND MONTH(createdAt) = MONTH(CURDATE())
-            `, { type: QueryTypes.SELECT }),
+            `, queryOptions),
 
             // Daily sales for last 7 days
             sequelize.query(`
@@ -47,11 +58,32 @@ const getReports = async (req, res) => {
                         THEN totalAmount ELSE 0 END
                     ) AS revenue
                 FROM Orders
-                WHERE DATE(createdAt) >= DATE_SUB(CURDATE(), INTERVAL 6 DAY)
+                WHERE branchId = :branchId
+                AND DATE(createdAt) >= DATE_SUB(CURDATE(), INTERVAL 6 DAY)
                 AND DATE(createdAt) <= CURDATE()
                 GROUP BY DATE(createdAt)
                 ORDER BY DATE(createdAt) ASC
-            `, { type: QueryTypes.SELECT }),
+            `, queryOptions),
+
+            // Weekly sales for last 8 weeks
+            sequelize.query(`
+                SELECT
+                    DATE_FORMAT(
+                        DATE_SUB(DATE(createdAt), INTERVAL WEEKDAY(createdAt) DAY),
+                        '%Y-%m-%d'
+                    ) AS label,
+                    COUNT(*) AS totalOrders,
+                    SUM(
+                        CASE WHEN status = 'completed'
+                        THEN totalAmount ELSE 0 END
+                    ) AS revenue
+                FROM Orders
+                WHERE branchId = :branchId
+                AND createdAt >= DATE_SUB(CURDATE(), INTERVAL 7 WEEK)
+                AND createdAt <= NOW()
+                GROUP BY YEARWEEK(createdAt, 1)
+                ORDER BY YEARWEEK(createdAt, 1) ASC
+            `, queryOptions),
 
             // Monthly sales for last 12 months
             sequelize.query(`
@@ -63,14 +95,15 @@ const getReports = async (req, res) => {
                         THEN totalAmount ELSE 0 END
                     ) AS revenue
                 FROM Orders
-                WHERE createdAt >= DATE_FORMAT(
+                WHERE branchId = :branchId
+                AND createdAt >= DATE_FORMAT(
                     DATE_SUB(CURDATE(), INTERVAL 11 MONTH),
                     '%Y-%m-01'
                 )
                 AND createdAt < DATE_ADD(LAST_DAY(CURDATE()), INTERVAL 1 DAY)
                 GROUP BY YEAR(createdAt), MONTH(createdAt)
                 ORDER BY YEAR(createdAt), MONTH(createdAt)
-            `, { type: QueryTypes.SELECT }),
+            `, queryOptions),
 
             // Top 5 products by completed-order quantity
             sequelize.query(`
@@ -82,11 +115,12 @@ const getReports = async (req, res) => {
                 FROM OrderItems oi
                 INNER JOIN Orders o ON o.id = oi.orderId
                 INNER JOIN Products p ON p.id = oi.productId
-                WHERE o.status = 'completed'
+                WHERE o.branchId = :branchId
+                AND o.status = 'completed'
                 GROUP BY p.id, p.name
                 ORDER BY totalQuantity DESC
                 LIMIT 5
-            `, { type: QueryTypes.SELECT }),
+            `, queryOptions),
 
             // Order status breakdown
             sequelize.query(`
@@ -94,8 +128,9 @@ const getReports = async (req, res) => {
                     status,
                     COUNT(*) AS total
                 FROM Orders
+                WHERE branchId = :branchId
                 GROUP BY status
-            `, { type: QueryTypes.SELECT }),
+            `, queryOptions),
         ]);
 
         return res.status(200).json({
@@ -111,6 +146,11 @@ const getReports = async (req, res) => {
                 },
             },
             dailySales: dailySales.map((item) => ({
+                label: item.label,
+                totalOrders: Number(item.totalOrders),
+                revenue: Number(item.revenue || 0),
+            })),
+            weeklySales: weeklySales.map((item) => ({
                 label: item.label,
                 totalOrders: Number(item.totalOrders),
                 revenue: Number(item.revenue || 0),
