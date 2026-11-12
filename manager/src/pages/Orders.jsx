@@ -60,6 +60,8 @@ const Orders = () => {
     () => localStorage.getItem("soundAlertsEnabled") === "true"
   );
 
+  const [soundReady, setSoundReady] = useState(false);
+
   const audioContextRef = useRef(null);
 
   const soundEnabledRef = useRef(
@@ -100,39 +102,43 @@ const Orders = () => {
 
   // Enable or disable sound alerts
   const toggleSoundAlerts = async () => {
-    if (soundEnabled) {
-      soundEnabledRef.current = false;
-      setSoundEnabled(false);
-      localStorage.setItem("soundAlertsEnabled", "false");
+  // Sound already active: turn it OFF
+  if (soundEnabled && soundReady) {
+    soundEnabledRef.current = false;
+    setSoundEnabled(false);
+    setSoundReady(false);
+    localStorage.setItem("soundAlertsEnabled", "false");
+    return;
+  }
+
+  try {
+    const AudioContextClass =
+      window.AudioContext || window.webkitAudioContext;
+
+    if (!AudioContextClass) {
+      setError("Your browser does not support sound alerts.");
       return;
     }
 
-    try {
-      const AudioContextClass =
-        window.AudioContext || window.webkitAudioContext;
-
-      if (!AudioContextClass) {
-        setError("Your browser does not support sound alerts.");
-        return;
-      }
-
-      if (!audioContextRef.current) {
-        audioContextRef.current = new AudioContextClass();
-      }
-
-      await audioContextRef.current.resume();
-
-      soundEnabledRef.current = true;
-      setSoundEnabled(true);
-      localStorage.setItem("soundAlertsEnabled", "true");
-
-      // Test sound when enabling
-      playNewOrderSound();
-    } catch (error) {
-      console.error("SOUND ALERT ERROR:", error);
-      setError("Unable to enable sound alerts.");
+    if (!audioContextRef.current) {
+      audioContextRef.current = new AudioContextClass();
     }
-  };
+
+    await audioContextRef.current.resume();
+
+    soundEnabledRef.current = true;
+    setSoundEnabled(true);
+    setSoundReady(true);
+
+    localStorage.setItem("soundAlertsEnabled", "true");
+
+    // Play test sound
+    playNewOrderSound();
+  } catch (error) {
+    console.error("SOUND ALERT ERROR:", error);
+    setError("Unable to activate sound alerts.");
+  }
+};
 
   // Fetch orders from backend
   const fetchOrders = useCallback(async (manual = false) => {
@@ -312,7 +318,11 @@ const Orders = () => {
             }`}
           onClick={toggleSoundAlerts}
         >
-          {soundEnabled ? "Sound: ON" : "Enable Sound"}
+          {soundReady
+            ? "Sound: ON"
+            : soundEnabled
+              ? "Activate Sound"
+              : "Enable Sound"}
         </button>
 
         <button
