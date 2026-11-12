@@ -61,7 +61,10 @@ const Orders = () => {
   );
 
   const audioContextRef = useRef(null);
-  const soundEnabledRef = useRef(false);
+
+  const soundEnabledRef = useRef(
+    localStorage.getItem("soundAlertsEnabled") === "true"
+  );
 
   // Play a short notification sound
   const playNewOrderSound = () => {
