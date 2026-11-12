@@ -56,7 +56,9 @@ const Orders = () => {
   const [filter, setFilter] = useState("all");
   const [search, setSearch] = useState("");
 
-  const [soundEnabled, setSoundEnabled] = useState(false);
+  const [soundEnabled, setSoundEnabled] = useState(
+    () => localStorage.getItem("soundAlertsEnabled") === "true"
+  );
 
   const audioContextRef = useRef(null);
   const soundEnabledRef = useRef(false);
@@ -98,6 +100,7 @@ const Orders = () => {
     if (soundEnabled) {
       soundEnabledRef.current = false;
       setSoundEnabled(false);
+      localStorage.setItem("soundAlertsEnabled", "false");
       return;
     }
 
@@ -118,6 +121,7 @@ const Orders = () => {
 
       soundEnabledRef.current = true;
       setSoundEnabled(true);
+      localStorage.setItem("soundAlertsEnabled", "true");
 
       // Test sound when enabling
       playNewOrderSound();
@@ -151,6 +155,7 @@ const Orders = () => {
 
   // Initial load and automatic refresh
   // Initial load and real-time new order updates
+  
   useEffect(() => {
     fetchOrders();
 
@@ -200,7 +205,8 @@ const Orders = () => {
     return () => {
       socket.disconnect();
     };
-  }, [fetchOrders]);
+  }, [fetchOrders, soundEnabled]);
+
 
   // Update order status
   const handleStatusUpdate = async (orderId, status) => {
