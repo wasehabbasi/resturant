@@ -1,4 +1,10 @@
-const { RestaurantTable, Order } = require("../models");
+const {
+  RestaurantTable,
+  Order,
+  OrderItem,
+  Product,
+} = require("../models");
+
 const { Op } = require("sequelize");
 const QRCode = require("qrcode");
 const { randomUUID } = require("crypto");
@@ -22,7 +28,7 @@ const getTables = async (req, res) => {
           [Op.in]: ["pending", "accepted", "preparing", "ready"],
         },
       },
-      attributes: ["tableId"],
+      attributes: ["id", "tableId", "status"],
       raw: true,
     });
 
@@ -58,6 +64,81 @@ const getTables = async (req, res) => {
     return res.status(500).json({
       success: false,
       message: "Failed to fetch tables",
+    });
+  }
+};
+
+// Get complete order history and current combined bill for a table
+const getTableOrderHistory = async (req, res) => {
+  try {
+    const table = await RestaurantTable.findOne({
+      where: {
+        id: req.params.id,
+        branchId: req.branchId,
+      },
+    });
+
+    if (!table) {
+      return res.status(404).json({
+        success: false,
+        message: "Table not found in selected branch",
+      });
+    }
+
+    const orders = await Order.findAll({
+      where: {
+        tableId: table.id,
+        branchId: req.branchId,
+      },
+      include: [
+        {
+          model: OrderItem,
+          include: [
+            {
+              model: Product,
+              attributes: ["id", "name", "image"],
+            },
+          ],
+        },
+      ],
+      order: [["createdAt", "DESC"]],
+    });
+
+    const activeStatuses = [
+      "pending",
+      "accepted",
+      "preparing",
+      "ready",
+    ];
+
+    const activeOrders = orders.filter((order) =>
+      activeStatuses.includes(order.status)
+    );
+
+    const combinedTotal = activeOrders.reduce(
+      (total, order) => total + Number(order.totalAmount || 0),
+      0
+    );
+
+    return res.json({
+      success: true,
+      table: {
+        id: table.id,
+        tableNumber: table.tableNumber,
+        capacity: table.capacity,
+      },
+      orders,
+      combinedBill: {
+        activeOrdersCount: activeOrders.length,
+        total: combinedTotal,
+      },
+    });
+  } catch (error) {
+    console.error("TABLE ORDER HISTORY ERROR:", error);
+
+    return res.status(500).json({
+      success: false,
+      message: "Failed to fetch table order history",
     });
   }
 };
@@ -387,5 +468,6 @@ module.exports = {
   deleteTable,
   generateQR,
   getPublicTable,
-  regenerateQR
+  regenerateQR,
+  getTableOrderHistory,
 };
