@@ -173,3 +173,27 @@
     grid-template-columns: 1fr;
   }
 }
+
+.table-status-badge {
+  font-size: 11px;
+  padding: 6px 10px;
+  border-radius: 20px;
+  font-weight: 600;
+  text-transform: capitalize;
+  white-space: nowrap;
+}
+
+.table-status-badge.available {
+  background: #dcfce7;
+  color: #15803d;
+}
+
+.table-status-badge.occupied {
+  background: #fef3c7;
+  color: #b45309;
+}
+
+.table-status-badge.inactive {
+  background: #fee2e2;
+  color: #dc2626;
+}

@@ -191,8 +191,17 @@ const Tables = () => {
                 <p>Capacity: {table.capacity} persons</p>
               </div>
 
-              <span className={table.isActive ? "active-badge" : "inactive-badge"}>
-                {table.isActive ? "Active" : "Inactive"}
+              <span
+                className={`table-status-badge ${
+                  table.availabilityStatus || (table.isActive ? "available" : "inactive")
+                }`}
+              >
+                {table.availabilityStatus
+                  ? table.availabilityStatus.charAt(0).toUpperCase() +
+                    table.availabilityStatus.slice(1)
+                  : table.isActive
+                  ? "Available"
+                  : "Inactive"}
               </span>
             </div>
 
