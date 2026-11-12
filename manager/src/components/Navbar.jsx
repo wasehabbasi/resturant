@@ -1,6 +1,7 @@
 
 import { useEffect, useState } from "react";
 import { Bell, Search, UserCircle, GitBranch } from "lucide-react";
+import { io } from "socket.io-client";
 import api from "../services/api";
 import "./Navbar.css";
 
@@ -9,6 +10,7 @@ const Navbar = () => {
   const [selectedBranch, setSelectedBranch] = useState("");
   const [loadingBranches, setLoadingBranches] = useState(true);
   const [branchError, setBranchError] = useState("");
+  const [unreadCount, setUnreadCount] = useState(0);
 
   useEffect(() => {
     const loadBranches = async () => {
@@ -62,6 +64,54 @@ const Navbar = () => {
 
     loadBranches();
   }, []);
+
+  useEffect(() => {
+  if (!selectedBranch) return;
+
+  const storage = localStorage.getItem("token")
+    ? localStorage
+    : sessionStorage;
+
+  const token = storage.getItem("token");
+
+  if (!token) return;
+
+  let active = true;
+
+  const fetchUnreadCount = async () => {
+    try {
+      const response = await api.get("/notifications/unread-count");
+
+      if (active) {
+        setUnreadCount(response.data.count || 0);
+      }
+    } catch (error) {
+      console.error("UNREAD NOTIFICATION ERROR:", error);
+    }
+  };
+
+  fetchUnreadCount();
+
+  const socket = io("http://localhost:5000", {
+    auth: {
+      token,
+      branchId: selectedBranch,
+    },
+  });
+
+  socket.on("notification:new", (notification) => {
+    setUnreadCount((previous) => previous + 1);
+  });
+
+  socket.on("connect_error", (error) => {
+    console.error("NOTIFICATION SOCKET ERROR:", error.message);
+  });
+
+  return () => {
+    active = false;
+    socket.disconnect();
+  };
+}, [selectedBranch]);
 
   const handleBranchChange = (e) => {
     const branchId = e.target.value;
@@ -125,10 +175,19 @@ const Navbar = () => {
           </span>
         )}
 
-        <button className="notification-button">
-          <Bell size={21} />
-          <span className="notification-dot"></span>
-        </button>
+        <button
+  className="notification-button"
+  type="button"
+  title={`${unreadCount} unread notifications`}
+>
+  <Bell size={21} />
+
+  {unreadCount > 0 && (
+    <span className="notification-count">
+      {unreadCount > 99 ? "99+" : unreadCount}
+    </span>
+  )}
+</button>
 
         <div className="profile-info">
           <UserCircle
