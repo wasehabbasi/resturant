@@ -338,3 +338,59 @@
   color: #16a34a;
   font-size: 12px;
 }
+
+.branch-availability {
+  display: flex;
+  flex-direction: column;
+  gap: 9px;
+  margin-top: 12px;
+  padding: 12px;
+  border: 1px solid var(--border-color, #e5e7eb);
+  border-radius: 8px;
+}
+
+.availability-info {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+}
+
+.availability-active {
+  color: #16a34a;
+}
+
+.availability-inactive {
+  color: #dc2626;
+}
+
+.availability-toggle {
+  width: 100%;
+  padding: 9px 12px;
+  border: none;
+  border-radius: 6px;
+  color: white;
+  cursor: pointer;
+  font-weight: 600;
+}
+
+.available-btn {
+  background: #16a34a;
+}
+
+.available-btn:hover {
+  background: #15803d;
+}
+
+.unavailable-btn {
+  background: #dc2626;
+}
+
+.unavailable-btn:hover {
+  background: #b91c1c;
+}
+
+.branch-availability small {
+  color: #888;
+  font-size: 12px;
+}

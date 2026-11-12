@@ -22,12 +22,35 @@ const Products = () => {
 
   const fetchData = async () => {
     try {
-      const [productRes, categoryRes] = await Promise.all([
-        api.get("/products"),
-        api.get("/categories"),
-      ]);
+      const [productRes, categoryRes, branchProductRes] =
+        await Promise.all([
+          api.get("/products"),
+          api.get("/categories"),
+          api.get("/branch-products"),
+        ]);
 
-      setProducts(productRes.data.products);
+      const branchProducts = new Map(
+        branchProductRes.data.products.map((product) => [
+          Number(product.id),
+          product,
+        ])
+      );
+
+      setProducts(
+        productRes.data.products.map((product) => {
+          const branchProduct = branchProducts.get(
+            Number(product.id)
+          );
+
+          return {
+            ...product,
+            branchAvailability:
+              branchProduct?.branchAvailability ??
+              product.isAvailable,
+          };
+        })
+      );
+
       setCategories(
         categoryRes.data.categories.filter((c) => c.isActive)
       );
@@ -139,13 +162,15 @@ const Products = () => {
     }
   };
 
-  const toggleAvailability = async (product) => {
+  const toggleBranchAvailability = async (product) => {
     try {
-      await api.put(`/products/${product.id}`, {
-        isAvailable: !product.isAvailable,
+      await api.put(`/branch-products/${product.id}`, {
+        isAvailable: !product.branchAvailability,
       });
 
-      fetchData();
+      await fetchData();
+
+      alert("Branch product availability updated");
     } catch (error) {
       alert(error.response?.data?.message || "Update failed");
     }
@@ -291,9 +316,41 @@ const Products = () => {
                   Rs. {Number(product.price).toLocaleString("en-PK")}
                 </strong>
 
-                <small>
-                  {product.isAvailable ? "Available" : "Unavailable"}
-                </small>
+                <div className="branch-availability">
+                  <div className="availability-info">
+                    <span>Branch Availability</span>
+
+                    <strong
+                      className={
+                        product.branchAvailability
+                          ? "availability-active"
+                          : "availability-inactive"
+                      }
+                    >
+                      {product.branchAvailability ? "Available" : "Unavailable"}
+                    </strong>
+                  </div>
+
+                  <button
+                    type="button"
+                    className={
+                      product.branchAvailability
+                        ? "availability-toggle unavailable-btn"
+                        : "availability-toggle available-btn"
+                    }
+                    onClick={() => toggleBranchAvailability(product)}
+                  >
+                    {product.branchAvailability
+                      ? "Mark Unavailable"
+                      : "Mark Available"}
+                  </button>
+
+                  <small>
+                    {product.hasAvailabilityOverride
+                      ? "Custom availability for this branch"
+                      : "Using restaurant default availability"}
+                  </small>
+                </div>
 
                 <div className="row-actions">
                   <button onClick={() => handleEdit(product)}>
