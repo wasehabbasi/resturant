@@ -1,6 +1,5 @@
-
 import { useEffect, useState } from "react";
-import { Plus, Pencil, Trash2, QrCode, Download } from "lucide-react";
+import { Plus, Pencil, Trash2, QrCode, Download, RefreshCw } from "lucide-react";
 import { QRCodeCanvas } from "qrcode.react";
 import api from "../services/api";
 import "./Tables.css";
@@ -79,6 +78,38 @@ const Tables = () => {
       fetchTables();
     } catch (error) {
       alert(error.response?.data?.message || "Failed to deactivate table");
+    }
+  };
+
+  const handleRegenerateQR = async (table) => {
+    const confirmed = window.confirm(
+      `Regenerate QR for Table ${table.tableNumber}?\n\nOld QR code will stop working.`
+    );
+
+    if (!confirmed) return;
+
+    try {
+      const res = await api.post(
+        `/tables/${table.id}/regenerate-qr`
+      );
+
+      const updatedTable = res.data.table;
+
+      setTables((prev) =>
+        prev.map((item) =>
+          item.id === updatedTable.id ? updatedTable : item
+        )
+      );
+
+      if (selectedTable?.id === updatedTable.id) {
+        setSelectedTable(updatedTable);
+      }
+
+      alert("QR code regenerated successfully. Download the new QR code.");
+    } catch (error) {
+      alert(
+        error.response?.data?.message || "Failed to regenerate QR code"
+      );
     }
   };
 
@@ -193,6 +224,14 @@ const Tables = () => {
               >
                 <Download size={16} />
                 Download
+              </button>
+
+              <button
+                disabled={!table.isActive}
+                onClick={() => handleRegenerateQR(table)}
+              >
+                <RefreshCw size={16} />
+                Regenerate QR
               </button>
 
               <button onClick={() => handleEdit(table)}>

@@ -1,12 +1,13 @@
-
-const { RestaurantTable } = require("../models");
+const { RestaurantTable, Order } = require("../models");
+const { Op } = require("sequelize");
 const QRCode = require("qrcode");
 const { randomUUID } = require("crypto");
+
 
 const CUSTOMER_URL =
   process.env.CUSTOMER_URL || "http://localhost:5173";
 
-// Get tables of selected branch only
+// Get tables of selected branch with automatic availability status
 const getTables = async (req, res) => {
   try {
     const tables = await RestaurantTable.findAll({
@@ -14,14 +15,46 @@ const getTables = async (req, res) => {
       order: [["id", "DESC"]],
     });
 
-    const result = tables.map((table) => ({
-      ...table.toJSON(),
-      menuUrl: `${CUSTOMER_URL}/menu/${table.qrToken}`,
-    }));
+    const activeOrders = await Order.findAll({
+      where: {
+        branchId: req.branchId,
+        status: {
+          [Op.in]: ["pending", "accepted", "preparing", "ready"],
+        },
+      },
+      attributes: ["tableId"],
+      raw: true,
+    });
 
-    return res.json({ success: true, tables: result });
+    const occupiedTableIds = new Set(
+      activeOrders.map((order) => order.tableId)
+    );
+
+    const result = tables.map((table) => {
+      const tableData = table.toJSON();
+
+      let availabilityStatus = "available";
+
+      if (!table.isActive) {
+        availabilityStatus = "inactive";
+      } else if (occupiedTableIds.has(table.id)) {
+        availabilityStatus = "occupied";
+      }
+
+      return {
+        ...tableData,
+        availabilityStatus,
+        menuUrl: `${CUSTOMER_URL}/menu/${table.qrToken}`,
+      };
+    });
+
+    return res.json({
+      success: true,
+      tables: result,
+    });
   } catch (error) {
     console.error("GET TABLES ERROR:", error);
+
     return res.status(500).json({
       success: false,
       message: "Failed to fetch tables",
@@ -261,6 +294,61 @@ const generateQR = async (req, res) => {
   }
 };
 
+// Regenerate QR token for a table
+const regenerateQR = async (req, res) => {
+  try {
+    const table = await RestaurantTable.findOne({
+      where: {
+        id: req.params.id,
+        branchId: req.branchId,
+      },
+    });
+
+    if (!table) {
+      return res.status(404).json({
+        success: false,
+        message: "Table not found in selected branch",
+      });
+    }
+
+    if (!table.isActive) {
+      return res.status(400).json({
+        success: false,
+        message: "Cannot regenerate QR for an inactive table",
+      });
+    }
+
+    const newToken = randomUUID();
+
+    await table.update({
+      qrToken: newToken,
+    });
+
+    const menuUrl = `${CUSTOMER_URL}/menu/${newToken}`;
+
+    const qrCode = await QRCode.toDataURL(menuUrl, {
+      width: 400,
+      margin: 2,
+      errorCorrectionLevel: "H",
+    });
+
+    return res.json({
+      success: true,
+      message: "QR code regenerated successfully",
+      qrCode,
+      menuUrl,
+      table,
+    });
+  } catch (error) {
+    console.error("REGENERATE QR ERROR:", error);
+
+    return res.status(500).json({
+      success: false,
+      message: "QR regeneration failed",
+    });
+  }
+};
+
 // Public table validation by QR token
 const getPublicTable = async (req, res) => {
   try {
@@ -299,4 +387,5 @@ module.exports = {
   deleteTable,
   generateQR,
   getPublicTable,
+  regenerateQR
 };
