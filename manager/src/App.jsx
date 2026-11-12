@@ -17,6 +17,7 @@ import Register from "./pages/Register";
 import Branches from "./pages/Branches";
 import Settings from "./pages/Settings";
 import Kitchen from "./pages/Kitchen";
+import NotificationHistory from "./pages/NotificationHistory";
 
 const getSession = () => {
   const token =
@@ -114,6 +115,17 @@ function App() {
             </ProtectedRoute>
           }
         />
+
+        <Route
+  path="/notifications"
+  element={
+    <ProtectedRoute>
+      <DashboardLayout>
+        <NotificationHistory />
+      </DashboardLayout>
+    </ProtectedRoute>
+  }
+/>
 
         <Route
           path="/kitchen"

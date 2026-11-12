@@ -1,0 +1,162 @@
+
+.notification-history-page {
+  padding: 24px;
+}
+
+.notification-history-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 15px;
+  margin-bottom: 24px;
+}
+
+.notification-history-header h1 {
+  font-size: 25px;
+  margin: 0 0 7px;
+}
+
+.notification-history-header p {
+  color: #888;
+  margin: 0;
+  font-size: 13px;
+}
+
+.notification-history-header button,
+.notification-history-pagination button {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  padding: 10px 14px;
+  border: 1px solid #ddd;
+  border-radius: 7px;
+  background: white;
+  cursor: pointer;
+}
+
+.notification-history-list {
+  background: white;
+  border: 1px solid #eee;
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.notification-history-item {
+  display: flex;
+  gap: 14px;
+  padding: 18px;
+  border-bottom: 1px solid #eee;
+}
+
+.notification-history-item.unread {
+  background: #f8fafc;
+}
+
+.notification-history-icon {
+  width: 40px;
+  height: 40px;
+  min-width: 40px;
+  border-radius: 50%;
+  background: #f1f5f9;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #64748b;
+}
+
+.notification-history-content {
+  flex: 1;
+  min-width: 0;
+}
+
+.notification-history-title {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.notification-history-title strong {
+  font-size: 14px;
+  color: #222;
+}
+
+.notification-history-content p {
+  font-size: 13px;
+  color: #666;
+  margin: 7px 0;
+}
+
+.notification-history-content small {
+  color: #999;
+  font-size: 11px;
+}
+
+.read-label,
+.unread-label {
+  font-size: 11px;
+  white-space: nowrap;
+}
+
+.read-label {
+  color: #888;
+}
+
+.unread-label {
+  color: #dc2626;
+  font-weight: 600;
+}
+
+.notification-history-empty {
+  padding: 45px 15px;
+  text-align: center;
+  color: #999;
+}
+
+.notification-history-pagination {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 18px;
+  padding: 20px;
+}
+
+.notification-history-pagination span {
+  font-size: 13px;
+  color: #666;
+}
+
+.notification-history-pagination button:disabled,
+.notification-history-header button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.notification-history-error {
+  padding: 12px;
+  margin-bottom: 15px;
+  background: #fee2e2;
+  color: #b91c1c;
+  border-radius: 7px;
+}
+
+@media (max-width: 600px) {
+  .notification-history-page {
+    padding: 14px;
+  }
+
+  .notification-history-header {
+    align-items: flex-start;
+  }
+
+  .notification-history-header h1 {
+    font-size: 20px;
+  }
+
+  .notification-history-title {
+    flex-direction: column;
+  }
+
+  .notification-history-pagination {
+    gap: 8px;
+  }
+}

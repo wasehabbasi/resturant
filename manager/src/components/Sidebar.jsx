@@ -13,6 +13,7 @@ import {
   GitBranch,
   Settings,
   ChefHat,
+  Bell,
 } from "lucide-react";
 
 const Sidebar = ({ restaurant }) => {
@@ -26,6 +27,7 @@ const Sidebar = ({ restaurant }) => {
     { name: "Reports", path: "/reports", icon: BarChart3 },
     { name: "Branches", path: "/branches", icon: GitBranch },
     { name: "Settings", path: "/settings", icon: Settings },
+    { name: "Notifications", path: "/notifications", icon: Bell },
   ];
 
   const logoUrl = restaurant?.logo

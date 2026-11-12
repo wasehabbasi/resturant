@@ -1,7 +1,7 @@
 
 import { useCallback, useEffect, useState } from "react";
 import { io } from "socket.io-client";
-import { RefreshCw, ChefHat, Clock, CheckCircle } from "lucide-react";
+import { RefreshCw, ChefHat, Clock, CheckCircle, X } from "lucide-react";
 
 import api from "../services/api";
 import "./Kitchen.css";
@@ -38,6 +38,7 @@ const Kitchen = () => {
   const [loading, setLoading] = useState(true);
   const [updatingId, setUpdatingId] = useState(null);
   const [error, setError] = useState("");
+  const [newOrderAlert, setNewOrderAlert] = useState(null);
 
   const fetchOrders = useCallback(async () => {
     try {
@@ -82,9 +83,10 @@ const Kitchen = () => {
 
     socket.on("notification:new", (notification) => {
       if (notification.type === "new_order") {
+        setNewOrderAlert(notification);
         fetchOrders();
       }
-    });
+    }); 
 
     socket.on("order:updated", () => {
       fetchOrders();
@@ -158,6 +160,23 @@ const Kitchen = () => {
           Refresh
         </button>
       </div>
+
+      {newOrderAlert && (
+        <div className="kitchen-new-order-alert">
+          <div>
+            <strong>{newOrderAlert.title || "New Order Received!"}</strong>
+            <p>{newOrderAlert.message}</p>
+          </div>
+
+          <button
+            type="button"
+            onClick={() => setNewOrderAlert(null)}
+            aria-label="Dismiss notification"
+          >
+            <X size={18} />
+          </button>
+        </div>
+      )}
 
       {error && (
         <div className="kitchen-error">{error}</div>
