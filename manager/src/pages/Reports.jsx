@@ -5,6 +5,7 @@ import {
   DollarSign,
   TrendingUp,
   RefreshCw,
+  Download,
 } from "lucide-react";
 
 import api from "../services/api";
@@ -69,6 +70,88 @@ const Reports = () => {
     fetchReports({ startDate: "", endDate: "" });
   };
 
+  const exportCSV = () => {
+    if (!data) return;
+
+    const escapeCSV = (value) => {
+      let text = String(value ?? "");
+
+      if (/^[=+\-@\t\r]/.test(text)) {
+        text = `'${text}`;
+      }
+
+      return `"${text.replace(/"/g, '""')}"`;
+    };
+
+    const rows = [
+      ["Restaurant Sales Report"],
+      ["Report Period", period],
+      ["Start Date", startDate || "Default"],
+      ["End Date", endDate || "Default"],
+      [],
+      ["Summary"],
+      ["Metric", "Value"],
+      ["Today's Revenue", data.summary.today.revenue],
+      ["Today's Orders", data.summary.today.totalOrders],
+      ["This Month Revenue", data.summary.thisMonth.revenue],
+      ["This Month Orders", data.summary.thisMonth.totalOrders],
+    ];
+
+    if (data.summary.selectedRange) {
+      rows.push(
+        ["Selected Range Revenue", data.summary.selectedRange.revenue],
+        ["Selected Range Orders", data.summary.selectedRange.totalOrders]
+      );
+    }
+
+    rows.push(
+      [],
+      ["Sales Report"],
+      ["Date", "Orders", "Revenue"],
+      ...currentSales.map((item) => [
+        item.label,
+        item.totalOrders,
+        item.revenue,
+      ]),
+      [],
+      ["Top Selling Products"],
+      ["Product", "Quantity Sold", "Revenue"],
+      ...data.topProducts.map((item) => [
+        item.name,
+        item.totalQuantity,
+        item.totalRevenue,
+      ]),
+      [],
+      ["Order Status"],
+      ["Status", "Total Orders"],
+      ...data.orderStatus.map((item) => [
+        item.status,
+        item.total,
+      ])
+    );
+
+    const csvContent = rows
+      .map((row) => row.map(escapeCSV).join(","))
+      .join("\r\n");
+
+    const blob = new Blob(
+      ["\uFEFF" + csvContent],
+      { type: "text/csv;charset=utf-8;" }
+    );
+
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+
+    link.href = url;
+    link.download = `restaurant-report-${period}.csv`;
+
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+
+    URL.revokeObjectURL(url);
+  };
+
   useEffect(() => {
     fetchReports();
   }, []);
@@ -131,6 +214,14 @@ const Reports = () => {
         >
           <RefreshCw size={16} />
           Refresh
+        </button>
+
+        <button
+          className="reports-refresh reports-export"
+          onClick={exportCSV}
+        >
+          <Download size={16} />
+          Export CSV
         </button>
       </div>
 

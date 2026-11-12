@@ -452,3 +452,19 @@
 .reports-summary-filtered {
   grid-template-columns: repeat(2, minmax(0, 1fr));
 }
+
+.reports-header > div:last-child {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.reports-export {
+  background: #16a34a;
+  color: #fff;
+}
+
+.reports-export:hover {
+  background: #15803d;
+}

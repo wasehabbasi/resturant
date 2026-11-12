@@ -5,6 +5,7 @@ const {
     Order,
     OrderItem,
     Product,
+    BranchProduct,
     RestaurantTable,
 } = require("../models");
 
@@ -31,9 +32,26 @@ const getDashboardStats = async (req, res) => {
                 },
             }),
 
-            Product.count({
-                where: { restaurantId },
-            }),
+            BranchProduct.findAll({
+                where: { branchId },
+                attributes: ["isAvailable"],
+                include: [
+                    {
+                        model: Product,
+                        attributes: ["id", "isAvailable"],
+                        where: { restaurantId },
+                        required: true,
+                    },
+                ],
+            }).then((branchProducts) =>
+                branchProducts.filter((branchProduct) => {
+                    const effectiveAvailability =
+                        branchProduct.isAvailable ??
+                        branchProduct.Product?.isAvailable;
+
+                    return Boolean(effectiveAvailability);
+                }).length
+            ),
 
             Order.count({
                 distinct: true,
