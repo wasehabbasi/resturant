@@ -394,16 +394,13 @@ return (
                 <h3>Current Combined Bill</h3>
 
                 <p>
-                  Active Orders:{" "}
-                  {tableHistory.combinedBill.activeOrdersCount}
+                  Paid: Rs. {Number(order.paidAmount || 0).toFixed(2)}
                 </p>
 
-                <h2>
-                  Rs.{" "}
-                  {Number(
-                    tableHistory.combinedBill.total
-                  ).toFixed(2)}
-                </h2>
+                <strong>
+                  Remaining: Rs.{" "}
+                  {Number(order.remainingAmount || 0).toFixed(2)}
+                </strong>
               </div>
 
               <h3>All Orders</h3>

@@ -3,6 +3,7 @@ const {
   Order,
   OrderItem,
   Product,
+  Payment,
 } = require("../models");
 
 const { Op } = require("sequelize");
@@ -100,23 +101,53 @@ const getTableOrderHistory = async (req, res) => {
             },
           ],
         },
+        {
+          model: Payment,
+          attributes: [
+            "id",
+            "amount",
+            "paymentMethod",
+            "status",
+            "createdAt",
+          ],
+          required: false,
+        },
       ],
       order: [["createdAt", "DESC"]],
     });
 
-    const activeStatuses = [
-      "pending",
-      "accepted",
-      "preparing",
-      "ready",
-    ];
+    const orderHistory = orders.map((order) => {
+      const data = order.toJSON();
 
-    const activeOrders = orders.filter((order) =>
-      activeStatuses.includes(order.status)
+      const paidAmount = data.Payments
+        .filter((payment) => payment.status === "paid")
+        .reduce(
+          (sum, payment) => sum + Number(payment.amount || 0),
+          0
+        );
+
+      const orderTotal = Number(data.totalAmount || 0);
+
+      const remainingAmount = Math.max(
+        0,
+        Math.round((orderTotal - paidAmount) * 100) / 100
+      );
+
+      return {
+        ...data,
+        paidAmount: Number(paidAmount.toFixed(2)),
+        remainingAmount,
+      };
+    });
+
+    const billableOrders = orderHistory.filter(
+      (order) =>
+        order.status !== "cancelled" &&
+        order.remainingAmount > 0
     );
 
-    const combinedTotal = activeOrders.reduce(
-      (total, order) => total + Number(order.totalAmount || 0),
+    const combinedTotal = billableOrders.reduce(
+      (sum, order) => sum + order.remainingAmount,
       0
     );
 
@@ -127,10 +158,10 @@ const getTableOrderHistory = async (req, res) => {
         tableNumber: table.tableNumber,
         capacity: table.capacity,
       },
-      orders,
+      orders: orderHistory,
       combinedBill: {
-        activeOrdersCount: activeOrders.length,
-        total: combinedTotal,
+        activeOrdersCount: billableOrders.length,
+        total: Number(combinedTotal.toFixed(2)),
       },
     });
   } catch (error) {

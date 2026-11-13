@@ -73,6 +73,8 @@ const Orders = () => {
   const [receiptData, setReceiptData] = useState(null);
   const [receiptLoading, setReceiptLoading] = useState(false);
 
+  const [paymentAmount, setPaymentAmount] = useState("");
+
   const audioContextRef = useRef(null);
 
   const soundEnabledRef = useRef(
@@ -237,11 +239,17 @@ const Orders = () => {
       setError("");
       setMessage("");
 
-      const amount = Number(paymentSummary.remainingAmount);
+      const amount = Number(paymentAmount);
       const received = Number(amountReceived);
+      const remaining = Number(paymentSummary.remainingAmount);
+
+      if (!Number.isFinite(amount) || amount <= 0 || amount > remaining) {
+        setError("Enter a valid payment amount within the remaining balance.");
+        return;
+      }
 
       if (!Number.isFinite(received) || received < amount) {
-        setError("Cash received must be at least the remaining amount.");
+        setError("Cash received must be at least the payment amount.");
         return;
       }
 
@@ -266,6 +274,8 @@ const Orders = () => {
       setPaymentSummary(updatedPayment.data.summary);
       setPaymentHistory(updatedPayment.data.payments || []);
       setAmountReceived("");
+
+      setPaymentAmount("");
 
       await fetchOrders();
           } catch (err) {
@@ -778,6 +788,22 @@ const Orders = () => {
                   </div>
                 ) : (
                   <form onSubmit={submitCashPayment}>
+                    <label htmlFor="paymentAmount">
+                      Amount to Pay (Rs.)
+                    </label>
+
+                    <input
+                      id="paymentAmount"
+                      type="number"
+                      min="0.01"
+                      max={paymentSummary.remainingAmount}
+                      step="0.01"
+                      required
+                      value={paymentAmount}
+                      onChange={(e) => setPaymentAmount(e.target.value)}
+                      placeholder="Enter amount to pay"
+                    />
+
                     <label htmlFor="amountReceived">
                       Cash Received (Rs.)
                     </label>
@@ -785,13 +811,17 @@ const Orders = () => {
                     <input
                       id="amountReceived"
                       type="number"
-                      min={paymentSummary.remainingAmount}
+                      min={paymentAmount || "0.01"}
                       step="0.01"
                       required
                       value={amountReceived}
                       onChange={(e) => setAmountReceived(e.target.value)}
                       placeholder="Enter cash received"
                     />
+
+                    <p className="payment-hint">
+                      Remaining balance: Rs. {formatPrice(paymentSummary.remainingAmount)}
+                    </p>
 
                     <p className="payment-hint">
                       Amount due: Rs. {formatPrice(paymentSummary.remainingAmount)}
