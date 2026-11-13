@@ -669,3 +669,133 @@
     flex-direction: column;
   }
 }
+
+/* Receipt Modal */
+.receipt-overlay {
+  position: fixed !important;
+  inset: 0 !important;
+  z-index: 999999 !important;
+  display: flex !important;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.75) !important;
+  padding: 20px;
+}
+
+.receipt-modal {
+  width: 100%;
+  max-width: 600px;
+  max-height: 90vh;
+  overflow-y: auto;
+  background: #ffffff !important;
+  color: #222222 !important;
+  padding: 25px;
+  border-radius: 10px;
+  position: relative;
+}
+
+#print-receipt {
+  background: #ffffff;
+  color: #222222;
+  font-size: 14px;
+  padding: 15px;
+}
+
+.receipt-header {
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+.receipt-header h2 {
+  font-size: 24px;
+  margin-bottom: 5px;
+}
+
+.receipt-header p {
+  color: #666;
+}
+
+#print-receipt h3 {
+  margin: 18px 0 12px;
+}
+
+#print-receipt table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 15px 0;
+}
+
+#print-receipt th,
+#print-receipt td {
+  padding: 10px 5px;
+  border-bottom: 1px solid #ddd;
+  text-align: left;
+}
+
+.receipt-totals {
+  margin-top: 15px;
+}
+
+.receipt-totals p {
+  display: flex;
+  justify-content: space-between;
+  margin: 10px 0;
+}
+
+.receipt-footer {
+  text-align: center;
+  margin-top: 25px;
+  font-weight: 600;
+}
+
+.receipt-actions {
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+  margin-top: 20px;
+}
+
+.receipt-actions button {
+  padding: 10px 20px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+/* Print only receipt */
+@media print {
+  body * {
+    visibility: hidden !important;
+  }
+
+  .receipt-overlay,
+  .receipt-overlay * {
+    visibility: visible !important;
+  }
+
+  .receipt-overlay {
+    position: absolute !important;
+    inset: 0 !important;
+    display: block !important;
+    background: white !important;
+    padding: 0 !important;
+  }
+
+  .receipt-modal {
+    position: static !important;
+    width: 100% !important;
+    max-width: none !important;
+    max-height: none !important;
+    overflow: visible !important;
+    box-shadow: none !important;
+    border-radius: 0 !important;
+  }
+
+  .receipt-actions {
+    display: none !important;
+  }
+
+  #print-receipt {
+    padding: 10px !important;
+  }
+}

@@ -316,6 +316,8 @@ const Orders = () => {
         `/payments/${orderId}/receipt`
       );
 
+      console.log("RECEIPT API RESPONSE:", response.data);
+
       setReceiptData(response.data.receipt);
     } catch (err) {
       console.error("RECEIPT ERROR:", err);
@@ -673,6 +675,14 @@ const Orders = () => {
                       Record Payment
                     </button>
 
+                    <button
+                      type="button"
+                      onClick={() => openReceipt(order.id)}
+                      disabled={receiptLoading}
+                    >
+                      {receiptLoading ? "Loading Receipt..." : "View Receipt"}
+                    </button>
+
                     {next && (
                       <button
                         className="next-status-btn"
@@ -832,6 +842,80 @@ const Orders = () => {
           </div>
         </div>
       )}
+
+      {receiptData && (
+  <div className="modal-overlay receipt-overlay">
+    <div className="receipt-modal">
+      <div id="print-receipt">
+        <div className="receipt-header">
+          <h2>Restaurant Receipt</h2>
+          <p>Payment Receipt</p>
+        </div>
+
+        <hr />
+
+        <p><strong>Order:</strong> {receiptData.order.orderNumber}</p>
+        <p><strong>Date:</strong> {new Date(receiptData.order.createdAt).toLocaleString()}</p>
+        <p><strong>Customer:</strong> {receiptData.order.customerName || "Walk-in Customer"}</p>
+        <p><strong>Table:</strong> {receiptData.order.RestaurantTable?.tableNumber || "N/A"}</p>
+
+        <hr />
+
+        <h3>Order Items</h3>
+
+        <table>
+          <thead>
+            <tr>
+              <th>Item</th>
+              <th>Qty</th>
+              <th>Price</th>
+              <th>Total</th>
+            </tr>
+          </thead>
+          <tbody>
+            {(receiptData.order.OrderItems || []).map((item) => (
+              <tr key={item.id}>
+                <td>{item.Product?.name || "Product"}</td>
+                <td>{item.quantity}</td>
+                <td>Rs. {formatPrice(item.price)}</td>
+                <td>Rs. {formatPrice(item.subtotal)}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+
+        <hr />
+
+        <div className="receipt-totals">
+          <p>Order Total: <strong>Rs. {formatPrice(receiptData.orderTotal)}</strong></p>
+          <p>Paid: <strong>Rs. {formatPrice(receiptData.totalPaid)}</strong></p>
+          <p>Remaining: <strong>Rs. {formatPrice(receiptData.remainingAmount)}</strong></p>
+        </div>
+
+        <hr />
+
+        <h3>Payment History</h3>
+
+        {(receiptData.payments || []).map((payment) => (
+          <p key={payment.id}>
+            {payment.paymentMethod.toUpperCase()} — {payment.status.toUpperCase()}
+            <br />
+            Rs. {formatPrice(payment.amount)}
+          </p>
+        ))}
+
+        <div className="receipt-footer">
+          <p>Thank you for visiting!</p>
+        </div>
+      </div>
+
+      <div className="receipt-actions">
+        <button onClick={() => window.print()}>Print Receipt</button>
+        <button onClick={() => setReceiptData(null)}>Close</button>
+      </div>
+    </div>
+  </div>
+)}
     </div>
   );
 };
