@@ -70,6 +70,9 @@ const Orders = () => {
 
   const [paymentHistory, setPaymentHistory] = useState([]);
 
+  const [receiptData, setReceiptData] = useState(null);
+  const [receiptLoading, setReceiptLoading] = useState(false);
+
   const audioContextRef = useRef(null);
 
   const soundEnabledRef = useRef(
@@ -278,31 +281,53 @@ const Orders = () => {
         };
 
   const openPaymentModal = async (order) => {
-  try {
-    setPaymentOrder(order);
-    setPaymentSummary(null);
-    setPaymentHistory([]);
-    setAmountReceived("");
-    setPaymentLoading(true);
-    setError("");
+    try {
+      setPaymentOrder(order);
+      setPaymentSummary(null);
+      setPaymentHistory([]);
+      setAmountReceived("");
+      setPaymentLoading(true);
+      setError("");
 
-    const response = await api.get(`/payments/${order.id}`);
+      const response = await api.get(`/payments/${order.id}`);
 
-    setPaymentSummary(response.data.summary);
-    setPaymentHistory(response.data.payments || []);
-  } catch (err) {
-    console.error("PAYMENT SUMMARY ERROR:", err);
+      setPaymentSummary(response.data.summary);
+      setPaymentHistory(response.data.payments || []);
+    } catch (err) {
+      console.error("PAYMENT SUMMARY ERROR:", err);
 
-    setError(
-      err.response?.data?.message ||
-      "Unable to load payment details."
-    );
+      setError(
+        err.response?.data?.message ||
+        "Unable to load payment details."
+      );
 
-    setPaymentOrder(null);
-  } finally {
-    setPaymentLoading(false);
-  }
-};
+      setPaymentOrder(null);
+    } finally {
+      setPaymentLoading(false);
+    }
+  };
+
+  const openReceipt = async (orderId) => {
+    try {
+      setReceiptLoading(true);
+      setError("");
+
+      const response = await api.get(
+        `/payments/${orderId}/receipt`
+      );
+
+      setReceiptData(response.data.receipt);
+    } catch (err) {
+      console.error("RECEIPT ERROR:", err);
+
+      setError(
+        err.response?.data?.message ||
+        "Unable to load receipt."
+      );
+    } finally {
+      setReceiptLoading(false);
+    }
+  };
 
   // Update order status
   const handleStatusUpdate = async (orderId, status) => {

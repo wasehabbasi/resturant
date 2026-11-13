@@ -203,4 +203,85 @@ const getOrderPaymentSummary = async (req, res) => {
   }
 };
 
-module.exports = { recordCashPayment, getOrderPaymentSummary };
+const getOrderReceipt = async (req, res) => {
+  try {
+    const orderId = Number(req.params.orderId);
+
+    if (!Number.isInteger(orderId) || orderId <= 0) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid order ID",
+      });
+    }
+
+    const order = await Order.findOne({
+      where: {
+        id: orderId,
+        branchId: req.branchId,
+      },
+      include: [
+        {
+          model: require("../models").OrderItem,
+          include: [
+            {
+              model: require("../models").Product,
+              attributes: ["id", "name"],
+            },
+          ],
+        },
+        {
+          model: require("../models").RestaurantTable,
+          attributes: ["id", "tableNumber"],
+        },
+      ],
+    });
+
+    if (!order) {
+      return res.status(404).json({
+        success: false,
+        message: "Order not found in this branch",
+      });
+    }
+
+    const payments = await Payment.findAll({
+      where: {
+        orderId: order.id,
+        branchId: req.branchId,
+      },
+      order: [["createdAt", "ASC"]],
+    });
+
+    const totalPaid = payments
+      .filter((payment) => payment.status === "paid")
+      .reduce((sum, payment) => sum + Number(payment.amount), 0);
+
+    const orderTotal = Number(order.totalAmount);
+
+    return res.status(200).json({
+      success: true,
+      receipt: {
+        order,
+        payments,
+        orderTotal,
+        totalPaid: Number(totalPaid.toFixed(2)),
+        remainingAmount: Math.max(
+          0,
+          Number((orderTotal - totalPaid).toFixed(2))
+        ),
+      },
+    });
+  } catch (error) {
+    console.error("GET ORDER RECEIPT ERROR:", error);
+
+    return res.status(500).json({
+      success: false,
+      message: "Unable to generate receipt",
+    });
+  }
+};
+
+module.exports = {
+  recordCashPayment,
+  getOrderPaymentSummary,
+  getOrderReceipt,
+};

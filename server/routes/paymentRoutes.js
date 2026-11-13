@@ -1,7 +1,11 @@
 const express = require("express");
 const router = express.Router();
 
-const { recordCashPayment, getOrderPaymentSummary, } = require("../controllers/paymentController");
+const {
+  recordCashPayment,
+  getOrderPaymentSummary,
+  getOrderReceipt,
+} = require("../controllers/paymentController");
 
 const {
   protect,
@@ -20,5 +24,7 @@ router.use(
 router.post("/:orderId/cash", recordCashPayment);
 
 router.get("/:orderId", getOrderPaymentSummary);
+
+router.get("/:orderId/receipt", getOrderReceipt);
 
 module.exports = router;
