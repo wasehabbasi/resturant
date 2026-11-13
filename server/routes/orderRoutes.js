@@ -14,18 +14,24 @@ const {
   requireBranch,
 } = require("../middleware/authMiddleware");
 
-// All order routes require authentication and manager/admin access
 router.use(
   protect,
-  authorize("manager", "admin"),
   requireRestaurant,
   requireBranch
 );
 
-// Get orders for selected branch
-router.get("/", getAllOrders);
+// All staff roles can view branch orders
+router.get(
+  "/",
+  authorize("manager", "admin", "cashier", "waiter", "kitchen"),
+  getAllOrders
+);
 
-// Update order status
-router.patch("/:id/status", updateOrderStatus);
+// Only manager, admin and kitchen can update order status
+router.patch(
+  "/:id/status",
+  authorize("manager", "admin", "kitchen"),
+  updateOrderStatus
+);
 
 module.exports = router;

@@ -1,3 +1,4 @@
+
 const express = require("express");
 const router = express.Router();
 
@@ -16,7 +17,7 @@ const {
 
 router.use(
   protect,
-  authorize("manager", "admin"),
+  authorize("manager", "admin", "cashier"),
   requireRestaurant,
   requireBranch
 );
