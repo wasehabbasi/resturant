@@ -62,6 +62,14 @@ const Orders = () => {
 
   const [soundReady, setSoundReady] = useState(false);
 
+  const [paymentOrder, setPaymentOrder] = useState(null);
+  const [paymentSummary, setPaymentSummary] = useState(null);
+  const [amountReceived, setAmountReceived] = useState("");
+  const [paymentLoading, setPaymentLoading] = useState(false);
+  const [paymentSaving, setPaymentSaving] = useState(false);
+
+  const [paymentHistory, setPaymentHistory] = useState([]);
+
   const audioContextRef = useRef(null);
 
   const soundEnabledRef = useRef(
@@ -216,6 +224,85 @@ const Orders = () => {
     };
   }, [fetchOrders, soundEnabled]);
 
+  const submitCashPayment = async (e) => {
+    e.preventDefault();
+
+    if (!paymentOrder || !paymentSummary) return;
+
+    try {
+      setPaymentSaving(true);
+      setError("");
+      setMessage("");
+
+      const amount = Number(paymentSummary.remainingAmount);
+      const received = Number(amountReceived);
+
+      if (!Number.isFinite(received) || received < amount) {
+        setError("Cash received must be at least the remaining amount.");
+        return;
+      }
+
+      const response = await api.post(
+              `/payments/${paymentOrder.id}/cash`,
+              {
+                amount,
+                amountReceived: received,
+              }
+            );
+
+            setMessage(
+              `Payment received successfully. Change: Rs. ${formatPrice(
+                response.data.summary.changeAmount
+              )}`
+            );
+
+            const updatedPayment = await api.get(
+        `/payments/${paymentOrder.id}`
+      );
+
+      setPaymentSummary(updatedPayment.data.summary);
+      setPaymentHistory(updatedPayment.data.payments || []);
+      setAmountReceived("");
+
+      await fetchOrders();
+          } catch (err) {
+            console.error("CASH PAYMENT ERROR:", err);
+
+            setError(
+              err.response?.data?.message ||
+              "Unable to record cash payment."
+            );
+          } finally {
+            setPaymentSaving(false);
+          }
+        };
+
+  const openPaymentModal = async (order) => {
+  try {
+    setPaymentOrder(order);
+    setPaymentSummary(null);
+    setPaymentHistory([]);
+    setAmountReceived("");
+    setPaymentLoading(true);
+    setError("");
+
+    const response = await api.get(`/payments/${order.id}`);
+
+    setPaymentSummary(response.data.summary);
+    setPaymentHistory(response.data.payments || []);
+  } catch (err) {
+    console.error("PAYMENT SUMMARY ERROR:", err);
+
+    setError(
+      err.response?.data?.message ||
+      "Unable to load payment details."
+    );
+
+    setPaymentOrder(null);
+  } finally {
+    setPaymentLoading(false);
+  }
+};
 
   // Update order status
   const handleStatusUpdate = async (orderId, status) => {
@@ -553,6 +640,14 @@ const Orders = () => {
 
                   <div className="order-actions">
 
+                    <button
+                      type="button"
+                      className="next-status-btn"
+                      onClick={() => openPaymentModal(order)}
+                    >
+                      Record Payment
+                    </button>
+
                     {next && (
                       <button
                         className="next-status-btn"
@@ -566,6 +661,8 @@ const Orders = () => {
                           : actionLabels[next]}
                       </button>
                     )}
+
+                    
 
                     {[
                       "pending",
@@ -598,6 +695,118 @@ const Orders = () => {
         )}
 
       </div>
+
+      {paymentOrder && (
+        <div className="payment-modal-overlay">
+          <div className="payment-modal">
+            <div className="payment-modal-header">
+              <div>
+                <h2>Record Cash Payment</h2>
+                <p>Order: {paymentOrder.orderNumber}</p>
+              </div>
+
+              <button
+                type="button"
+                onClick={() => setPaymentOrder(null)}
+                className="payment-close-btn"
+              >
+                <XCircle size={22} />
+              </button>
+            </div>
+
+            {paymentLoading ? (
+              <p>Loading payment details...</p>
+            ) : paymentSummary && (
+              <>
+                <div className="payment-summary">
+                  <div>
+                    <span>Order Total</span>
+                    <strong>Rs. {formatPrice(paymentSummary.orderTotal)}</strong>
+                  </div>
+
+                  <div>
+                    <span>Total Paid</span>
+                    <strong>Rs. {formatPrice(paymentSummary.totalPaid)}</strong>
+                  </div>
+
+                  <div>
+                    <span>Remaining</span>
+                    <strong>
+                      Rs. {formatPrice(paymentSummary.remainingAmount)}
+                    </strong>
+                  </div>
+                </div>
+
+                {Number(paymentSummary.remainingAmount) <= 0 ? (
+                  <div className="payment-fully-paid">
+                    This order is fully paid.
+                  </div>
+                ) : (
+                  <form onSubmit={submitCashPayment}>
+                    <label htmlFor="amountReceived">
+                      Cash Received (Rs.)
+                    </label>
+
+                    <input
+                      id="amountReceived"
+                      type="number"
+                      min={paymentSummary.remainingAmount}
+                      step="0.01"
+                      required
+                      value={amountReceived}
+                      onChange={(e) => setAmountReceived(e.target.value)}
+                      placeholder="Enter cash received"
+                    />
+
+                    <p className="payment-hint">
+                      Amount due: Rs. {formatPrice(paymentSummary.remainingAmount)}
+                    </p>
+
+                    <button
+                      type="submit"
+                      className="payment-submit-btn"
+                      disabled={paymentSaving}
+                    >
+                      {paymentSaving ? "Saving..." : "Confirm Cash Payment"}
+                    </button>
+                  </form>
+                )}
+
+                <div className="payment-history">
+                  <h3>Payment History</h3>
+
+                  {paymentHistory.length === 0 ? (
+                    <p>No payments recorded yet.</p>
+                  ) : (
+                    paymentHistory.map((payment) => (
+                      <div className="payment-history-row" key={payment.id}>
+                        <div>
+                          <strong>
+                            Rs. {formatPrice(payment.amount)}
+                          </strong>
+                          <span>
+                            {payment.paymentMethod} · {payment.status}
+                          </span>
+                          <span>{formatDate(payment.createdAt)}</span>
+                        </div>
+
+                        <div>
+                          <span>
+                            Received: Rs. {formatPrice(payment.amountReceived)}
+                          </span>
+                          <span>
+                            Change: Rs. {formatPrice(payment.changeAmount)}
+                          </span>
+                        </div>
+                      </div>
+                    ))
+                  )}
+                </div>
+              </>
+            )}
+          </div>
+        </div>
+      )}
     </div>
   );
 };

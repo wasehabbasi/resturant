@@ -10,6 +10,7 @@ const Order = require("./Order");
 const OrderItem = require("./OrderItem");
 
 const Notification = require("./Notification");
+const Payment = require("./Payment");
 
 // Restaurant relationships
 Restaurant.hasMany(User, { foreignKey: "restaurantId" });
@@ -115,6 +116,25 @@ Notification.belongsTo(User, {
   foreignKey: "recipientUserId",
 });
 
+// Order - Payment
+Order.hasMany(Payment, {
+  foreignKey: "orderId",
+  onDelete: "RESTRICT",
+});
+
+Payment.belongsTo(Order, {
+  foreignKey: "orderId",
+});
+
+// Branch - Payment
+Branch.hasMany(Payment, {
+  foreignKey: "branchId",
+});
+
+Payment.belongsTo(Branch, {
+  foreignKey: "branchId",
+});
+
 module.exports = {
   User,
   Restaurant,
@@ -126,4 +146,5 @@ module.exports = {
   Order,
   OrderItem,
   Notification,
+  Payment,
 };

@@ -23,6 +23,7 @@ const notificationRoutes = require("./routes/notificationRoutes");
 const branchRoutes = require("./routes/branchRoutes");
 const restaurantRoutes = require("./routes/restaurantRoutes");
 const branchProductRoutes = require("./routes/branchProductRoutes");
+const paymentRoutes = require("./routes/paymentRoutes");
 
 const app = express();
 const httpServer = http.createServer(app);
@@ -215,6 +216,7 @@ app.use("/api/notifications", notificationRoutes);
 app.use("/api/branches", branchRoutes);
 app.use("/api/restaurant", restaurantRoutes);
 app.use("/api/branch-products", branchProductRoutes);
+app.use("/api/payments", paymentRoutes);
 
 // Error handler
 app.use((err, req, res, next) => {
