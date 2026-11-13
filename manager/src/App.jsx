@@ -33,7 +33,7 @@ const getSession = () => {
   try {
     const user = JSON.parse(userData);
 
-    if (!["manager", "admin"].includes(user.role)) {
+    if (!["manager", "admin", "cashier", "waiter", "kitchen"].includes(user.role)) {
       return null;
     }
 

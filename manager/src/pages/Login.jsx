@@ -36,7 +36,7 @@ const Login = () => {
         throw new Error("Invalid server response");
       }
 
-      if (!["manager", "admin"].includes(user.role)) {
+      if (!["manager", "admin", "cashier", "waiter", "kitchen"].includes(user.role)) {
         setError("You are not authorized to access this dashboard");
         return;
       }
