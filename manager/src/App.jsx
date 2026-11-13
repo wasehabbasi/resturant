@@ -18,6 +18,7 @@ import Branches from "./pages/Branches";
 import Settings from "./pages/Settings";
 import Kitchen from "./pages/Kitchen";
 import NotificationHistory from "./pages/NotificationHistory";
+import Inventory from "./pages/Inventory";
 
 const getSession = () => {
   const token =
@@ -155,6 +156,17 @@ function App() {
             <ProtectedRoute>
               <DashboardLayout>
                 <Products />
+              </DashboardLayout>
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/inventory"
+          element={
+            <ProtectedRoute>
+              <DashboardLayout>
+                <Inventory />
               </DashboardLayout>
             </ProtectedRoute>
           }

@@ -14,6 +14,7 @@ import {
   Settings,
   ChefHat,
   Bell,
+  Package,
 } from "lucide-react";
 
 const getCurrentUser = () => {
@@ -37,6 +38,7 @@ const Sidebar = ({ restaurant }) => {
     { name: "Orders", path: "/orders", icon: ShoppingBag },
     { name: "Kitchen Display", path: "/kitchen", icon: ChefHat },
     { name: "Products", path: "/products", icon: Utensils },
+    { name: "Inventory", path: "/inventory", icon: Package },
     { name: "Categories", path: "/categories", icon: Tags },
     { name: "Tables & QR", path: "/tables", icon: Table2 },
     { name: "Reports", path: "/reports", icon: BarChart3 },
