@@ -1,9 +1,14 @@
+const { Op } = require("sequelize");
+const { sequelize } = require("../config/database");
 
 const {
   Order,
   OrderItem,
   Product,
   RestaurantTable,
+  ProductIngredient,
+  BranchInventory,
+  StockMovement,
 } = require("../models");
 
 const { getBranchRoom } = require("../services/notificationService");
@@ -60,101 +65,240 @@ const allowedTransitions = {
 
 // Update order status within selected branch only
 const updateOrderStatus = async (req, res) => {
+  const { id } = req.params;
+  const { status } = req.body;
+
+  const transaction = await sequelize.transaction();
+
   try {
-    const { id } = req.params;
-    const { status } = req.body;
-
-    if (!status || typeof status !== "string") {
-      return res.status(400).json({
-        success: false,
-        message: "Please provide a valid order status",
-      });
-    }
-
     const order = await Order.findOne({
       where: {
         id,
         branchId: req.branchId,
       },
+      transaction,
+      lock: transaction.LOCK.UPDATE,
     });
 
     if (!order) {
+      await transaction.rollback();
       return res.status(404).json({
         success: false,
-        message: "Order not found in this branch",
+        message: "Order not found",
       });
     }
 
     const currentStatus = order.status;
-    const allowedNextStatuses =
-      allowedTransitions[currentStatus] || [];
 
-    if (!allowedNextStatuses.includes(status)) {
+    if (!allowedTransitions[currentStatus]?.includes(status)) {
+      await transaction.rollback();
       return res.status(400).json({
         success: false,
-        message: `Cannot change order status from ${currentStatus} to ${status}`,
-        currentStatus,
-        allowedNextStatuses,
+        message: `Cannot change order from ${currentStatus} to ${status}`,
       });
     }
 
-    const [updatedRows] = await Order.update(
-      { status },
-      {
+    // ACCEPT ORDER: Deduct ingredient stock
+    if (status === "accepted" && !order.stockDeducted) {
+      const orderItems = await OrderItem.findAll({
+        where: { orderId: order.id },
+        transaction,
+      });
+
+      const productIds = [
+        ...new Set(orderItems.map((item) => item.productId)),
+      ];
+
+      const ingredients = await ProductIngredient.findAll({
         where: {
-          id: order.id,
-          branchId: req.branchId,
-          status: currentStatus,
+          productId: { [Op.in]: productIds },
         },
-      }
-    );
-
-    if (updatedRows === 0) {
-      return res.status(409).json({
-        success: false,
-        message: "Order status has changed. Please refresh and try again.",
+        transaction,
       });
+
+      const requiredStock = {};
+
+      for (const ingredient of ingredients) {
+        const orderItem = orderItems.find(
+          (item) => item.productId === ingredient.productId
+        );
+
+        if (!orderItem) continue;
+
+        const required =
+          Number(ingredient.quantityPerProduct) *
+          Number(orderItem.quantity);
+
+        requiredStock[ingredient.inventoryItemId] =
+          (requiredStock[ingredient.inventoryItemId] || 0) + required;
+      }
+
+      const inventoryIds = Object.keys(requiredStock).map(Number);
+
+      if (inventoryIds.length > 0) {
+        const branchInventory = await BranchInventory.findAll({
+          where: {
+            branchId: req.branchId,
+            inventoryItemId: { [Op.in]: inventoryIds },
+          },
+          transaction,
+          lock: transaction.LOCK.UPDATE,
+        });
+
+        for (const inventoryId of inventoryIds) {
+          const stock = branchInventory.find(
+            (item) => item.inventoryItemId === inventoryId
+          );
+
+          const required = Number(requiredStock[inventoryId].toFixed(3));
+
+          if (!stock || Number(stock.quantity) < required) {
+            const itemName = stock
+              ? stock.inventoryItemId
+              : inventoryId;
+
+            throw new Error(
+              `INSUFFICIENT_STOCK: Insufficient stock for inventory item ID ${itemName}`
+            );
+          }
+        }
+
+        for (const inventoryId of inventoryIds) {
+          const stock = branchInventory.find(
+            (item) => item.inventoryItemId === inventoryId
+          );
+
+          const required = Number(requiredStock[inventoryId].toFixed(3));
+          const previousQuantity = Number(stock.quantity);
+          const newQuantity = Number(
+            (previousQuantity - required).toFixed(3)
+          );
+
+          stock.quantity = newQuantity;
+          await stock.save({ transaction });
+
+          await StockMovement.create(
+            {
+              branchId: req.branchId,
+              inventoryItemId: inventoryId,
+              userId: req.userId,
+              orderId: order.id,
+              type: "stock_out",
+              quantity: required,
+              previousQuantity,
+              newQuantity,
+              note: `Automatic deduction for order ${order.orderNumber}`,
+            },
+            { transaction }
+          );
+        }
+
+        order.stockDeducted = true;
+      }
     }
 
-    await order.reload();
+    // CANCEL ORDER: Restore previously deducted stock
+    if (status === "cancelled" && order.stockDeducted) {
+      const deductions = await StockMovement.findAll({
+        where: {
+          orderId: order.id,
+          type: "stock_out",
+        },
+        transaction,
+      });
 
-    // Broadcast order status update to all connected branch managers
+      for (const movement of deductions) {
+        const stock = await BranchInventory.findOne({
+          where: {
+            branchId: req.branchId,
+            inventoryItemId: movement.inventoryItemId,
+          },
+          transaction,
+          lock: transaction.LOCK.UPDATE,
+        });
+
+        if (!stock) {
+          throw new Error(
+            `Missing branch inventory for item ${movement.inventoryItemId}`
+          );
+        }
+
+        const previousQuantity = Number(stock.quantity);
+        const restoredQuantity = Number(movement.quantity);
+        const newQuantity = Number(
+          (previousQuantity + restoredQuantity).toFixed(3)
+        );
+
+        stock.quantity = newQuantity;
+        await stock.save({ transaction });
+
+        await StockMovement.create(
+          {
+            branchId: req.branchId,
+            inventoryItemId: movement.inventoryItemId,
+            userId: req.userId,
+            orderId: order.id,
+            type: "stock_in",
+            quantity: restoredQuantity,
+            previousQuantity,
+            newQuantity,
+            note: `Stock restored for cancelled order ${order.orderNumber}`,
+          },
+          { transaction }
+        );
+      }
+    }
+
+    order.status = status;
+    await order.save({ transaction });
+
+    await transaction.commit();
+
+    const updatedOrder = await Order.findByPk(order.id, {
+      include: [
+        { model: RestaurantTable },
+        {
+          model: OrderItem,
+          include: [{ model: Product }],
+        },
+      ],
+    });
+
     const io = req.app.get("io");
 
-
     if (io) {
-      // Update manager dashboard and kitchen
-      io.to(getBranchRoom(req.restaurantId, req.branchId)).emit(
-        "order:updated",
-        {
-          orderId: order.id,
-          orderNumber: order.orderNumber,
-          status: order.status,
-          branchId: req.branchId,
-        }
-      );
+      io.to(`branch_${req.branchId}`).emit("orderUpdated", updatedOrder);
 
-      // Notify customers connected through this table's QR code
-      io.to(`table:${order.tableId}`).emit("order:status_updated", {
-        orderId: order.id,
-        orderNumber: order.orderNumber,
-        status: order.status,
-        tableId: order.tableId,
-      });
+      if (updatedOrder.tableId) {
+        io.to(`table_${updatedOrder.tableId}`).emit(
+          "orderUpdated",
+          updatedOrder
+        );
+      }
     }
 
-
-    return res.status(200).json({
+    return res.json({
       success: true,
       message: "Order status updated successfully",
-      order,
+      order: updatedOrder,
     });
   } catch (error) {
+    if (!transaction.finished) {
+      await transaction.rollback();
+    }
+
     console.error("UPDATE ORDER STATUS ERROR:", error);
+
+    if (error.message.startsWith("INSUFFICIENT_STOCK:")) {
+      return res.status(400).json({
+        success: false,
+        message: error.message.replace("INSUFFICIENT_STOCK: ", ""),
+      });
+    }
 
     return res.status(500).json({
       success: false,
-      message: "Unable to update order status",
+      message: "Failed to update order status",
     });
   }
 };

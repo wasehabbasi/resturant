@@ -19,6 +19,10 @@ const StockMovement = sequelize.define("StockMovement", {
     type: DataTypes.INTEGER,
     allowNull: false,
   },
+  orderId: {
+    type: DataTypes.INTEGER,
+    allowNull: true,
+  },
   type: {
     type: DataTypes.ENUM("stock_in", "stock_out", "adjustment"),
     allowNull: false,

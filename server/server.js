@@ -27,6 +27,8 @@ const paymentRoutes = require("./routes/paymentRoutes");
 const staffRoutes = require("./routes/staffRoutes");
 const inventoryRoutes = require("./routes/inventoryRoutes");
 
+const productIngredientRoutes = require("./routes/productIngredientRoutes");
+
 const app = express();
 const httpServer = http.createServer(app);
 
@@ -221,6 +223,7 @@ app.use("/api/branch-products", branchProductRoutes);
 app.use("/api/payments", paymentRoutes);
 app.use("/api/staff", staffRoutes);
 app.use("/api/inventory", inventoryRoutes);
+app.use("/api/product-ingredients", productIngredientRoutes);
 
 // Error handler
 app.use((err, req, res, next) => {

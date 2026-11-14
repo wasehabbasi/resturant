@@ -48,6 +48,12 @@ const Order = sequelize.define(
       allowNull: false,
       defaultValue: "pending",
     },
+
+    stockDeducted: {
+      type: DataTypes.BOOLEAN,
+      allowNull: false,
+      defaultValue: false,
+    },
   },
   {
     tableName: "Orders",

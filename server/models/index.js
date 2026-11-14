@@ -16,6 +16,8 @@ const InventoryItem = require("./InventoryItem");
 const BranchInventory = require("./BranchInventory");
 const StockMovement = require("./StockMovement");
 
+const ProductIngredient = require("./ProductIngredient");
+
 // Restaurant relationships
 Restaurant.hasMany(User, { foreignKey: "restaurantId" });
 User.belongsTo(Restaurant, { foreignKey: "restaurantId" });
@@ -158,6 +160,33 @@ StockMovement.belongsTo(InventoryItem, { foreignKey: "inventoryItemId" });
 User.hasMany(StockMovement, { foreignKey: "userId" });
 StockMovement.belongsTo(User, { foreignKey: "userId" });
 
+// Product - Ingredients
+Product.hasMany(ProductIngredient, {
+  foreignKey: "productId",
+  onDelete: "CASCADE",
+});
+
+ProductIngredient.belongsTo(Product, {
+  foreignKey: "productId",
+});
+
+InventoryItem.hasMany(ProductIngredient, {
+  foreignKey: "inventoryItemId",
+  onDelete: "CASCADE",
+});
+
+ProductIngredient.belongsTo(InventoryItem, {
+  foreignKey: "inventoryItemId",
+});
+
+Order.hasMany(StockMovement, {
+  foreignKey: "orderId",
+});
+
+StockMovement.belongsTo(Order, {
+  foreignKey: "orderId",
+});
+
 module.exports = {
   User,
   Restaurant,
@@ -173,4 +202,5 @@ module.exports = {
   InventoryItem,
   BranchInventory,
   StockMovement,
+  ProductIngredient,
 };
