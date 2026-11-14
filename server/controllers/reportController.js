@@ -248,21 +248,29 @@ const getReports = async (req, res) => {
                 today: {
                     totalOrders: Number(todayStats[0].totalOrders || 0),
                     revenue: Number(todayStats[0].revenue || 0),
+                    expenses: Number(todayExpenses[0].expenses || 0),
+                    profit:
+                        Number(todayStats[0].revenue || 0) -
+                        Number(todayExpenses[0].expenses || 0),
                 },
 
                 thisMonth: {
                     totalOrders: Number(monthlyStats[0].totalOrders || 0),
                     revenue: Number(monthlyStats[0].revenue || 0),
+                    expenses: Number(monthlyExpenses[0].expenses || 0),
+                    profit:
+                        Number(monthlyStats[0].revenue || 0) -
+                        Number(monthlyExpenses[0].expenses || 0),
                 },
 
                 selectedRange: selectedRangeStats
                     ? {
-                        totalOrders: Number(
-                            selectedRangeStats[0].totalOrders || 0
-                        ),
-                        revenue: Number(
-                            selectedRangeStats[0].revenue || 0
-                        ),
+                        totalOrders: Number(selectedRangeStats[0].totalOrders || 0),
+                        revenue: Number(selectedRangeStats[0].revenue || 0),
+                        expenses: Number(selectedRangeExpenses[0].expenses || 0),
+                        profit:
+                            Number(selectedRangeStats[0].revenue || 0) -
+                            Number(selectedRangeExpenses[0].expenses || 0),
                     }
                     : null,
             },
