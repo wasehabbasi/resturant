@@ -1,6 +1,7 @@
 
 import { useEffect, useState } from "react";
 import { Bell, Search, UserCircle, GitBranch } from "lucide-react";
+import { io } from "socket.io-client";
 import api from "../services/api";
 import "./Navbar.css";
 
@@ -9,6 +10,9 @@ const Navbar = () => {
   const [selectedBranch, setSelectedBranch] = useState("");
   const [loadingBranches, setLoadingBranches] = useState(true);
   const [branchError, setBranchError] = useState("");
+  const [unreadCount, setUnreadCount] = useState(0);
+  const [notifications, setNotifications] = useState([]);
+const [showNotifications, setShowNotifications] = useState(false);
 
   useEffect(() => {
     const loadBranches = async () => {
@@ -62,6 +66,107 @@ const Navbar = () => {
 
     loadBranches();
   }, []);
+
+  useEffect(() => {
+  if (!selectedBranch) return;
+
+  const storage = localStorage.getItem("token")
+    ? localStorage
+    : sessionStorage;
+
+  const token = storage.getItem("token");
+
+  if (!token) return;
+
+  let active = true;
+
+  const fetchUnreadCount = async () => {
+    try {
+      const response = await api.get("/notifications/unread-count");
+
+      if (active) {
+        setUnreadCount(response.data.count || 0);
+      }
+    } catch (error) {
+      console.error("UNREAD NOTIFICATION ERROR:", error);
+    }
+  };
+
+  fetchUnreadCount();
+
+  const socket = io("http://localhost:5000", {
+    auth: {
+      token,
+      branchId: selectedBranch,
+    },
+  });
+
+  socket.on("notification:new", (notification) => {
+  setUnreadCount((previous) => previous + 1);
+
+  setNotifications((previous) => [
+    notification,
+    ...previous.filter((item) => item.id !== notification.id),
+  ].slice(0, 20));
+});
+
+  socket.on("connect_error", (error) => {
+    console.error("NOTIFICATION SOCKET ERROR:", error.message);
+  });
+
+  return () => {
+    active = false;
+    socket.disconnect();
+  };
+}, [selectedBranch]);
+
+const handleNotificationToggle = async () => {
+  const willOpen = !showNotifications;
+  setShowNotifications(willOpen);
+
+  if (!willOpen) return;
+
+  try {
+    const response = await api.get("/notifications?limit=20");
+    setNotifications(response.data.notifications || []);
+  } catch (error) {
+    console.error("NOTIFICATIONS ERROR:", error);
+  }
+};
+
+const handleMarkAsRead = async (notification) => {
+  if (notification.isRead) return;
+
+  try {
+    await api.patch(`/notifications/${notification.id}/read`);
+
+    setNotifications((previous) =>
+      previous.map((item) =>
+        item.id === notification.id
+          ? { ...item, isRead: true }
+          : item
+      )
+    );
+
+    setUnreadCount((previous) => Math.max(0, previous - 1));
+  } catch (error) {
+    console.error("MARK NOTIFICATION READ ERROR:", error);
+  }
+};
+
+const handleMarkAllAsRead = async () => {
+  try {
+    await api.patch("/notifications/read-all");
+
+    setNotifications((previous) =>
+      previous.map((item) => ({ ...item, isRead: true }))
+    );
+
+    setUnreadCount(0);
+  } catch (error) {
+    console.error("MARK ALL READ ERROR:", error);
+  }
+};
 
   const handleBranchChange = (e) => {
     const branchId = e.target.value;
@@ -125,13 +230,70 @@ const Navbar = () => {
           </span>
         )}
 
-        <button className="notification-button">
-          <Bell size={21} />
-          <span className="notification-dot"></span>
+        <div className="notification-wrapper">
+  <button
+    className="notification-button"
+    type="button"
+    title={`${unreadCount} unread notifications`}
+    onClick={handleNotificationToggle}
+  >
+    <Bell size={21} />
+
+    {unreadCount > 0 && (
+      <span className="notification-count">
+        {unreadCount > 99 ? "99+" : unreadCount}
+      </span>
+    )}
+  </button>
+
+  {showNotifications && (
+    <div className="notification-dropdown">
+      <div className="notification-header">
+        <strong>Notifications</strong>
+
+        <button
+          type="button"
+          onClick={handleMarkAllAsRead}
+          disabled={unreadCount === 0}
+        >
+          Mark all as read
         </button>
+      </div>
+
+      <div className="notification-list">
+        {notifications.length === 0 ? (
+          <p className="notification-empty">
+            No notifications yet
+          </p>
+        ) : (
+          notifications.map((notification) => (
+            <div
+              key={notification.id}
+              className={`notification-item ${
+                notification.isRead ? "read" : "unread"
+              }`}
+              onClick={() => handleMarkAsRead(notification)}
+            >
+              <strong>{notification.title}</strong>
+
+              <p>{notification.message}</p>
+
+              <small>
+                {new Date(notification.createdAt).toLocaleString()}
+              </small>
+            </div>
+          ))
+        )}
+      </div>
+    </div>
+  )}
+</div>
 
         <div className="profile-info">
-          <UserCircle size={35} color="#f97316" />
+          <UserCircle
+            size={35}
+            color="var(--portal-primary, #171c1a)"
+          />
 
           <div>
             <h4>{user?.name || "Restaurant Manager"}</h4>

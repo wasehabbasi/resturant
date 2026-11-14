@@ -16,6 +16,9 @@ import Reports from "./pages/Reports";
 import Register from "./pages/Register";
 import Branches from "./pages/Branches";
 import Settings from "./pages/Settings";
+import Kitchen from "./pages/Kitchen";
+import NotificationHistory from "./pages/NotificationHistory";
+import Inventory from "./pages/Inventory";
 
 const getSession = () => {
   const token =
@@ -31,7 +34,7 @@ const getSession = () => {
   try {
     const user = JSON.parse(userData);
 
-    if (!["manager", "admin"].includes(user.role)) {
+    if (!["manager", "admin", "cashier", "waiter", "kitchen"].includes(user.role)) {
       return null;
     }
 
@@ -115,6 +118,28 @@ function App() {
         />
 
         <Route
+  path="/notifications"
+  element={
+    <ProtectedRoute>
+      <DashboardLayout>
+        <NotificationHistory />
+      </DashboardLayout>
+    </ProtectedRoute>
+  }
+/>
+
+        <Route
+          path="/kitchen"
+          element={
+            <ProtectedRoute>
+              <DashboardLayout>
+                <Kitchen />
+              </DashboardLayout>
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
           path="/reports"
           element={
             <ProtectedRoute>
@@ -131,6 +156,17 @@ function App() {
             <ProtectedRoute>
               <DashboardLayout>
                 <Products />
+              </DashboardLayout>
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/inventory"
+          element={
+            <ProtectedRoute>
+              <DashboardLayout>
+                <Inventory />
               </DashboardLayout>
             </ProtectedRoute>
           }

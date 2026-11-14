@@ -326,7 +326,7 @@ const login = async (req, res) => {
       });
     }
 
-    if (!["manager", "admin"].includes(user.role)) {
+    if (!["manager", "admin", "cashier", "waiter", "kitchen"].includes(user.role)) {
       return res.status(403).json({
         success: false,
         message: "You are not authorized to access manager dashboard",

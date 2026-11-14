@@ -1,14 +1,19 @@
+
 const { Op } = require("sequelize");
 
 const {
     Order,
     OrderItem,
     Product,
+    BranchProduct,
     RestaurantTable,
 } = require("../models");
 
 const getDashboardStats = async (req, res) => {
     try {
+        const branchId = req.branchId;
+        const restaurantId = req.restaurantId;
+
         const [
             totalOrders,
             totalRevenue,
@@ -16,23 +21,49 @@ const getDashboardStats = async (req, res) => {
             totalCustomers,
             recentOrders,
         ] = await Promise.all([
-            Order.count(),
-
-            Order.sum("totalAmount", {
-                where: { status: "completed" },
+            Order.count({
+                where: { branchId },
             }),
 
-            Product.count(),
+            Order.sum("totalAmount", {
+                where: {
+                    branchId,
+                    status: "completed",
+                },
+            }),
+
+            BranchProduct.findAll({
+                where: { branchId },
+                attributes: ["isAvailable"],
+                include: [
+                    {
+                        model: Product,
+                        attributes: ["id", "isAvailable"],
+                        where: { restaurantId },
+                        required: true,
+                    },
+                ],
+            }).then((branchProducts) =>
+                branchProducts.filter((branchProduct) => {
+                    const effectiveAvailability =
+                        branchProduct.isAvailable ??
+                        branchProduct.Product?.isAvailable;
+
+                    return Boolean(effectiveAvailability);
+                }).length
+            ),
 
             Order.count({
                 distinct: true,
                 col: "guestId",
                 where: {
+                    branchId,
                     guestId: { [Op.ne]: null },
                 },
             }),
 
             Order.findAll({
+                where: { branchId },
                 limit: 5,
                 order: [["createdAt", "DESC"]],
                 include: [

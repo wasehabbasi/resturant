@@ -1,17 +1,57 @@
-
 import {
   createContext,
   useContext,
   useState,
   useMemo,
+  useEffect,
 } from "react";
 
 const CartContext = createContext();
 
 export const CartProvider = ({ children }) => {
   const [cart, setCart] = useState([]);
+  const [activeToken, setActiveToken] = useState(null);
 
-  const addToCart = (product) => {
+  // Load cart belonging to the current QR table
+  const setCartScope = (token) => {
+    if (!token) return;
+
+    try {
+      const savedCart = localStorage.getItem(
+        `restaurant_cart_${token}`
+      );
+
+      const parsedCart = savedCart
+        ? JSON.parse(savedCart)
+        : [];
+
+      setCart(Array.isArray(parsedCart) ? parsedCart : []);
+      setActiveToken(token);
+    } catch (error) {
+      console.error("CART RESTORE ERROR:", error);
+      setCart([]);
+      setActiveToken(token);
+    }
+  };
+
+  // Automatically save cart whenever it changes
+  useEffect(() => {
+    if (!activeToken) return;
+
+    localStorage.setItem(
+      `restaurant_cart_${activeToken}`,
+      JSON.stringify(cart)
+    );
+  }, [cart, activeToken]);
+
+  const addToCart = (product, token) => {
+    if (!token) return;
+
+    if (activeToken !== token) {
+      setCartScope(token);
+      return;
+    }
+
     setCart((prev) => {
       const existing = prev.find(
         (item) => item.id === product.id
@@ -68,10 +108,19 @@ export const CartProvider = ({ children }) => {
 
   const clearCart = () => {
     setCart([]);
+
+    if (activeToken) {
+      localStorage.removeItem(
+        `restaurant_cart_${activeToken}`
+      );
+    }
   };
 
   const totalItems = useMemo(
-    () => cart.reduce((sum, item) => sum + item.quantity, 0),
+    () => cart.reduce(
+      (sum, item) => sum + item.quantity,
+      0
+    ),
     [cart]
   );
 
@@ -93,6 +142,7 @@ export const CartProvider = ({ children }) => {
         decreaseQuantity,
         removeFromCart,
         clearCart,
+        setCartScope,
         totalItems,
         totalPrice,
       }}

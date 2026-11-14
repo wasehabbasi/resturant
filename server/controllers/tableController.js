@@ -1,12 +1,20 @@
+const {
+  RestaurantTable,
+  Order,
+  OrderItem,
+  Product,
+  Payment,
+} = require("../models");
 
-const { RestaurantTable } = require("../models");
+const { Op } = require("sequelize");
 const QRCode = require("qrcode");
 const { randomUUID } = require("crypto");
+
 
 const CUSTOMER_URL =
   process.env.CUSTOMER_URL || "http://localhost:5173";
 
-// Get tables of selected branch only
+// Get tables of selected branch with automatic availability status
 const getTables = async (req, res) => {
   try {
     const tables = await RestaurantTable.findAll({
@@ -14,17 +22,154 @@ const getTables = async (req, res) => {
       order: [["id", "DESC"]],
     });
 
-    const result = tables.map((table) => ({
-      ...table.toJSON(),
-      menuUrl: `${CUSTOMER_URL}/menu/${table.qrToken}`,
-    }));
+    const activeOrders = await Order.findAll({
+      where: {
+        branchId: req.branchId,
+        status: {
+          [Op.in]: ["pending", "accepted", "preparing", "ready"],
+        },
+      },
+      attributes: ["id", "tableId", "status"],
+      raw: true,
+    });
 
-    return res.json({ success: true, tables: result });
+    const occupiedTableIds = new Set(
+      activeOrders.map((order) => order.tableId)
+    );
+
+    const result = tables.map((table) => {
+      const tableData = table.toJSON();
+
+      let availabilityStatus = "available";
+
+      if (!table.isActive) {
+        availabilityStatus = "inactive";
+      } else if (occupiedTableIds.has(table.id)) {
+        availabilityStatus = "occupied";
+      }
+
+      return {
+        ...tableData,
+        availabilityStatus,
+        menuUrl: `${CUSTOMER_URL}/menu/${table.qrToken}`,
+      };
+    });
+
+    return res.json({
+      success: true,
+      tables: result,
+    });
   } catch (error) {
     console.error("GET TABLES ERROR:", error);
+
     return res.status(500).json({
       success: false,
       message: "Failed to fetch tables",
+    });
+  }
+};
+
+// Get complete order history and current combined bill for a table
+const getTableOrderHistory = async (req, res) => {
+  try {
+    const table = await RestaurantTable.findOne({
+      where: {
+        id: req.params.id,
+        branchId: req.branchId,
+      },
+    });
+
+    if (!table) {
+      return res.status(404).json({
+        success: false,
+        message: "Table not found in selected branch",
+      });
+    }
+
+    const orders = await Order.findAll({
+      where: {
+        tableId: table.id,
+        branchId: req.branchId,
+      },
+      include: [
+        {
+          model: OrderItem,
+          include: [
+            {
+              model: Product,
+              attributes: ["id", "name", "image"],
+            },
+          ],
+        },
+        {
+          model: Payment,
+          attributes: [
+            "id",
+            "amount",
+            "paymentMethod",
+            "status",
+            "createdAt",
+          ],
+          required: false,
+        },
+      ],
+      order: [["createdAt", "DESC"]],
+    });
+
+    const orderHistory = orders.map((order) => {
+      const data = order.toJSON();
+
+      const paidAmount = data.Payments
+        .filter((payment) => payment.status === "paid")
+        .reduce(
+          (sum, payment) => sum + Number(payment.amount || 0),
+          0
+        );
+
+      const orderTotal = Number(data.totalAmount || 0);
+
+      const remainingAmount = Math.max(
+        0,
+        Math.round((orderTotal - paidAmount) * 100) / 100
+      );
+
+      return {
+        ...data,
+        paidAmount: Number(paidAmount.toFixed(2)),
+        remainingAmount,
+      };
+    });
+
+    const billableOrders = orderHistory.filter(
+      (order) =>
+        order.status !== "cancelled" &&
+        order.remainingAmount > 0
+    );
+
+    const combinedTotal = billableOrders.reduce(
+      (sum, order) => sum + order.remainingAmount,
+      0
+    );
+
+    return res.json({
+      success: true,
+      table: {
+        id: table.id,
+        tableNumber: table.tableNumber,
+        capacity: table.capacity,
+      },
+      orders: orderHistory,
+      combinedBill: {
+        activeOrdersCount: billableOrders.length,
+        total: Number(combinedTotal.toFixed(2)),
+      },
+    });
+  } catch (error) {
+    console.error("TABLE ORDER HISTORY ERROR:", error);
+
+    return res.status(500).json({
+      success: false,
+      message: "Failed to fetch table order history",
     });
   }
 };
@@ -261,6 +406,61 @@ const generateQR = async (req, res) => {
   }
 };
 
+// Regenerate QR token for a table
+const regenerateQR = async (req, res) => {
+  try {
+    const table = await RestaurantTable.findOne({
+      where: {
+        id: req.params.id,
+        branchId: req.branchId,
+      },
+    });
+
+    if (!table) {
+      return res.status(404).json({
+        success: false,
+        message: "Table not found in selected branch",
+      });
+    }
+
+    if (!table.isActive) {
+      return res.status(400).json({
+        success: false,
+        message: "Cannot regenerate QR for an inactive table",
+      });
+    }
+
+    const newToken = randomUUID();
+
+    await table.update({
+      qrToken: newToken,
+    });
+
+    const menuUrl = `${CUSTOMER_URL}/menu/${newToken}`;
+
+    const qrCode = await QRCode.toDataURL(menuUrl, {
+      width: 400,
+      margin: 2,
+      errorCorrectionLevel: "H",
+    });
+
+    return res.json({
+      success: true,
+      message: "QR code regenerated successfully",
+      qrCode,
+      menuUrl,
+      table,
+    });
+  } catch (error) {
+    console.error("REGENERATE QR ERROR:", error);
+
+    return res.status(500).json({
+      success: false,
+      message: "QR regeneration failed",
+    });
+  }
+};
+
 // Public table validation by QR token
 const getPublicTable = async (req, res) => {
   try {
@@ -299,4 +499,6 @@ module.exports = {
   deleteTable,
   generateQR,
   getPublicTable,
+  regenerateQR,
+  getTableOrderHistory,
 };

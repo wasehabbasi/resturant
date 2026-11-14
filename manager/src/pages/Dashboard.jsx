@@ -65,15 +65,15 @@ const Dashboard = () => {
       icon: DollarSign,
     },
     {
-      title: "Food Items",
+      title: "Restaurant Menu Items",
       value: stats?.totalProducts ?? 0,
-      change: "Total menu items",
+      change: "Shared restaurant catalog",
       icon: Utensils,
     },
     {
-      title: "Customers",
+      title: "Guest Sessions",
       value: stats?.totalCustomers ?? 0,
-      change: "Unique guest sessions",
+      change: "Unique QR guest sessions",
       icon: Users,
     },
   ];

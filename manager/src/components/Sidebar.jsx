@@ -12,19 +12,56 @@ import {
   BarChart3,
   GitBranch,
   Settings,
+  ChefHat,
+  Bell,
+  Package,
 } from "lucide-react";
 
+const getCurrentUser = () => {
+  const userData =
+    localStorage.getItem("user") ||
+    sessionStorage.getItem("user");
+
+  try {
+    return userData ? JSON.parse(userData) : null;
+  } catch {
+    return null;
+  }
+};
+
 const Sidebar = ({ restaurant }) => {
-  const menuItems = [
+    const user = getCurrentUser();
+  const role = user?.role;
+
+  const allMenuItems = [
     { name: "Dashboard", path: "/", icon: LayoutDashboard },
     { name: "Orders", path: "/orders", icon: ShoppingBag },
+    { name: "Kitchen Display", path: "/kitchen", icon: ChefHat },
     { name: "Products", path: "/products", icon: Utensils },
+    { name: "Inventory", path: "/inventory", icon: Package },
     { name: "Categories", path: "/categories", icon: Tags },
     { name: "Tables & QR", path: "/tables", icon: Table2 },
     { name: "Reports", path: "/reports", icon: BarChart3 },
     { name: "Branches", path: "/branches", icon: GitBranch },
     { name: "Settings", path: "/settings", icon: Settings },
+    { name: "Notifications", path: "/notifications", icon: Bell },
   ];
+
+  const roleMenus = {
+    manager: allMenuItems,
+    admin: allMenuItems,
+    cashier: allMenuItems.filter(item =>
+      ["/", "/orders", "/notifications"].includes(item.path)
+    ),
+    waiter: allMenuItems.filter(item =>
+      ["/", "/orders", "/notifications"].includes(item.path)
+    ),
+    kitchen: allMenuItems.filter(item =>
+      ["/", "/kitchen", "/notifications"].includes(item.path)
+    ),
+  };
+
+  const menuItems = roleMenus[role] || [];
 
   const logoUrl = restaurant?.logo
     ? restaurant.logo.startsWith("http")

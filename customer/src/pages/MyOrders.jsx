@@ -1,7 +1,8 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { RefreshCw, ClipboardList, ArrowLeft } from "lucide-react";
 import api from "../services/api";
+import { io } from "socket.io-client";
 
 const statuses = [
     "pending",
@@ -16,6 +17,8 @@ const MyOrders = () => {
     const navigate = useNavigate();
 
     const [orders, setOrders] = useState([]);
+    const [notification, setNotification] = useState("");
+    const ordersRef = useRef([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState("");
 
@@ -36,7 +39,9 @@ const MyOrders = () => {
                 { params: { guestId } }
             );
 
-            setOrders(response.data.orders || []);
+            const fetchedOrders = response.data.orders || [];
+            ordersRef.current = fetchedOrders;
+            setOrders(fetchedOrders);
             setError("");
         } catch (err) {
             setError(
@@ -48,13 +53,78 @@ const MyOrders = () => {
         }
     };
 
+
     useEffect(() => {
+        // Load orders initially
         fetchOrders();
 
-        const interval = setInterval(fetchOrders, 5000);
+        // Connect customer through QR table token
+        const socketUrl = import.meta.env.VITE_API_URL?.replace(
+            /\/api\/?$/,
+            ""
+        );
 
-        return () => clearInterval(interval);
+        if (!socketUrl) {
+            console.error("Socket URL is not configured");
+            return;
+        }
+
+        const socket = io(socketUrl, {
+            auth: {
+                tableToken: token,
+            },
+            transports: ["websocket"],
+        });
+
+        socket.on("connect", () => {
+            console.log("Customer live tracking connected");
+        });
+
+        socket.on("connect_error", (error) => {
+            console.error("Customer socket error:", error.message);
+        });
+
+        // Receive live order status updates
+        socket.on("order:status_updated", (data) => {
+            // Only notify this customer's own orders
+            const matchedOrder = ordersRef.current.find(
+                (order) => String(order.id) === String(data.orderId)
+            );
+
+            if (!matchedOrder) return;
+
+            const updatedOrders = ordersRef.current.map((order) =>
+                String(order.id) === String(data.orderId)
+                    ? { ...order, status: data.status }
+                    : order
+            );
+
+            ordersRef.current = updatedOrders;
+            setOrders(updatedOrders);
+
+            const statusMessages = {
+                accepted: "Your order has been accepted!",
+                preparing: "Your order is being prepared!",
+                ready: "Your order is ready!",
+                completed: "Your order has been completed.",
+                cancelled: "Your order has been cancelled.",
+            };
+
+            setNotification(
+                `${data.orderNumber}: ${statusMessages[data.status] || `Status changed to ${data.status}`
+                }`
+            );
+        });
+
+        // Backup refresh in case a socket event is missed
+        const interval = setInterval(fetchOrders, 30000);
+
+        return () => {
+            clearInterval(interval);
+            socket.disconnect();
+        };
     }, [token]);
+
 
     const formatDate = (date) =>
         new Date(date).toLocaleString("en-PK");
@@ -88,6 +158,23 @@ const MyOrders = () => {
                         <p>Track your restaurant orders</p>
                     </div>
                 </div>
+
+                {notification && (
+                    <div
+                        role="status"
+                        style={{
+                            background: "#e8f5e9",
+                            color: "#166534",
+                            border: "1px solid #bbf7d0",
+                            borderRadius: "8px",
+                            padding: "14px",
+                            marginBottom: "18px",
+                            fontWeight: "600",
+                        }}
+                    >
+                        {notification}
+                    </div>
+                )}
 
                 {loading ? (
                     <p>Loading your orders...</p>
@@ -189,7 +276,7 @@ const MyOrders = () => {
 
                 <p style={styles.refresh}>
                     <RefreshCw size={13} />
-                    Automatically refreshes every 5 seconds
+                    Live updates enabled • Backup refresh every 30 seconds
                 </p>
             </div>
         </div>

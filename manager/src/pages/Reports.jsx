@@ -5,6 +5,7 @@ import {
   DollarSign,
   TrendingUp,
   RefreshCw,
+  Download,
 } from "lucide-react";
 
 import api from "../services/api";
@@ -18,13 +19,24 @@ const Reports = () => {
   const [period, setPeriod] = useState("daily");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [startDate, setStartDate] = useState("");
+  const [endDate, setEndDate] = useState("");
+  const [filterError, setFilterError] = useState("");
 
-  const fetchReports = async () => {
+  const fetchReports = async (range = { startDate, endDate }) => {
     try {
       setLoading(true);
       setError("");
 
-      const response = await api.get("/reports");
+      const params =
+        range.startDate && range.endDate
+          ? {
+              startDate: range.startDate,
+              endDate: range.endDate,
+            }
+          : {};
+
+      const response = await api.get("/reports", { params });
       setData(response.data);
     } catch (err) {
       setError(
@@ -34,6 +46,110 @@ const Reports = () => {
     } finally {
       setLoading(false);
     }
+  };
+
+  const applyDateFilter = () => {
+  if (!startDate || !endDate) {
+    setFilterError("Please select both start and end dates.");
+    return;
+  }
+
+  if (startDate > endDate) {
+    setFilterError("Start date cannot be after end date.");
+    return;
+  }
+
+  setFilterError("");
+    fetchReports({ startDate, endDate });
+  };
+
+  const clearDateFilter = () => {
+    setStartDate("");
+    setEndDate("");
+    setFilterError("");
+    fetchReports({ startDate: "", endDate: "" });
+  };
+
+  const exportCSV = () => {
+    if (!data) return;
+
+    const escapeCSV = (value) => {
+      let text = String(value ?? "");
+
+      if (/^[=+\-@\t\r]/.test(text)) {
+        text = `'${text}`;
+      }
+
+      return `"${text.replace(/"/g, '""')}"`;
+    };
+
+    const rows = [
+      ["Restaurant Sales Report"],
+      ["Report Period", period],
+      ["Start Date", startDate || "Default"],
+      ["End Date", endDate || "Default"],
+      [],
+      ["Summary"],
+      ["Metric", "Value"],
+      ["Today's Revenue", data.summary.today.revenue],
+      ["Today's Orders", data.summary.today.totalOrders],
+      ["This Month Revenue", data.summary.thisMonth.revenue],
+      ["This Month Orders", data.summary.thisMonth.totalOrders],
+    ];
+
+    if (data.summary.selectedRange) {
+      rows.push(
+        ["Selected Range Revenue", data.summary.selectedRange.revenue],
+        ["Selected Range Orders", data.summary.selectedRange.totalOrders]
+      );
+    }
+
+    rows.push(
+      [],
+      ["Sales Report"],
+      ["Date", "Orders", "Revenue"],
+      ...currentSales.map((item) => [
+        item.label,
+        item.totalOrders,
+        item.revenue,
+      ]),
+      [],
+      ["Top Selling Products"],
+      ["Product", "Quantity Sold", "Revenue"],
+      ...data.topProducts.map((item) => [
+        item.name,
+        item.totalQuantity,
+        item.totalRevenue,
+      ]),
+      [],
+      ["Order Status"],
+      ["Status", "Total Orders"],
+      ...data.orderStatus.map((item) => [
+        item.status,
+        item.total,
+      ])
+    );
+
+    const csvContent = rows
+      .map((row) => row.map(escapeCSV).join(","))
+      .join("\r\n");
+
+    const blob = new Blob(
+      ["\uFEFF" + csvContent],
+      { type: "text/csv;charset=utf-8;" }
+    );
+
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+
+    link.href = url;
+    link.download = `restaurant-report-${period}.csv`;
+
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+
+    URL.revokeObjectURL(url);
   };
 
   useEffect(() => {
@@ -59,7 +175,11 @@ const Reports = () => {
   }
 
   const currentSales =
-    period === "daily" ? data.dailySales : data.monthlySales;
+    period === "daily"
+      ? data.dailySales
+      : period === "weekly"
+      ? data.weeklySales
+      : data.monthlySales;
 
   const maxRevenue = Math.max(
     ...currentSales.map((item) => Number(item.revenue || 0)),
@@ -95,7 +215,60 @@ const Reports = () => {
           <RefreshCw size={16} />
           Refresh
         </button>
+
+        <button
+          className="reports-refresh reports-export"
+          onClick={exportCSV}
+        >
+          <Download size={16} />
+          Export CSV
+        </button>
       </div>
+
+      {/* DATE RANGE FILTER */}
+      <section className="report-panel report-date-filter">
+        <div>
+          <h2>Filter Reports by Date</h2>
+          <p>Select a date range to view filtered reports.</p>
+        </div>
+
+        <div className="report-date-controls">
+          <label>
+            Start Date
+            <input
+              type="date"
+              value={startDate}
+              max={endDate || undefined}
+              onChange={(e) => setStartDate(e.target.value)}
+            />
+          </label>
+
+          <label>
+            End Date
+            <input
+              type="date"
+              value={endDate}
+              min={startDate || undefined}
+              onChange={(e) => setEndDate(e.target.value)}
+            />
+          </label>
+
+          <button onClick={applyDateFilter}>
+            Apply Filter
+          </button>
+
+          <button
+            className="clear-date-filter"
+            onClick={clearDateFilter}
+          >
+            Clear
+          </button>
+        </div>
+
+        {filterError && (
+          <p className="date-filter-error">{filterError}</p>
+        )}
+      </section>
 
       {/* SUMMARY */}
       <div className="reports-summary">
@@ -140,6 +313,26 @@ const Reports = () => {
         </div>
       </div>
 
+      {data.summary.selectedRange && (
+        <div className="reports-summary reports-summary-filtered">
+          <div className="report-card">
+            <div className="report-card-icon orange">
+              <DollarSign size={22} />
+            </div>
+            <span>Selected Range Revenue</span>
+            <h2>{currency(data.summary.selectedRange.revenue)}</h2>
+          </div>
+
+          <div className="report-card">
+            <div className="report-card-icon blue">
+              <ShoppingBag size={22} />
+            </div>
+            <span>Selected Range Orders</span>
+            <h2>{data.summary.selectedRange.totalOrders}</h2>
+          </div>
+        </div>
+      )}
+
       {/* SALES CHART */}
       <section className="report-panel">
         <div className="report-panel-header">
@@ -153,14 +346,21 @@ const Reports = () => {
               className={period === "daily" ? "active" : ""}
               onClick={() => setPeriod("daily")}
             >
-              Last 7 Days
+              Daily
+            </button>
+
+            <button
+              className={period === "weekly" ? "active" : ""}
+              onClick={() => setPeriod("weekly")}
+            >
+              Weekly
             </button>
 
             <button
               className={period === "monthly" ? "active" : ""}
               onClick={() => setPeriod("monthly")}
             >
-              Last 12 Months
+              Monthly
             </button>
           </div>
         </div>
@@ -174,17 +374,16 @@ const Reports = () => {
                 (Number(item.revenue || 0) / maxRevenue) * 100;
 
               const label =
-                period === "daily"
-                  ? new Date(`${item.label}T00:00:00`)
-                      .toLocaleDateString("en-PK", {
-                        day: "2-digit",
-                        month: "short",
-                      })
-                  : new Date(`${item.label}-01T00:00:00`)
-                      .toLocaleDateString("en-PK", {
-                        month: "short",
-                        year: "2-digit",
-                      });
+  period === "monthly"
+    ? new Date(`${item.label}-01T00:00:00`).toLocaleDateString("en-PK", {
+        month: "short",
+        year: "2-digit",
+      })
+    : new Date(`${item.label}T00:00:00`).toLocaleDateString("en-PK", {
+        day: "2-digit",
+        month: "short",
+        year: period === "weekly" ? "2-digit" : undefined,
+      });
 
               return (
                 <div className="sales-chart-column" key={item.label}>

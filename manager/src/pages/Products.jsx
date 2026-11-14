@@ -9,11 +9,8 @@ const Products = () => {
   const [priceDrafts, setPriceDrafts] = useState({});
   const [editId, setEditId] = useState(null);
   const [loading, setLoading] = useState(false);
-  const [searchTerm, setSearchTerm] = useState("");
-  const [selectedCategory, setSelectedCategory] = useState("");
-  const [availabilityFilter, setAvailabilityFilter] = useState("all");
-  const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 6;
+  const [currentImage, setCurrentImage] = useState(null);
+  const [imagePreview, setImagePreview] = useState("");
 
   const [form, setForm] = useState({
     name: "",
@@ -25,14 +22,35 @@ const Products = () => {
 
   const fetchData = async () => {
     try {
-      const [productRes, categoryRes] = await Promise.all([
-        api.get("/branch-products"),
-        api.get("/categories"),
-      ]);
+      const [productRes, categoryRes, branchProductRes] =
+        await Promise.all([
+          api.get("/products"),
+          api.get("/categories"),
+          api.get("/branch-products"),
+        ]);
 
-      const branchProducts = productRes.data.products || [];
+      const branchProducts = new Map(
+        branchProductRes.data.products.map((product) => [
+          Number(product.id),
+          product,
+        ])
+      );
 
-      setProducts(branchProducts);
+      setProducts(
+        productRes.data.products.map((product) => {
+          const branchProduct = branchProducts.get(
+            Number(product.id)
+          );
+
+          return {
+            ...product,
+            branchAvailability:
+              branchProduct?.branchAvailability ??
+              product.isAvailable,
+          };
+        })
+      );
+
       setCategories(
         (categoryRes.data.categories || []).filter((c) => c.isActive)
       );
@@ -50,6 +68,18 @@ const Products = () => {
   useEffect(() => {
     fetchData();
   }, []);
+
+  useEffect(() => {
+    if (!form.image) {
+      setImagePreview("");
+      return;
+    }
+
+    const previewUrl = URL.createObjectURL(form.image);
+    setImagePreview(previewUrl);
+
+    return () => URL.revokeObjectURL(previewUrl);
+  }, [form.image]);
 
   const handleChange = (e) => {
     const { name, value, files } = e.target;
@@ -69,6 +99,8 @@ const Products = () => {
       image: null,
     });
     setEditId(null);
+
+    setCurrentImage(null);
   };
 
   const handleSubmit = async (e) => {
@@ -107,6 +139,8 @@ const Products = () => {
   const handleEdit = (product) => {
     setEditId(product.id);
 
+    setCurrentImage(product.image || null);
+
     setForm({
       name: product.name,
       description: product.description || "",
@@ -131,13 +165,15 @@ const Products = () => {
     }
   };
 
-  const toggleAvailability = async (product) => {
+  const toggleBranchAvailability = async (product) => {
     try {
       await api.put(`/branch-products/${product.id}`, {
         isAvailable: !product.branchAvailability,
       });
 
       await fetchData();
+
+      alert("Branch product availability updated");
     } catch (error) {
       alert(error.response?.data?.message || "Availability update failed");
     }
@@ -247,7 +283,31 @@ const Products = () => {
           />
         </label>
 
-        {form.image && <p>Selected: {form.image.name}</p>}
+        {(imagePreview || currentImage) && (
+          <div className="product-image-preview">
+            <p>
+              {imagePreview
+                ? "New Image Preview"
+                : "Current Product Image"}
+            </p>
+
+            <img
+              src={
+                imagePreview ||
+                `http://localhost:5000${currentImage}`
+              }
+              alt="Product preview"
+            />
+
+            {imagePreview && (
+              <small>New image selected. Save to replace the existing image.</small>
+            )}
+          </div>
+        )}
+
+        {form.image && (
+          <p>Selected: {form.image.name}</p>
+        )}
 
         <div className="form-actions">
           <button type="submit" disabled={loading}>
@@ -297,10 +357,41 @@ const Products = () => {
 
                   <p>{category?.name || "No category"}</p>
 
-                  <p>
-                    Base Price: Rs.{" "}
-                    {Number(product.basePrice).toLocaleString("en-PK")}
-                  </p>
+                <div className="branch-availability">
+                  <div className="availability-info">
+                    <span>Branch Availability</span>
+
+                    <strong
+                      className={
+                        product.branchAvailability
+                          ? "availability-active"
+                          : "availability-inactive"
+                      }
+                    >
+                      {product.branchAvailability ? "Available" : "Unavailable"}
+                    </strong>
+                  </div>
+
+                  <button
+                    type="button"
+                    className={
+                      product.branchAvailability
+                        ? "availability-toggle unavailable-btn"
+                        : "availability-toggle available-btn"
+                    }
+                    onClick={() => toggleBranchAvailability(product)}
+                  >
+                    {product.branchAvailability
+                      ? "Mark Unavailable"
+                      : "Mark Available"}
+                  </button>
+
+                  <small>
+                    {product.hasAvailabilityOverride
+                      ? "Custom availability for this branch"
+                      : "Using restaurant default availability"}
+                  </small>
+                </div>
 
                   <strong>
                     Branch Price: Rs.{" "}

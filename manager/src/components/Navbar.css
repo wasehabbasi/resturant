@@ -119,3 +119,137 @@
     font-size: 11px;
   }
 }
+
+/* Dynamic portal branding */
+.navbar {
+  border-color: var(--portal-secondary, #e5e7eb);
+}
+
+.branch-selector {
+  border-color: var(--portal-secondary, #c99a43);
+}
+
+.branch-selector > svg {
+  color: var(--portal-primary, #171c1a);
+}
+
+
+.notification-button {
+  position: relative;
+  cursor: pointer;
+}
+
+.notification-count {
+  position: absolute;
+  top: -8px;
+  right: -10px;
+  min-width: 19px;
+  height: 19px;
+  padding: 0 5px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #ef4444;
+  color: white;
+  border-radius: 20px;
+  font-size: 10px;
+  font-weight: 700;
+  border: 2px solid white;
+}
+
+
+.notification-wrapper {
+  position: relative;
+}
+
+.notification-button {
+  position: relative;
+  cursor: pointer;
+  background: transparent;
+  border: none;
+  color: #6b7280;
+  padding: 5px;
+}
+
+.notification-dropdown {
+  position: absolute;
+  top: 42px;
+  right: 0;
+  width: 340px;
+  max-width: calc(100vw - 30px);
+  background: white;
+  border: 1px solid #e5e7eb;
+  border-radius: 10px;
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.12);
+  z-index: 1000;
+  overflow: hidden;
+}
+
+.notification-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 14px;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.notification-header strong {
+  font-size: 14px;
+}
+
+.notification-header button {
+  border: none;
+  background: transparent;
+  color: var(--portal-primary, #171c1a);
+  font-size: 11px;
+  cursor: pointer;
+}
+
+.notification-header button:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.notification-list {
+  max-height: 350px;
+  overflow-y: auto;
+}
+
+.notification-item {
+  padding: 13px 14px;
+  border-bottom: 1px solid #f1f1f1;
+  cursor: pointer;
+}
+
+.notification-item.unread {
+  background: #f8fafc;
+  border-left: 3px solid var(--portal-secondary, #c99a43);
+}
+
+.notification-item.read {
+  background: white;
+}
+
+.notification-item strong {
+  display: block;
+  font-size: 13px;
+  color: #1f2937;
+}
+
+.notification-item p {
+  font-size: 12px;
+  color: #6b7280;
+  margin: 5px 0;
+}
+
+.notification-item small {
+  font-size: 10px;
+  color: #9ca3af;
+}
+
+.notification-empty {
+  padding: 25px 10px;
+  text-align: center;
+  color: #9ca3af;
+  font-size: 13px;
+}

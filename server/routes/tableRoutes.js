@@ -8,7 +8,9 @@ const {
   updateTable,
   deleteTable,
   generateQR,
+  regenerateQR,
   getPublicTable,
+  getTableOrderHistory,
 } = require("../controllers/tableController");
 
 const {
@@ -30,9 +32,11 @@ router.use(
 );
 
 router.get("/", getTables);
+router.get("/:id/order-history", getTableOrderHistory);
 router.post("/", addTable);
 router.put("/:id", updateTable);
 router.delete("/:id", deleteTable);
 router.get("/:id/qr", generateQR);
+router.post("/:id/regenerate-qr", regenerateQR);
 
 module.exports = router;

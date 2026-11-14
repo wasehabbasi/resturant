@@ -1,5 +1,4 @@
-
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import {
   RefreshCw,
   ShoppingBag,
@@ -13,6 +12,7 @@ import {
 
 import api from "../services/api";
 import "./Orders.css";
+import { io } from "socket.io-client";
 
 const statuses = [
   "pending",
@@ -56,6 +56,103 @@ const Orders = () => {
   const [filter, setFilter] = useState("all");
   const [search, setSearch] = useState("");
 
+  const [soundEnabled, setSoundEnabled] = useState(
+    () => localStorage.getItem("soundAlertsEnabled") === "true"
+  );
+
+  const [soundReady, setSoundReady] = useState(false);
+
+  const [paymentOrder, setPaymentOrder] = useState(null);
+  const [paymentSummary, setPaymentSummary] = useState(null);
+  const [amountReceived, setAmountReceived] = useState("");
+  const [paymentLoading, setPaymentLoading] = useState(false);
+  const [paymentSaving, setPaymentSaving] = useState(false);
+
+  const [paymentHistory, setPaymentHistory] = useState([]);
+
+  const [receiptData, setReceiptData] = useState(null);
+  const [receiptLoading, setReceiptLoading] = useState(false);
+
+  const [paymentAmount, setPaymentAmount] = useState("");
+
+  const audioContextRef = useRef(null);
+
+  const soundEnabledRef = useRef(
+    localStorage.getItem("soundAlertsEnabled") === "true"
+  );
+
+  // Play a short notification sound
+  const playNewOrderSound = () => {
+    const audioContext = audioContextRef.current;
+
+    if (!soundEnabledRef.current || !audioContext) return;
+
+    const oscillator = audioContext.createOscillator();
+    const gain = audioContext.createGain();
+
+    oscillator.type = "sine";
+    oscillator.frequency.setValueAtTime(
+      880,
+      audioContext.currentTime
+    );
+
+    gain.gain.setValueAtTime(0.001, audioContext.currentTime);
+    gain.gain.exponentialRampToValueAtTime(
+      0.2,
+      audioContext.currentTime + 0.03
+    );
+    gain.gain.exponentialRampToValueAtTime(
+      0.001,
+      audioContext.currentTime + 0.35
+    );
+
+    oscillator.connect(gain);
+    gain.connect(audioContext.destination);
+
+    oscillator.start();
+    oscillator.stop(audioContext.currentTime + 0.36);
+  };
+
+  // Enable or disable sound alerts
+  const toggleSoundAlerts = async () => {
+  // Sound already active: turn it OFF
+  if (soundEnabled && soundReady) {
+    soundEnabledRef.current = false;
+    setSoundEnabled(false);
+    setSoundReady(false);
+    localStorage.setItem("soundAlertsEnabled", "false");
+    return;
+  }
+
+  try {
+    const AudioContextClass =
+      window.AudioContext || window.webkitAudioContext;
+
+    if (!AudioContextClass) {
+      setError("Your browser does not support sound alerts.");
+      return;
+    }
+
+    if (!audioContextRef.current) {
+      audioContextRef.current = new AudioContextClass();
+    }
+
+    await audioContextRef.current.resume();
+
+    soundEnabledRef.current = true;
+    setSoundEnabled(true);
+    setSoundReady(true);
+
+    localStorage.setItem("soundAlertsEnabled", "true");
+
+    // Play test sound
+    playNewOrderSound();
+  } catch (error) {
+    console.error("SOUND ALERT ERROR:", error);
+    setError("Unable to activate sound alerts.");
+  }
+};
+
   // Fetch orders from backend
   const fetchOrders = useCallback(async (manual = false) => {
     try {
@@ -79,15 +176,170 @@ const Orders = () => {
   }, []);
 
   // Initial load and automatic refresh
+  // Initial load and real-time new order updates
+  
   useEffect(() => {
     fetchOrders();
 
-    const interval = setInterval(() => {
-      fetchOrders();
-    }, 5000);
+    const storage = localStorage.getItem("token")
+      ? localStorage
+      : sessionStorage;
 
-    return () => clearInterval(interval);
-  }, [fetchOrders]);
+    const token = storage.getItem("token");
+
+    const branchId =
+      storage.getItem("currentBranchId") ||
+      storage.getItem("branchId");
+
+    if (!token || !branchId) {
+      console.error("Socket connection: token or branch ID missing");
+      return;
+    }
+
+    const socket = io("http://localhost:5000", {
+      auth: {
+        token,
+        branchId,
+      },
+    });
+
+    socket.on("connect", () => {
+      console.log("Orders Socket Connected:", socket.id);
+    });
+
+    socket.on("notification:new", (notification) => {
+      if (notification.type === "new_order") {
+        console.log("New order received:", notification.data);
+        fetchOrders();
+        playNewOrderSound();
+      }
+    });
+
+    socket.on("order:updated", (data) => {
+      console.log("Order status updated:", data);
+      fetchOrders();
+    });
+
+    socket.on("connect_error", (error) => {
+      console.error("Orders Socket Error:", error.message);
+    });
+
+    return () => {
+      socket.disconnect();
+    };
+  }, [fetchOrders, soundEnabled]);
+
+  const submitCashPayment = async (e) => {
+    e.preventDefault();
+
+    if (!paymentOrder || !paymentSummary) return;
+
+    try {
+      setPaymentSaving(true);
+      setError("");
+      setMessage("");
+
+      const amount = Number(paymentAmount);
+      const received = Number(amountReceived);
+      const remaining = Number(paymentSummary.remainingAmount);
+
+      if (!Number.isFinite(amount) || amount <= 0 || amount > remaining) {
+        setError("Enter a valid payment amount within the remaining balance.");
+        return;
+      }
+
+      if (!Number.isFinite(received) || received < amount) {
+        setError("Cash received must be at least the payment amount.");
+        return;
+      }
+
+      const response = await api.post(
+              `/payments/${paymentOrder.id}/cash`,
+              {
+                amount,
+                amountReceived: received,
+              }
+            );
+
+            setMessage(
+              `Payment received successfully. Change: Rs. ${formatPrice(
+                response.data.summary.changeAmount
+              )}`
+            );
+
+            const updatedPayment = await api.get(
+        `/payments/${paymentOrder.id}`
+      );
+
+      setPaymentSummary(updatedPayment.data.summary);
+      setPaymentHistory(updatedPayment.data.payments || []);
+      setAmountReceived("");
+
+      setPaymentAmount("");
+
+      await fetchOrders();
+          } catch (err) {
+            console.error("CASH PAYMENT ERROR:", err);
+
+            setError(
+              err.response?.data?.message ||
+              "Unable to record cash payment."
+            );
+          } finally {
+            setPaymentSaving(false);
+          }
+        };
+
+  const openPaymentModal = async (order) => {
+    try {
+      setPaymentOrder(order);
+      setPaymentSummary(null);
+      setPaymentHistory([]);
+      setAmountReceived("");
+      setPaymentLoading(true);
+      setError("");
+
+      const response = await api.get(`/payments/${order.id}`);
+
+      setPaymentSummary(response.data.summary);
+      setPaymentHistory(response.data.payments || []);
+    } catch (err) {
+      console.error("PAYMENT SUMMARY ERROR:", err);
+
+      setError(
+        err.response?.data?.message ||
+        "Unable to load payment details."
+      );
+
+      setPaymentOrder(null);
+    } finally {
+      setPaymentLoading(false);
+    }
+  };
+
+  const openReceipt = async (orderId) => {
+    try {
+      setReceiptLoading(true);
+      setError("");
+
+      const response = await api.get(
+        `/payments/${orderId}/receipt`
+      );
+
+      console.log("RECEIPT API RESPONSE:", response.data);
+
+      setReceiptData(response.data.receipt);
+    } catch (err) {
+      console.error("RECEIPT ERROR:", err);
+
+      setError(
+        err.response?.data?.message ||
+        "Unable to load receipt."
+      );
+    } finally {
+      setReceiptLoading(false);
+    }
+  };
 
   // Update order status
   const handleStatusUpdate = async (orderId, status) => {
@@ -183,6 +435,19 @@ const Orders = () => {
             Manage customer orders and track restaurant activity.
           </p>
         </div>
+
+        <button
+          type="button"
+          className={`orders-sound-btn ${soundEnabled ? "sound-enabled" : ""
+            }`}
+          onClick={toggleSoundAlerts}
+        >
+          {soundReady
+            ? "Sound: ON"
+            : soundEnabled
+              ? "Activate Sound"
+              : "Enable Sound"}
+        </button>
 
         <button
           className="orders-refresh-btn"
@@ -412,6 +677,22 @@ const Orders = () => {
 
                   <div className="order-actions">
 
+                    <button
+                      type="button"
+                      className="next-status-btn"
+                      onClick={() => openPaymentModal(order)}
+                    >
+                      Record Payment
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={() => openReceipt(order.id)}
+                      disabled={receiptLoading}
+                    >
+                      {receiptLoading ? "Loading Receipt..." : "View Receipt"}
+                    </button>
+
                     {next && (
                       <button
                         className="next-status-btn"
@@ -426,26 +707,28 @@ const Orders = () => {
                       </button>
                     )}
 
+                    
+
                     {[
                       "pending",
                       "accepted",
                       "preparing",
                       "ready",
                     ].includes(order.status) && (
-                      <button
-                        className="cancel-order-btn"
-                        disabled={updatingId === order.id}
-                        onClick={() =>
-                          handleStatusUpdate(
-                            order.id,
-                            "cancelled"
-                          )
-                        }
-                      >
-                        <XCircle size={15} />
-                        Cancel
-                      </button>
-                    )}
+                        <button
+                          className="cancel-order-btn"
+                          disabled={updatingId === order.id}
+                          onClick={() =>
+                            handleStatusUpdate(
+                              order.id,
+                              "cancelled"
+                            )
+                          }
+                        >
+                          <XCircle size={15} />
+                          Cancel
+                        </button>
+                      )}
 
                   </div>
 
@@ -457,6 +740,212 @@ const Orders = () => {
         )}
 
       </div>
+
+      {paymentOrder && (
+        <div className="payment-modal-overlay">
+          <div className="payment-modal">
+            <div className="payment-modal-header">
+              <div>
+                <h2>Record Cash Payment</h2>
+                <p>Order: {paymentOrder.orderNumber}</p>
+              </div>
+
+              <button
+                type="button"
+                onClick={() => setPaymentOrder(null)}
+                className="payment-close-btn"
+              >
+                <XCircle size={22} />
+              </button>
+            </div>
+
+            {paymentLoading ? (
+              <p>Loading payment details...</p>
+            ) : paymentSummary && (
+              <>
+                <div className="payment-summary">
+                  <div>
+                    <span>Order Total</span>
+                    <strong>Rs. {formatPrice(paymentSummary.orderTotal)}</strong>
+                  </div>
+
+                  <div>
+                    <span>Total Paid</span>
+                    <strong>Rs. {formatPrice(paymentSummary.totalPaid)}</strong>
+                  </div>
+
+                  <div>
+                    <span>Remaining</span>
+                    <strong>
+                      Rs. {formatPrice(paymentSummary.remainingAmount)}
+                    </strong>
+                  </div>
+                </div>
+
+                {Number(paymentSummary.remainingAmount) <= 0 ? (
+                  <div className="payment-fully-paid">
+                    This order is fully paid.
+                  </div>
+                ) : (
+                  <form onSubmit={submitCashPayment}>
+                    <label htmlFor="paymentAmount">
+                      Amount to Pay (Rs.)
+                    </label>
+
+                    <input
+                      id="paymentAmount"
+                      type="number"
+                      min="0.01"
+                      max={paymentSummary.remainingAmount}
+                      step="0.01"
+                      required
+                      value={paymentAmount}
+                      onChange={(e) => setPaymentAmount(e.target.value)}
+                      placeholder="Enter amount to pay"
+                    />
+
+                    <label htmlFor="amountReceived">
+                      Cash Received (Rs.)
+                    </label>
+
+                    <input
+                      id="amountReceived"
+                      type="number"
+                      min={paymentAmount || "0.01"}
+                      step="0.01"
+                      required
+                      value={amountReceived}
+                      onChange={(e) => setAmountReceived(e.target.value)}
+                      placeholder="Enter cash received"
+                    />
+
+                    <p className="payment-hint">
+                      Remaining balance: Rs. {formatPrice(paymentSummary.remainingAmount)}
+                    </p>
+
+                    <p className="payment-hint">
+                      Amount due: Rs. {formatPrice(paymentSummary.remainingAmount)}
+                    </p>
+
+                    <button
+                      type="submit"
+                      className="payment-submit-btn"
+                      disabled={paymentSaving}
+                    >
+                      {paymentSaving ? "Saving..." : "Confirm Cash Payment"}
+                    </button>
+                  </form>
+                )}
+
+                <div className="payment-history">
+                  <h3>Payment History</h3>
+
+                  {paymentHistory.length === 0 ? (
+                    <p>No payments recorded yet.</p>
+                  ) : (
+                    paymentHistory.map((payment) => (
+                      <div className="payment-history-row" key={payment.id}>
+                        <div>
+                          <strong>
+                            Rs. {formatPrice(payment.amount)}
+                          </strong>
+                          <span>
+                            {payment.paymentMethod} · {payment.status}
+                          </span>
+                          <span>{formatDate(payment.createdAt)}</span>
+                        </div>
+
+                        <div>
+                          <span>
+                            Received: Rs. {formatPrice(payment.amountReceived)}
+                          </span>
+                          <span>
+                            Change: Rs. {formatPrice(payment.changeAmount)}
+                          </span>
+                        </div>
+                      </div>
+                    ))
+                  )}
+                </div>
+              </>
+            )}
+          </div>
+        </div>
+      )}
+
+      {receiptData && (
+  <div className="modal-overlay receipt-overlay">
+    <div className="receipt-modal">
+      <div id="print-receipt">
+        <div className="receipt-header">
+          <h2>Restaurant Receipt</h2>
+          <p>Payment Receipt</p>
+        </div>
+
+        <hr />
+
+        <p><strong>Order:</strong> {receiptData.order.orderNumber}</p>
+        <p><strong>Date:</strong> {new Date(receiptData.order.createdAt).toLocaleString()}</p>
+        <p><strong>Customer:</strong> {receiptData.order.customerName || "Walk-in Customer"}</p>
+        <p><strong>Table:</strong> {receiptData.order.RestaurantTable?.tableNumber || "N/A"}</p>
+
+        <hr />
+
+        <h3>Order Items</h3>
+
+        <table>
+          <thead>
+            <tr>
+              <th>Item</th>
+              <th>Qty</th>
+              <th>Price</th>
+              <th>Total</th>
+            </tr>
+          </thead>
+          <tbody>
+            {(receiptData.order.OrderItems || []).map((item) => (
+              <tr key={item.id}>
+                <td>{item.Product?.name || "Product"}</td>
+                <td>{item.quantity}</td>
+                <td>Rs. {formatPrice(item.price)}</td>
+                <td>Rs. {formatPrice(item.subtotal)}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+
+        <hr />
+
+        <div className="receipt-totals">
+          <p>Order Total: <strong>Rs. {formatPrice(receiptData.orderTotal)}</strong></p>
+          <p>Paid: <strong>Rs. {formatPrice(receiptData.totalPaid)}</strong></p>
+          <p>Remaining: <strong>Rs. {formatPrice(receiptData.remainingAmount)}</strong></p>
+        </div>
+
+        <hr />
+
+        <h3>Payment History</h3>
+
+        {(receiptData.payments || []).map((payment) => (
+          <p key={payment.id}>
+            {payment.paymentMethod.toUpperCase()} — {payment.status.toUpperCase()}
+            <br />
+            Rs. {formatPrice(payment.amount)}
+          </p>
+        ))}
+
+        <div className="receipt-footer">
+          <p>Thank you for visiting!</p>
+        </div>
+      </div>
+
+      <div className="receipt-actions">
+        <button onClick={() => window.print()}>Print Receipt</button>
+        <button onClick={() => setReceiptData(null)}>Close</button>
+      </div>
+    </div>
+  </div>
+)}
     </div>
   );
 };

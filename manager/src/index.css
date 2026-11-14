@@ -41,3 +41,49 @@ a {
     padding: 18px;
   }
 }
+
+
+/* Portal theme - common dashboard elements */
+
+/* Primary action buttons */
+.dashboard-container .form-actions button:not(.cancel-btn),
+.dashboard-container .orders-refresh-btn,
+.dashboard-container .next-status-btn,
+.dashboard-container .form-actions button:not(.cancel-btn),
+.dashboard-container .orders-refresh-btn,
+.dashboard-container .next-status-btn {
+  background: var(--portal-primary, #171c1a);
+  color: #ffffff;
+}
+
+/* Secondary highlighted elements */
+.dashboard-container .row-actions button,
+.dashboard-container .today-label,
+.dashboard-container .section-heading button {
+  background: var(--portal-accent, #e0b45c);
+  color: var(--portal-primary, #171c1a);
+}
+
+/* Theme-colored prices and links */
+.dashboard-container .product-info > strong,
+.dashboard-container .orders-revenue,
+.dashboard-container .orders-revenue h2,
+.dashboard-container .section-heading a {
+  color: var(--portal-primary, #171c1a);
+}
+
+/* Input focus */
+.dashboard-container input:focus,
+.dashboard-container textarea:focus,
+.dashboard-container select:focus {
+  border-color: var(--portal-secondary, #c99a43);
+  outline-color: var(--portal-secondary, #c99a43);
+}
+
+/* Hover effects */
+.dashboard-container .form-actions button:not(.cancel-btn):hover,
+.dashboard-container .orders-refresh-btn:hover,
+.dashboard-container .next-status-btn:hover {
+  background: var(--portal-secondary, #c99a43);
+  color: #ffffff;
+}

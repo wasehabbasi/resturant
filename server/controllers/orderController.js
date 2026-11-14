@@ -6,6 +6,8 @@ const {
   RestaurantTable,
 } = require("../models");
 
+const { getBranchRoom } = require("../services/notificationService");
+
 // Get orders for the selected branch
 const getAllOrders = async (req, res) => {
   try {
@@ -115,6 +117,32 @@ const updateOrderStatus = async (req, res) => {
     }
 
     await order.reload();
+
+    // Broadcast order status update to all connected branch managers
+    const io = req.app.get("io");
+
+
+    if (io) {
+      // Update manager dashboard and kitchen
+      io.to(getBranchRoom(req.restaurantId, req.branchId)).emit(
+        "order:updated",
+        {
+          orderId: order.id,
+          orderNumber: order.orderNumber,
+          status: order.status,
+          branchId: req.branchId,
+        }
+      );
+
+      // Notify customers connected through this table's QR code
+      io.to(`table:${order.tableId}`).emit("order:status_updated", {
+        orderId: order.id,
+        orderNumber: order.orderNumber,
+        status: order.status,
+        tableId: order.tableId,
+      });
+    }
+
 
     return res.status(200).json({
       success: true,

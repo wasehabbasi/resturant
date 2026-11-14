@@ -10,6 +10,11 @@ const Order = require("./Order");
 const OrderItem = require("./OrderItem");
 
 const Notification = require("./Notification");
+const Payment = require("./Payment");
+
+const InventoryItem = require("./InventoryItem");
+const BranchInventory = require("./BranchInventory");
+const StockMovement = require("./StockMovement");
 
 // Restaurant relationships
 Restaurant.hasMany(User, { foreignKey: "restaurantId" });
@@ -115,6 +120,44 @@ Notification.belongsTo(User, {
   foreignKey: "recipientUserId",
 });
 
+// Order - Payment
+Order.hasMany(Payment, {
+  foreignKey: "orderId",
+  onDelete: "RESTRICT",
+});
+
+Payment.belongsTo(Order, {
+  foreignKey: "orderId",
+});
+
+// Branch - Payment
+Branch.hasMany(Payment, {
+  foreignKey: "branchId",
+});
+
+Payment.belongsTo(Branch, {
+  foreignKey: "branchId",
+});
+
+// Inventory relationships
+Restaurant.hasMany(InventoryItem, { foreignKey: "restaurantId" });
+InventoryItem.belongsTo(Restaurant, { foreignKey: "restaurantId" });
+
+Branch.hasMany(BranchInventory, { foreignKey: "branchId" });
+BranchInventory.belongsTo(Branch, { foreignKey: "branchId" });
+
+InventoryItem.hasMany(BranchInventory, { foreignKey: "inventoryItemId" });
+BranchInventory.belongsTo(InventoryItem, { foreignKey: "inventoryItemId" });
+
+Branch.hasMany(StockMovement, { foreignKey: "branchId" });
+StockMovement.belongsTo(Branch, { foreignKey: "branchId" });
+
+InventoryItem.hasMany(StockMovement, { foreignKey: "inventoryItemId" });
+StockMovement.belongsTo(InventoryItem, { foreignKey: "inventoryItemId" });
+
+User.hasMany(StockMovement, { foreignKey: "userId" });
+StockMovement.belongsTo(User, { foreignKey: "userId" });
+
 module.exports = {
   User,
   Restaurant,
@@ -126,4 +169,8 @@ module.exports = {
   Order,
   OrderItem,
   Notification,
+  Payment,
+  InventoryItem,
+  BranchInventory,
+  StockMovement,
 };
