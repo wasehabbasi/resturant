@@ -57,9 +57,17 @@ const getReports = async (req, res) => {
                AND o.createdAt < DATE_ADD(:endDate, INTERVAL 1 DAY)`
             : "";
 
+        const expenseDateFilter = hasDateRange
+            ? `AND expenseDate >= :startDate
+               AND expenseDate < DATE_ADD(:endDate, INTERVAL 1 DAY)`
+            : "";
+
         const [
             todayStats,
             monthlyStats,
+            todayExpenses,
+            monthlyExpenses,
+            selectedRangeExpenses,
             selectedRangeStats,
             dailySales,
             weeklySales,
@@ -95,6 +103,33 @@ const getReports = async (req, res) => {
                 AND MONTH(createdAt) = MONTH(CURDATE())
             `, queryOptions),
 
+            // Today's expenses
+            sequelize.query(`
+                SELECT COALESCE(SUM(amount), 0) AS expenses
+                FROM Expenses
+                WHERE branchId = :branchId
+                AND DATE(expenseDate) = CURDATE()
+            `, queryOptions),
+
+            // Current month's expenses
+            sequelize.query(`
+                SELECT COALESCE(SUM(amount), 0) AS expenses
+                FROM Expenses
+                WHERE branchId = :branchId
+                AND YEAR(expenseDate) = YEAR(CURDATE())
+                AND MONTH(expenseDate) = MONTH(CURDATE())
+            `, queryOptions),
+
+            // Selected date range expenses
+            hasDateRange
+                ? sequelize.query(`
+                    SELECT COALESCE(SUM(amount), 0) AS expenses
+                    FROM Expenses
+                    WHERE branchId = :branchId
+                    ${expenseDateFilter}
+                `, queryOptions)
+                : Promise.resolve(null),
+
             // Selected date range summary
             hasDateRange
                 ? sequelize.query(`
@@ -121,10 +156,9 @@ const getReports = async (req, res) => {
                     ) AS revenue
                 FROM Orders
                 WHERE branchId = :branchId
-                ${
-                    hasDateRange
-                        ? dateFilter
-                        : `AND DATE(createdAt) >= DATE_SUB(CURDATE(), INTERVAL 6 DAY)
+                ${hasDateRange
+                    ? dateFilter
+                    : `AND DATE(createdAt) >= DATE_SUB(CURDATE(), INTERVAL 6 DAY)
                            AND DATE(createdAt) <= CURDATE()`
                 }
                 GROUP BY DATE(createdAt)
@@ -145,10 +179,9 @@ const getReports = async (req, res) => {
                     ) AS revenue
                 FROM Orders
                 WHERE branchId = :branchId
-                ${
-                    hasDateRange
-                        ? dateFilter
-                        : `AND createdAt >= DATE_SUB(CURDATE(), INTERVAL 7 WEEK)
+                ${hasDateRange
+                    ? dateFilter
+                    : `AND createdAt >= DATE_SUB(CURDATE(), INTERVAL 7 WEEK)
                            AND createdAt <= NOW()`
                 }
                 GROUP BY YEARWEEK(createdAt, 1)
@@ -166,10 +199,9 @@ const getReports = async (req, res) => {
                     ) AS revenue
                 FROM Orders
                 WHERE branchId = :branchId
-                ${
-                    hasDateRange
-                        ? dateFilter
-                        : `AND createdAt >= DATE_FORMAT(
+                ${hasDateRange
+                    ? dateFilter
+                    : `AND createdAt >= DATE_FORMAT(
                                 DATE_SUB(CURDATE(), INTERVAL 11 MONTH),
                                 '%Y-%m-01'
                             )
