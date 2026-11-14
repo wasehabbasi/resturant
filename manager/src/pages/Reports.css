@@ -84,7 +84,7 @@
   color: #7c3aed;
 }
 
-.report-card > span {
+.report-card>span {
   color: #6b7280;
   font-size: 13px;
 }
@@ -159,7 +159,7 @@
   gap: 9px;
 }
 
-.sales-chart-column > strong {
+.sales-chart-column>strong {
   font-size: 10px;
   color: #6b7280;
   text-align: center;
@@ -173,12 +173,10 @@
   align-items: flex-end;
   justify-content: center;
   border-bottom: 1px solid #e5e7eb;
-  background: repeating-linear-gradient(
-    to top,
-    transparent 0,
-    transparent 44px,
-    #f3f4f6 45px
-  );
+  background: repeating-linear-gradient(to top,
+      transparent 0,
+      transparent 44px,
+      #f3f4f6 45px);
 }
 
 .sales-bar {
@@ -189,7 +187,7 @@
   transition: height 0.3s ease;
 }
 
-.sales-chart-column > span {
+.sales-chart-column>span {
   color: #6b7280;
   font-size: 11px;
   text-align: center;
@@ -247,7 +245,7 @@
   font-size: 11px;
 }
 
-.top-product-row > strong {
+.top-product-row>strong {
   font-size: 12px;
   white-space: nowrap;
 }
@@ -301,7 +299,7 @@
   overflow: hidden;
 }
 
-.status-progress > div {
+.status-progress>div {
   height: 100%;
   border-radius: 10px;
 }
@@ -346,6 +344,11 @@
   .reports-summary {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
+
+  .reports-summary,
+  .reports-summary-filtered {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
 }
 
 @media (max-width: 700px) {
@@ -362,13 +365,15 @@
     gap: 5px;
   }
 
-  .sales-chart-column > strong {
+  .sales-chart-column>strong {
     font-size: 9px;
   }
 }
 
 @media (max-width: 500px) {
-  .reports-summary {
+
+  .reports-summary,
+  .reports-summary-filtered {
     grid-template-columns: 1fr;
   }
 
@@ -392,12 +397,12 @@
   }
 }
 
-.report-date-filter > div:first-child h2 {
+.report-date-filter>div:first-child h2 {
   font-size: 17px;
   margin-bottom: 6px;
 }
 
-.report-date-filter > div:first-child p {
+.report-date-filter>div:first-child p {
   color: #9ca3af;
   font-size: 13px;
 }
@@ -453,7 +458,7 @@
   grid-template-columns: repeat(2, minmax(0, 1fr));
 }
 
-.reports-header > div:last-child {
+.reports-header>div:last-child {
   display: flex;
   align-items: center;
   gap: 10px;
@@ -467,4 +472,15 @@
 
 .reports-export:hover {
   background: #15803d;
+}
+
+.reports-summary {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 18px;
+  margin-bottom: 22px;
+}
+
+.reports-summary-filtered {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
 }

@@ -31,9 +31,9 @@ const Reports = () => {
       const params =
         range.startDate && range.endDate
           ? {
-              startDate: range.startDate,
-              endDate: range.endDate,
-            }
+            startDate: range.startDate,
+            endDate: range.endDate,
+          }
           : {};
 
       const response = await api.get("/reports", { params });
@@ -49,17 +49,17 @@ const Reports = () => {
   };
 
   const applyDateFilter = () => {
-  if (!startDate || !endDate) {
-    setFilterError("Please select both start and end dates.");
-    return;
-  }
+    if (!startDate || !endDate) {
+      setFilterError("Please select both start and end dates.");
+      return;
+    }
 
-  if (startDate > endDate) {
-    setFilterError("Start date cannot be after end date.");
-    return;
-  }
+    if (startDate > endDate) {
+      setFilterError("Start date cannot be after end date.");
+      return;
+    }
 
-  setFilterError("");
+    setFilterError("");
     fetchReports({ startDate, endDate });
   };
 
@@ -91,15 +91,23 @@ const Reports = () => {
       [],
       ["Summary"],
       ["Metric", "Value"],
+
       ["Today's Revenue", data.summary.today.revenue],
+      ["Today's Expenses", data.summary.today.expenses],
+      ["Today's Profit", data.summary.today.profit],
       ["Today's Orders", data.summary.today.totalOrders],
+
       ["This Month Revenue", data.summary.thisMonth.revenue],
+      ["This Month Expenses", data.summary.thisMonth.expenses],
+      ["This Month Profit", data.summary.thisMonth.profit],
       ["This Month Orders", data.summary.thisMonth.totalOrders],
     ];
 
     if (data.summary.selectedRange) {
       rows.push(
         ["Selected Range Revenue", data.summary.selectedRange.revenue],
+        ["Selected Range Expenses", data.summary.selectedRange.expenses],
+        ["Selected Range Profit", data.summary.selectedRange.profit],
         ["Selected Range Orders", data.summary.selectedRange.totalOrders]
       );
     }
@@ -178,8 +186,8 @@ const Reports = () => {
     period === "daily"
       ? data.dailySales
       : period === "weekly"
-      ? data.weeklySales
-      : data.monthlySales;
+        ? data.weeklySales
+        : data.monthlySales;
 
   const maxRevenue = Math.max(
     ...currentSales.map((item) => Number(item.revenue || 0)),
@@ -278,38 +286,52 @@ const Reports = () => {
           </div>
           <span>Today's Revenue</span>
           <h2>{currency(data.summary.today.revenue)}</h2>
-          <small>
-            {data.summary.today.totalOrders} orders today
-          </small>
+          <small>{data.summary.today.totalOrders} orders today</small>
         </div>
 
         <div className="report-card">
-          <div className="report-card-icon blue">
+          <div className="report-card-icon purple">
             <ShoppingBag size={22} />
           </div>
-          <span>Today's Orders</span>
-          <h2>{data.summary.today.totalOrders}</h2>
-          <small>All order statuses</small>
+          <span>Today's Expenses</span>
+          <h2>{currency(data.summary.today.expenses)}</h2>
+          <small>Recorded expenses today</small>
         </div>
 
         <div className="report-card">
           <div className="report-card-icon green">
             <TrendingUp size={22} />
           </div>
+          <span>Today's Profit</span>
+          <h2>{currency(data.summary.today.profit)}</h2>
+          <small>Revenue minus expenses</small>
+        </div>
+
+        <div className="report-card">
+          <div className="report-card-icon orange">
+            <DollarSign size={22} />
+          </div>
           <span>This Month's Revenue</span>
           <h2>{currency(data.summary.thisMonth.revenue)}</h2>
-          <small>
-            {data.summary.thisMonth.totalOrders} orders this month
-          </small>
+          <small>{data.summary.thisMonth.totalOrders} orders this month</small>
         </div>
 
         <div className="report-card">
           <div className="report-card-icon purple">
-            <BarChart3 size={22} />
+            <ShoppingBag size={22} />
           </div>
-          <span>This Month's Orders</span>
-          <h2>{data.summary.thisMonth.totalOrders}</h2>
-          <small>All order statuses</small>
+          <span>This Month's Expenses</span>
+          <h2>{currency(data.summary.thisMonth.expenses)}</h2>
+          <small>Recorded monthly expenses</small>
+        </div>
+
+        <div className="report-card">
+          <div className="report-card-icon green">
+            <TrendingUp size={22} />
+          </div>
+          <span>This Month's Profit</span>
+          <h2>{currency(data.summary.thisMonth.profit)}</h2>
+          <small>Revenue minus expenses</small>
         </div>
       </div>
 
@@ -324,11 +346,19 @@ const Reports = () => {
           </div>
 
           <div className="report-card">
-            <div className="report-card-icon blue">
+            <div className="report-card-icon purple">
               <ShoppingBag size={22} />
             </div>
-            <span>Selected Range Orders</span>
-            <h2>{data.summary.selectedRange.totalOrders}</h2>
+            <span>Selected Range Expenses</span>
+            <h2>{currency(data.summary.selectedRange.expenses)}</h2>
+          </div>
+
+          <div className="report-card">
+            <div className="report-card-icon green">
+              <TrendingUp size={22} />
+            </div>
+            <span>Selected Range Profit</span>
+            <h2>{currency(data.summary.selectedRange.profit)}</h2>
           </div>
         </div>
       )}
@@ -374,16 +404,16 @@ const Reports = () => {
                 (Number(item.revenue || 0) / maxRevenue) * 100;
 
               const label =
-  period === "monthly"
-    ? new Date(`${item.label}-01T00:00:00`).toLocaleDateString("en-PK", {
-        month: "short",
-        year: "2-digit",
-      })
-    : new Date(`${item.label}T00:00:00`).toLocaleDateString("en-PK", {
-        day: "2-digit",
-        month: "short",
-        year: period === "weekly" ? "2-digit" : undefined,
-      });
+                period === "monthly"
+                  ? new Date(`${item.label}-01T00:00:00`).toLocaleDateString("en-PK", {
+                    month: "short",
+                    year: "2-digit",
+                  })
+                  : new Date(`${item.label}T00:00:00`).toLocaleDateString("en-PK", {
+                    day: "2-digit",
+                    month: "short",
+                    year: period === "weekly" ? "2-digit" : undefined,
+                  });
 
               return (
                 <div className="sales-chart-column" key={item.label}>
