@@ -11,6 +11,11 @@ const Products = () => {
   const [loading, setLoading] = useState(false);
   const [currentImage, setCurrentImage] = useState(null);
   const [imagePreview, setImagePreview] = useState("");
+  const [recipeProduct, setRecipeProduct] = useState(null);
+  const [inventoryItems, setInventoryItems] = useState([]);
+  const [recipeIngredients, setRecipeIngredients] = useState([]);
+  const [recipeLoading, setRecipeLoading] = useState(false);
+  const [recipeSaving, setRecipeSaving] = useState(false);
 
   const [form, setForm] = useState({
     name: "",
@@ -217,11 +222,210 @@ const Products = () => {
     }
   };
 
+  const openRecipe = async (product) => {
+    try {
+      setRecipeLoading(true);
+      setRecipeProduct(product);
+
+      const [inventoryRes, recipeRes] = await Promise.all([
+        api.get("/inventory"),
+        api.get(`/product-ingredients/${product.id}`),
+      ]);
+
+      setInventoryItems(inventoryRes.data.items || []);
+
+      setRecipeIngredients(
+        (recipeRes.data.ingredients || []).map((item) => ({
+          inventoryItemId: String(item.inventoryItemId),
+          quantityPerProduct: String(item.quantityPerProduct),
+        }))
+      );
+    } catch (error) {
+      alert(error.response?.data?.message || "Failed to load recipe");
+      setRecipeProduct(null);
+    } finally {
+      setRecipeLoading(false);
+    }
+  };
+
+  const addRecipeIngredient = () => {
+    setRecipeIngredients((prev) => [
+      ...prev,
+      { inventoryItemId: "", quantityPerProduct: "" },
+    ]);
+  };
+
+  const updateRecipeIngredient = (index, field, value) => {
+    setRecipeIngredients((prev) =>
+      prev.map((item, i) =>
+        i === index ? { ...item, [field]: value } : item
+      )
+    );
+  };
+
+  const removeRecipeIngredient = (index) => {
+    setRecipeIngredients((prev) => prev.filter((_, i) => i !== index));
+  };
+
+  const saveRecipe = async () => {
+    const validIngredients = recipeIngredients.every(
+      (item) =>
+        item.inventoryItemId &&
+        Number(item.quantityPerProduct) > 0 &&
+        Number.isFinite(Number(item.quantityPerProduct))
+    );
+
+    if (!validIngredients) {
+      alert("Select an ingredient and enter a valid quantity for every row.");
+      return;
+    }
+
+    const ids = recipeIngredients.map((item) => item.inventoryItemId);
+
+    if (new Set(ids).size !== ids.length) {
+      alert("An ingredient cannot be added more than once.");
+      return;
+    }
+
+    try {
+      setRecipeSaving(true);
+
+      await api.put(`/product-ingredients/${recipeProduct.id}`, {
+        ingredients: recipeIngredients.map((item) => ({
+          inventoryItemId: Number(item.inventoryItemId),
+          quantityPerProduct: Number(item.quantityPerProduct),
+        })),
+      });
+
+      alert("Product recipe saved successfully.");
+      setRecipeProduct(null);
+    } catch (error) {
+      alert(error.response?.data?.message || "Failed to save recipe");
+    } finally {
+      setRecipeSaving(false);
+    }
+  };
+
   const imageUrl = (image) =>
     image ? `http://localhost:5000${image}` : "";
 
   return (
     <div className="management-page">
+
+      {recipeProduct && (
+        <div className="recipe-modal-overlay">
+          <div className="recipe-modal">
+            <div className="recipe-modal-header">
+              <div>
+                <h2>Product Recipe</h2>
+                <p>{recipeProduct.name}</p>
+              </div>
+
+              <button
+                type="button"
+                onClick={() => setRecipeProduct(null)}
+              >
+                ×
+              </button>
+            </div>
+
+            {recipeLoading ? (
+              <p>Loading recipe...</p>
+            ) : (
+              <>
+                <div className="recipe-ingredients">
+                  {recipeIngredients.map((ingredient, index) => (
+                    <div className="recipe-ingredient-row" key={index}>
+                      <select
+                        value={ingredient.inventoryItemId}
+                        onChange={(e) =>
+                          updateRecipeIngredient(
+                            index,
+                            "inventoryItemId",
+                            e.target.value
+                          )
+                        }
+                      >
+                        <option value="">Select ingredient</option>
+
+                        {inventoryItems.map((item) => (
+                          <option
+                            key={item.id}
+                            value={item.id}
+                          >
+                            {item.name} ({item.unit})
+                          </option>
+                        ))}
+                      </select>
+
+                      <input
+                        type="number"
+                        min="0.001"
+                        step="0.001"
+                        placeholder="Quantity per product"
+                        value={ingredient.quantityPerProduct}
+                        onChange={(e) =>
+                          updateRecipeIngredient(
+                            index,
+                            "quantityPerProduct",
+                            e.target.value
+                          )
+                        }
+                      />
+
+                      <span>
+                        {inventoryItems.find(
+                          (item) =>
+                            String(item.id) === ingredient.inventoryItemId
+                        )?.unit || ""}
+                      </span>
+
+                      <button
+                        type="button"
+                        className="recipe-remove-btn"
+                        onClick={() => removeRecipeIngredient(index)}
+                      >
+                        Remove
+                      </button>
+                    </div>
+                  ))}
+
+                  {recipeIngredients.length === 0 && (
+                    <p>No ingredients added to this recipe yet.</p>
+                  )}
+                </div>
+
+                <button
+                  type="button"
+                  className="recipe-add-btn"
+                  onClick={addRecipeIngredient}
+                >
+                  + Add Ingredient
+                </button>
+
+                <div className="recipe-modal-actions">
+                  <button
+                    type="button"
+                    className="recipe-cancel-btn"
+                    onClick={() => setRecipeProduct(null)}
+                  >
+                    Cancel
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={saveRecipe}
+                    disabled={recipeSaving}
+                  >
+                    {recipeSaving ? "Saving..." : "Save Recipe"}
+                  </button>
+                </div>
+              </>
+            )}
+          </div>
+        </div>
+      )}
+
       <div className="management-heading">
         <div>
           <h1>Food Products</h1>
@@ -357,41 +561,41 @@ const Products = () => {
 
                   <p>{category?.name || "No category"}</p>
 
-                <div className="branch-availability">
-                  <div className="availability-info">
-                    <span>Branch Availability</span>
+                  <div className="branch-availability">
+                    <div className="availability-info">
+                      <span>Branch Availability</span>
 
-                    <strong
+                      <strong
+                        className={
+                          product.branchAvailability
+                            ? "availability-active"
+                            : "availability-inactive"
+                        }
+                      >
+                        {product.branchAvailability ? "Available" : "Unavailable"}
+                      </strong>
+                    </div>
+
+                    <button
+                      type="button"
                       className={
                         product.branchAvailability
-                          ? "availability-active"
-                          : "availability-inactive"
+                          ? "availability-toggle unavailable-btn"
+                          : "availability-toggle available-btn"
                       }
+                      onClick={() => toggleBranchAvailability(product)}
                     >
-                      {product.branchAvailability ? "Available" : "Unavailable"}
-                    </strong>
+                      {product.branchAvailability
+                        ? "Mark Unavailable"
+                        : "Mark Available"}
+                    </button>
+
+                    <small>
+                      {product.hasAvailabilityOverride
+                        ? "Custom availability for this branch"
+                        : "Using restaurant default availability"}
+                    </small>
                   </div>
-
-                  <button
-                    type="button"
-                    className={
-                      product.branchAvailability
-                        ? "availability-toggle unavailable-btn"
-                        : "availability-toggle available-btn"
-                    }
-                    onClick={() => toggleBranchAvailability(product)}
-                  >
-                    {product.branchAvailability
-                      ? "Mark Unavailable"
-                      : "Mark Available"}
-                  </button>
-
-                  <small>
-                    {product.hasAvailabilityOverride
-                      ? "Custom availability for this branch"
-                      : "Using restaurant default availability"}
-                  </small>
-                </div>
 
                   <strong>
                     Branch Price: Rs.{" "}
@@ -439,6 +643,13 @@ const Products = () => {
                   </small>
 
                   <div className="row-actions">
+
+                    <button
+                      type="button"
+                      onClick={() => openRecipe(product)}
+                    >
+                      Manage Recipe
+                    </button>
                     <button
                       type="button"
                       onClick={() => handleEdit(product)}
@@ -446,12 +657,7 @@ const Products = () => {
                       <Pencil size={17} />
                     </button>
 
-                    <button
-                      type="button"
-                      onClick={() => toggleAvailability(product)}
-                    >
-                      {product.branchAvailability ? "Disable" : "Enable"}
-                    </button>
+
 
                     <button
                       type="button"
