@@ -1,4 +1,3 @@
-
 import { useEffect, useState } from "react";
 import { Plus, Pencil, Trash2 } from "lucide-react";
 import api from "../services/api";
@@ -7,8 +6,14 @@ import "./Management.css";
 const Products = () => {
   const [products, setProducts] = useState([]);
   const [categories, setCategories] = useState([]);
+  const [priceDrafts, setPriceDrafts] = useState({});
   const [editId, setEditId] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [selectedCategory, setSelectedCategory] = useState("");
+  const [availabilityFilter, setAvailabilityFilter] = useState("all");
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 6;
 
   const [form, setForm] = useState({
     name: "",
@@ -21,14 +26,22 @@ const Products = () => {
   const fetchData = async () => {
     try {
       const [productRes, categoryRes] = await Promise.all([
-        api.get("/products"),
+        api.get("/branch-products"),
         api.get("/categories"),
       ]);
 
-      setProducts(productRes.data.products);
+      const branchProducts = productRes.data.products || [];
+
+      setProducts(branchProducts);
       setCategories(
-        categoryRes.data.categories.filter((c) => c.isActive)
+        (categoryRes.data.categories || []).filter((c) => c.isActive)
       );
+
+      const drafts = {};
+      branchProducts.forEach((product) => {
+        drafts[product.id] = product.branchPrice;
+      });
+      setPriceDrafts(drafts);
     } catch (error) {
       alert(error.response?.data?.message || "Failed to load data");
     }
@@ -55,7 +68,6 @@ const Products = () => {
       categoryId: "",
       image: null,
     });
-
     setEditId(null);
   };
 
@@ -66,7 +78,6 @@ const Products = () => {
       setLoading(true);
 
       const data = new FormData();
-
       data.append("name", form.name);
       data.append("description", form.description);
       data.append("price", form.price);
@@ -85,8 +96,7 @@ const Products = () => {
       }
 
       resetForm();
-      fetchData();
-
+      await fetchData();
     } catch (error) {
       alert(error.response?.data?.message || "Product save failed");
     } finally {
@@ -115,7 +125,7 @@ const Products = () => {
 
     try {
       await api.delete(`/products/${id}`);
-      fetchData();
+      await fetchData();
     } catch (error) {
       alert(error.response?.data?.message || "Delete failed");
     }
@@ -123,13 +133,51 @@ const Products = () => {
 
   const toggleAvailability = async (product) => {
     try {
-      await api.put(`/products/${product.id}`, {
-        isAvailable: !product.isAvailable,
+      await api.put(`/branch-products/${product.id}`, {
+        isAvailable: !product.branchAvailability,
       });
 
-      fetchData();
+      await fetchData();
     } catch (error) {
-      alert(error.response?.data?.message || "Update failed");
+      alert(error.response?.data?.message || "Availability update failed");
+    }
+  };
+
+  const saveBranchPrice = async (product) => {
+    const price = priceDrafts[product.id];
+
+    if (
+      price === "" ||
+      price === null ||
+      !Number.isFinite(Number(price)) ||
+      Number(price) < 0
+    ) {
+      alert("Please enter a valid price");
+      return;
+    }
+
+    try {
+      await api.put(`/branch-products/${product.id}`, {
+        priceOverride: Number(price),
+      });
+
+      alert("Branch price updated successfully");
+      await fetchData();
+    } catch (error) {
+      alert(error.response?.data?.message || "Price update failed");
+    }
+  };
+
+  const resetBranchPrice = async (product) => {
+    try {
+      await api.put(`/branch-products/${product.id}`, {
+        priceOverride: null,
+      });
+
+      alert("Branch price reset to base price");
+      await fetchData();
+    } catch (error) {
+      alert(error.response?.data?.message || "Price reset failed");
     }
   };
 
@@ -145,10 +193,7 @@ const Products = () => {
         </div>
       </div>
 
-      <form
-        className="management-form"
-        onSubmit={handleSubmit}
-      >
+      <form className="management-form" onSubmit={handleSubmit}>
         <h3>{editId ? "Edit Food Item" : "Add New Food Item"}</h3>
 
         <input
@@ -171,7 +216,7 @@ const Products = () => {
           type="number"
           min="0"
           step="0.01"
-          placeholder="Price in PKR"
+          placeholder="Base Price in PKR"
           value={form.price}
           onChange={handleChange}
           required
@@ -202,14 +247,16 @@ const Products = () => {
           />
         </label>
 
-        {form.image && (
-          <p>Selected: {form.image.name}</p>
-        )}
+        {form.image && <p>Selected: {form.image.name}</p>}
 
         <div className="form-actions">
           <button type="submit" disabled={loading}>
             <Plus size={17} />
-            {loading ? "Saving..." : editId ? "Update Product" : "Add Product"}
+            {loading
+              ? "Saving..."
+              : editId
+                ? "Update Product"
+                : "Add Product"}
           </button>
 
           {editId && (
@@ -228,49 +275,104 @@ const Products = () => {
         <h3>All Food Items ({products.length})</h3>
 
         <div className="product-grid">
-          {products.map((product) => (
-            <div className="product-card" key={product.id}>
-              {product.image ? (
-                <img
-                  src={imageUrl(product.image)}
-                  alt={product.name}
-                  className="product-image"
-                />
-              ) : (
-                <div className="product-placeholder">
-                  No Image
-                </div>
-              )}
+          {products.map((product) => {
+            const category = categories.find(
+              (c) => Number(c.id) === Number(product.categoryId)
+            );
 
-              <div className="product-info">
-                <h4>{product.name}</h4>
+            return (
+              <div className="product-card" key={product.id}>
+                {product.image ? (
+                  <img
+                    src={imageUrl(product.image)}
+                    alt={product.name}
+                    className="product-image"
+                  />
+                ) : (
+                  <div className="product-placeholder">No Image</div>
+                )}
 
-                <p>{product.Category?.name || "No category"}</p>
+                <div className="product-info">
+                  <h4>{product.name}</h4>
 
-                <strong>
-                  Rs. {Number(product.price).toLocaleString("en-PK")}
-                </strong>
+                  <p>{category?.name || "No category"}</p>
 
-                <small>
-                  {product.isAvailable ? "Available" : "Unavailable"}
-                </small>
+                  <p>
+                    Base Price: Rs.{" "}
+                    {Number(product.basePrice).toLocaleString("en-PK")}
+                  </p>
 
-                <div className="row-actions">
-                  <button onClick={() => handleEdit(product)}>
-                    <Pencil size={17} />
-                  </button>
+                  <strong>
+                    Branch Price: Rs.{" "}
+                    {Number(product.branchPrice).toLocaleString("en-PK")}
+                  </strong>
 
-                  <button onClick={() => toggleAvailability(product)}>
-                    {product.isAvailable ? "Disable" : "Enable"}
-                  </button>
+                  <div style={{ marginTop: "10px" }}>
+                    <input
+                      type="number"
+                      min="0"
+                      step="0.01"
+                      value={priceDrafts[product.id] ?? ""}
+                      onChange={(e) =>
+                        setPriceDrafts((prev) => ({
+                          ...prev,
+                          [product.id]: e.target.value,
+                        }))
+                      }
+                      placeholder="Branch price"
+                    />
 
-                  <button onClick={() => handleDelete(product.id)}>
-                    <Trash2 size={17} />
-                  </button>
+                    <div className="row-actions">
+                      <button
+                        type="button"
+                        onClick={() => saveBranchPrice(product)}
+                      >
+                        Save Price
+                      </button>
+
+                      {product.hasPriceOverride && (
+                        <button
+                          type="button"
+                          onClick={() => resetBranchPrice(product)}
+                        >
+                          Reset Price
+                        </button>
+                      )}
+                    </div>
+                  </div>
+
+                  <small>
+                    {product.branchAvailability
+                      ? "Available in this branch"
+                      : "Unavailable in this branch"}
+                  </small>
+
+                  <div className="row-actions">
+                    <button
+                      type="button"
+                      onClick={() => handleEdit(product)}
+                    >
+                      <Pencil size={17} />
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={() => toggleAvailability(product)}
+                    >
+                      {product.branchAvailability ? "Disable" : "Enable"}
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={() => handleDelete(product.id)}
+                    >
+                      <Trash2 size={17} />
+                    </button>
+                  </div>
                 </div>
               </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
 
         {products.length === 0 && (
