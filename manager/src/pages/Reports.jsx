@@ -112,7 +112,6 @@ const Reports = () => {
       rows.push(
         ["Selected Range Revenue", data.summary.selectedRange.revenue],
         ["Selected Range Expenses", data.summary.selectedRange.expenses],
-        ["Selected Range Profit", data.summary.selectedRange.profit],
         ["Selected Range Orders", data.summary.selectedRange.totalOrders],
         [
           "Selected Range COGS",
