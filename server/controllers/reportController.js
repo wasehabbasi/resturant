@@ -316,37 +316,37 @@ const getReports = async (req, res) => {
                             Number(selectedRangeExpenses[0].expenses || 0),
                     }
                     : null,
-                },
+            },
 
-                dailySales: dailySales.map((item) => ({
-                    label: item.label,
-                    totalOrders: Number(item.totalOrders),
-                    revenue: Number(item.revenue || 0),
-                })),
+            dailySales: dailySales.map((item) => ({
+                label: item.label,
+                totalOrders: Number(item.totalOrders),
+                revenue: Number(item.revenue || 0),
+            })),
 
-                weeklySales: weeklySales.map((item) => ({
-                    label: item.label,
-                    totalOrders: Number(item.totalOrders),
-                    revenue: Number(item.revenue || 0),
-                })),
+            weeklySales: weeklySales.map((item) => ({
+                label: item.label,
+                totalOrders: Number(item.totalOrders),
+                revenue: Number(item.revenue || 0),
+            })),
 
-                monthlySales: monthlySales.map((item) => ({
-                    label: item.label,
-                    totalOrders: Number(item.totalOrders),
-                    revenue: Number(item.revenue || 0),
-                })),
+            monthlySales: monthlySales.map((item) => ({
+                label: item.label,
+                totalOrders: Number(item.totalOrders),
+                revenue: Number(item.revenue || 0),
+            })),
 
-                topProducts: topProducts.map((item) => ({
-                    id: item.id,
-                    name: item.name,
-                    totalQuantity: Number(item.totalQuantity),
-                    totalRevenue: Number(item.totalRevenue || 0),
-                })),
+            topProducts: topProducts.map((item) => ({
+                id: item.id,
+                name: item.name,
+                totalQuantity: Number(item.totalQuantity),
+                totalRevenue: Number(item.totalRevenue || 0),
+            })),
 
-                orderStatus: orderStatus.map((item) => ({
-                    status: item.status,
-                    total: Number(item.total),
-                })),
+            orderStatus: orderStatus.map((item) => ({
+                status: item.status,
+                total: Number(item.total),
+            })),
         });
 
     } catch (error) {

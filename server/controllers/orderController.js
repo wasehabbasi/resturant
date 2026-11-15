@@ -119,15 +119,19 @@ const updateOrderStatus = async (req, res) => {
       const requiredStock = {};
 
       for (const ingredient of ingredients) {
-        const orderItem = orderItems.find(
+        const matchingOrderItems = orderItems.filter(
           (item) => item.productId === ingredient.productId
         );
 
-        if (!orderItem) continue;
+        const totalProductQuantity = matchingOrderItems.reduce(
+          (total, item) => total + Number(item.quantity),
+          0
+        );
+
+        if (totalProductQuantity <= 0) continue;
 
         const required =
-          Number(ingredient.quantityPerProduct) *
-          Number(orderItem.quantity);
+          Number(ingredient.quantityPerProduct) * totalProductQuantity;
 
         requiredStock[ingredient.inventoryItemId] =
           (requiredStock[ingredient.inventoryItemId] || 0) + required;
@@ -194,12 +198,7 @@ const updateOrderStatus = async (req, res) => {
             );
           }
 
-          if (error.message.startsWith("MISSING_COST:")) {
-            return res.status(400).json({
-              success: false,
-              message: error.message.replace("MISSING_COST: ", ""),
-            });
-          }
+
         }
 
         for (const inventoryId of inventoryIds) {
