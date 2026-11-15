@@ -145,6 +145,38 @@ const updateOrderStatus = async (req, res) => {
           lock: transaction.LOCK.UPDATE,
         });
 
+        // Calculate and save ingredient cost per product
+        for (const orderItem of orderItems) {
+          const productIngredients = ingredients.filter(
+            (ingredient) => ingredient.productId === orderItem.productId
+          );
+
+          let itemCost = 0;
+
+          for (const ingredient of productIngredients) {
+            const stock = branchInventory.find(
+              (item) =>
+                item.inventoryItemId === ingredient.inventoryItemId
+            );
+
+            const averageCost = Number(stock?.averageCost || 0);
+
+            if (!stock || averageCost <= 0) {
+              throw new Error(
+                `MISSING_COST: Please set purchase cost for inventory item ID ${ingredient.inventoryItemId}`
+              );
+            }
+
+            itemCost +=
+              Number(ingredient.quantityPerProduct) * averageCost;
+          }
+
+          await orderItem.update(
+            { ingredientCost: Number(itemCost.toFixed(2)) },
+            { transaction }
+          );
+        }
+
         for (const inventoryId of inventoryIds) {
           const stock = branchInventory.find(
             (item) => item.inventoryItemId === inventoryId
@@ -160,6 +192,13 @@ const updateOrderStatus = async (req, res) => {
             throw new Error(
               `INSUFFICIENT_STOCK: Insufficient stock for inventory item ID ${itemName}`
             );
+          }
+
+          if (error.message.startsWith("MISSING_COST:")) {
+            return res.status(400).json({
+              success: false,
+              message: error.message.replace("MISSING_COST: ", ""),
+            });
           }
         }
 
@@ -293,6 +332,13 @@ const updateOrderStatus = async (req, res) => {
       return res.status(400).json({
         success: false,
         message: error.message.replace("INSUFFICIENT_STOCK: ", ""),
+      });
+    }
+
+    if (error.message.startsWith("MISSING_COST:")) {
+      return res.status(400).json({
+        success: false,
+        message: error.message.replace("MISSING_COST: ", ""),
       });
     }
 

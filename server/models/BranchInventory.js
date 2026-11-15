@@ -29,6 +29,12 @@ const BranchInventory = sequelize.define(
       defaultValue: 0,
       validate: { min: 0 },
     },
+    averageCost: {
+      type: DataTypes.DECIMAL(12, 2),
+      allowNull: false,
+      defaultValue: 0,
+      validate: { min: 0 },
+    },
   },
   {
     indexes: [

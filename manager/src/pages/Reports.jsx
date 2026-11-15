@@ -101,6 +101,13 @@ const Reports = () => {
       ["This Month Expenses", data.summary.thisMonth.expenses],
       ["This Month Profit", data.summary.thisMonth.profit],
       ["This Month Orders", data.summary.thisMonth.totalOrders],
+      ["Today's COGS", data.summary.today.cogs],
+      ["Today's Gross Profit", data.summary.today.grossProfit],
+      ["Today's Net Profit", data.summary.today.profit],
+
+      ["This Month COGS", data.summary.thisMonth.cogs],
+      ["This Month Gross Profit", data.summary.thisMonth.grossProfit],
+      ["This Month Net Profit", data.summary.thisMonth.profit],
     ];
 
     if (data.summary.selectedRange) {
@@ -108,7 +115,19 @@ const Reports = () => {
         ["Selected Range Revenue", data.summary.selectedRange.revenue],
         ["Selected Range Expenses", data.summary.selectedRange.expenses],
         ["Selected Range Profit", data.summary.selectedRange.profit],
-        ["Selected Range Orders", data.summary.selectedRange.totalOrders]
+        ["Selected Range Orders", data.summary.selectedRange.totalOrders],
+        [
+          "Selected Range COGS",
+          data.summary.selectedRange.cogs,
+        ],
+        [
+          "Selected Range Gross Profit",
+          data.summary.selectedRange.grossProfit,
+        ],
+        [
+          "Selected Range Net Profit",
+          data.summary.selectedRange.profit,
+        ],
       );
     }
 
@@ -332,6 +351,22 @@ const Reports = () => {
           <span>This Month's Profit</span>
           <h2>{currency(data.summary.thisMonth.profit)}</h2>
           <small>Revenue minus expenses</small>
+        </div>
+
+        <div className="report-card">
+          <div className="report-card-icon purple">
+            <ShoppingBag size={22} />
+          </div>
+          <span>Today's Ingredient Cost (COGS)</span>
+          <h2>{currency(data.summary.today.cogs)}</h2>
+        </div>
+
+        <div className="report-card">
+          <div className="report-card-icon green">
+            <TrendingUp size={22} />
+          </div>
+          <span>Today's Gross Profit</span>
+          <h2>{currency(data.summary.today.grossProfit)}</h2>
         </div>
       </div>
 

@@ -241,6 +241,36 @@ const getReports = async (req, res) => {
             `, queryOptions),
         ]);
 
+        const getCOGS = async (filter = "") => {
+            const result = await sequelize.query(`
+        SELECT
+            COALESCE(
+                SUM(oi.ingredientCost * oi.quantity),
+                0
+            ) AS cogs
+        FROM OrderItems oi
+        INNER JOIN Orders o ON o.id = oi.orderId
+        WHERE o.branchId = :branchId
+        AND o.status = 'completed'
+        ${filter}
+    `, queryOptions);
+
+            return Number(result[0].cogs || 0);
+        };
+
+        const todayCOGS = await getCOGS(
+            "AND DATE(o.createdAt) = CURDATE()"
+        );
+
+        const monthlyCOGS = await getCOGS(`
+    AND YEAR(o.createdAt) = YEAR(CURDATE())
+    AND MONTH(o.createdAt) = MONTH(CURDATE())
+`);
+
+        const selectedRangeCOGS = hasDateRange
+            ? await getCOGS(orderDateFilter)
+            : null;
+
         return res.status(200).json({
             success: true,
 
@@ -249,8 +279,12 @@ const getReports = async (req, res) => {
                     totalOrders: Number(todayStats[0].totalOrders || 0),
                     revenue: Number(todayStats[0].revenue || 0),
                     expenses: Number(todayExpenses[0].expenses || 0),
+                    cogs: todayCOGS,
+                    grossProfit:
+                        Number(todayStats[0].revenue || 0) - todayCOGS,
                     profit:
                         Number(todayStats[0].revenue || 0) -
+                        todayCOGS -
                         Number(todayExpenses[0].expenses || 0),
                 },
 
@@ -258,8 +292,12 @@ const getReports = async (req, res) => {
                     totalOrders: Number(monthlyStats[0].totalOrders || 0),
                     revenue: Number(monthlyStats[0].revenue || 0),
                     expenses: Number(monthlyExpenses[0].expenses || 0),
+                    cogs: monthlyCOGS,
+                    grossProfit:
+                        Number(monthlyStats[0].revenue || 0) - monthlyCOGS,
                     profit:
                         Number(monthlyStats[0].revenue || 0) -
+                        monthlyCOGS -
                         Number(monthlyExpenses[0].expenses || 0),
                 },
 
@@ -268,42 +306,47 @@ const getReports = async (req, res) => {
                         totalOrders: Number(selectedRangeStats[0].totalOrders || 0),
                         revenue: Number(selectedRangeStats[0].revenue || 0),
                         expenses: Number(selectedRangeExpenses[0].expenses || 0),
+                        cogs: selectedRangeCOGS,
+                        grossProfit:
+                            Number(selectedRangeStats[0].revenue || 0) -
+                            selectedRangeCOGS,
                         profit:
                             Number(selectedRangeStats[0].revenue || 0) -
+                            selectedRangeCOGS -
                             Number(selectedRangeExpenses[0].expenses || 0),
                     }
                     : null,
-            },
+                },
 
-            dailySales: dailySales.map((item) => ({
-                label: item.label,
-                totalOrders: Number(item.totalOrders),
-                revenue: Number(item.revenue || 0),
-            })),
+                dailySales: dailySales.map((item) => ({
+                    label: item.label,
+                    totalOrders: Number(item.totalOrders),
+                    revenue: Number(item.revenue || 0),
+                })),
 
-            weeklySales: weeklySales.map((item) => ({
-                label: item.label,
-                totalOrders: Number(item.totalOrders),
-                revenue: Number(item.revenue || 0),
-            })),
+                weeklySales: weeklySales.map((item) => ({
+                    label: item.label,
+                    totalOrders: Number(item.totalOrders),
+                    revenue: Number(item.revenue || 0),
+                })),
 
-            monthlySales: monthlySales.map((item) => ({
-                label: item.label,
-                totalOrders: Number(item.totalOrders),
-                revenue: Number(item.revenue || 0),
-            })),
+                monthlySales: monthlySales.map((item) => ({
+                    label: item.label,
+                    totalOrders: Number(item.totalOrders),
+                    revenue: Number(item.revenue || 0),
+                })),
 
-            topProducts: topProducts.map((item) => ({
-                id: item.id,
-                name: item.name,
-                totalQuantity: Number(item.totalQuantity),
-                totalRevenue: Number(item.totalRevenue || 0),
-            })),
+                topProducts: topProducts.map((item) => ({
+                    id: item.id,
+                    name: item.name,
+                    totalQuantity: Number(item.totalQuantity),
+                    totalRevenue: Number(item.totalRevenue || 0),
+                })),
 
-            orderStatus: orderStatus.map((item) => ({
-                status: item.status,
-                total: Number(item.total),
-            })),
+                orderStatus: orderStatus.map((item) => ({
+                    status: item.status,
+                    total: Number(item.total),
+                })),
         });
 
     } catch (error) {

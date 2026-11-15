@@ -33,6 +33,7 @@ const getInventory = async (req, res) => {
         ...data,
         quantity,
         lowStockThreshold: threshold,
+        averageCost: Number(stock?.averageCost || 0),
         isLowStock: quantity <= threshold,
       };
     });
@@ -102,8 +103,9 @@ const updateStock = async (req, res) => {
 
   try {
     const inventoryItemId = Number(req.params.itemId);
-    const { type, quantity, note } = req.body;
+    const { type, quantity, note, unitCost } = req.body;
     const amount = Number(quantity);
+    const purchaseCost = Number(unitCost);
 
     if (!Number.isInteger(inventoryItemId) || inventoryItemId <= 0) {
       await transaction.rollback();
@@ -126,6 +128,18 @@ const updateStock = async (req, res) => {
       return res.status(400).json({
         success: false,
         message: "Enter a valid quantity",
+      });
+    }
+
+    if (
+      type === "stock_in" &&
+      (!Number.isFinite(purchaseCost) || purchaseCost <= 0)
+    ) {
+      await transaction.rollback();
+
+      return res.status(400).json({
+        success: false,
+        message: "Enter a valid purchase cost per unit",
       });
     }
 
@@ -187,7 +201,29 @@ const updateStock = async (req, res) => {
       });
     }
 
-    await stock.update({ quantity: newQuantity }, { transaction });
+    let averageCost = Number(stock.averageCost || 0);
+
+    if (type === "stock_in") {
+      if (previousQuantity <= 0 || averageCost <= 0) {
+        // First purchase / legacy stock costing initialization
+        averageCost = purchaseCost;
+      } else {
+        // Weighted average purchase cost
+        const oldStockValue = previousQuantity * averageCost;
+        const newStockValue = amount * purchaseCost;
+
+        averageCost =
+          (oldStockValue + newStockValue) / newQuantity;
+      }
+    }
+
+    await stock.update(
+      {
+        quantity: newQuantity,
+        averageCost: Number(averageCost.toFixed(2)),
+      },
+      { transaction }
+    );
 
     const movement = await StockMovement.create(
       {

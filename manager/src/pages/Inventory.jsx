@@ -23,6 +23,7 @@ const Inventory = () => {
     itemId: "",
     type: "stock_in",
     quantity: "",
+    unitCost: "",
     note: "",
   });
 
@@ -82,6 +83,10 @@ const Inventory = () => {
       await api.patch(`/inventory/${stockForm.itemId}/stock`, {
         type: stockForm.type,
         quantity: Number(stockForm.quantity),
+        unitCost:
+          stockForm.type === "stock_in"
+            ? Number(stockForm.unitCost)
+            : undefined,
         note: stockForm.note,
       });
 
@@ -90,6 +95,7 @@ const Inventory = () => {
         itemId: "",
         type: "stock_in",
         quantity: "",
+        unitCost: "",
         note: "",
       });
 
@@ -206,6 +212,23 @@ const Inventory = () => {
           <option value="adjustment">Stock Adjustment (actual quantity)</option>
         </select>
 
+        {stockForm.type === "stock_in" && (
+          <input
+            type="number"
+            min="0.01"
+            step="0.01"
+            placeholder="Purchase cost per unit (Rs.)"
+            value={stockForm.unitCost}
+            onChange={(e) =>
+              setStockForm({
+                ...stockForm,
+                unitCost: e.target.value,
+              })
+            }
+            required
+          />
+        )}
+
         <input
           type="number"
           min="0"
@@ -250,8 +273,13 @@ const Inventory = () => {
                 <span className={item.isLowStock ? "stock-low" : "stock-ok"}>
                   {item.isLowStock ? "Low Stock" : "In Stock"}
                 </span>
+                <small>
+                  Average Cost: Rs. {Number(item.averageCost || 0).toLocaleString("en-PK")} / {item.unit}
+                </small>
               </div>
             </div>
+
+
           ))
         )}
       </div>
