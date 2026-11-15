@@ -94,12 +94,10 @@ const Reports = () => {
 
       ["Today's Revenue", data.summary.today.revenue],
       ["Today's Expenses", data.summary.today.expenses],
-      ["Net Profit", data.summary.today.profit],
       ["Today's Orders", data.summary.today.totalOrders],
 
       ["This Month Revenue", data.summary.thisMonth.revenue],
       ["This Month Expenses", data.summary.thisMonth.expenses],
-      ["Net Profit", data.summary.thisMonth.profit],
       ["This Month Orders", data.summary.thisMonth.totalOrders],
       ["Today's COGS", data.summary.today.cogs],
       ["Today's Gross Profit", data.summary.today.grossProfit],
