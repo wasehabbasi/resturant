@@ -94,12 +94,12 @@ const Reports = () => {
 
       ["Today's Revenue", data.summary.today.revenue],
       ["Today's Expenses", data.summary.today.expenses],
-      ["Today's Profit", data.summary.today.profit],
+      ["Net Profit", data.summary.today.profit],
       ["Today's Orders", data.summary.today.totalOrders],
 
       ["This Month Revenue", data.summary.thisMonth.revenue],
       ["This Month Expenses", data.summary.thisMonth.expenses],
-      ["This Month Profit", data.summary.thisMonth.profit],
+      ["Net Profit", data.summary.thisMonth.profit],
       ["This Month Orders", data.summary.thisMonth.totalOrders],
       ["Today's COGS", data.summary.today.cogs],
       ["Today's Gross Profit", data.summary.today.grossProfit],
@@ -321,9 +321,9 @@ const Reports = () => {
           <div className="report-card-icon green">
             <TrendingUp size={22} />
           </div>
-          <span>Today's Profit</span>
+          <span>Net Profit</span>
           <h2>{currency(data.summary.today.profit)}</h2>
-          <small>Revenue minus expenses</small>
+          <small>Revenue minus COGS and expenses</small>
         </div>
 
         <div className="report-card">
@@ -348,9 +348,25 @@ const Reports = () => {
           <div className="report-card-icon green">
             <TrendingUp size={22} />
           </div>
-          <span>This Month's Profit</span>
+          <span>Net Profit</span>
           <h2>{currency(data.summary.thisMonth.profit)}</h2>
-          <small>Revenue minus expenses</small>
+          <small>Revenue minus COGS and expenses</small>
+        </div>
+
+        <div className="report-card">
+          <div className="report-card-icon purple">
+            <ShoppingBag size={22} />
+          </div>
+          <span>This Month's Ingredient Cost (COGS)</span>
+          <h2>{currency(data.summary.thisMonth.cogs)}</h2>
+        </div>
+
+        <div className="report-card">
+          <div className="report-card-icon green">
+            <TrendingUp size={22} />
+          </div>
+          <span>This Month's Gross Profit</span>
+          <h2>{currency(data.summary.thisMonth.grossProfit)}</h2>
         </div>
 
         <div className="report-card">
@@ -386,6 +402,22 @@ const Reports = () => {
             </div>
             <span>Selected Range Expenses</span>
             <h2>{currency(data.summary.selectedRange.expenses)}</h2>
+          </div>
+
+          <div className="report-card">
+            <div className="report-card-icon purple">
+              <ShoppingBag size={22} />
+            </div>
+            <span>Selected Range COGS</span>
+            <h2>{currency(data.summary.selectedRange.cogs)}</h2>
+          </div>
+
+          <div className="report-card">
+            <div className="report-card-icon green">
+              <TrendingUp size={22} />
+            </div>
+            <span>Selected Range Gross Profit</span>
+            <h2>{currency(data.summary.selectedRange.grossProfit)}</h2>
           </div>
 
           <div className="report-card">
