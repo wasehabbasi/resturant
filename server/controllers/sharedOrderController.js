@@ -202,13 +202,27 @@ const placeSharedOrder = async (req, res) => {
                 .toFixed(2)
         );
 
+        // Branch discount calculation
+        const discountRate = branch.discountEnabled
+            ? Number(branch.discountRate || 0)
+            : 0;
+
+        const discountAmount = Number(
+            ((subtotal * discountRate) / 100).toFixed(2)
+        );
+
+        // Discount is applied before tax and service charge
+        const discountedSubtotal = Number(
+            (subtotal - discountAmount).toFixed(2)
+        );
+
         // Branch tax calculation
         const taxRate = branch.taxEnabled
             ? Number(branch.taxRate || 0)
             : 0;
 
         const taxAmount = Number(
-            ((subtotal * taxRate) / 100).toFixed(2)
+            ((discountedSubtotal * taxRate) / 100).toFixed(2)
         );
 
         // Branch service charge calculation
@@ -217,13 +231,18 @@ const placeSharedOrder = async (req, res) => {
             : 0;
 
         const serviceChargeAmount = Number(
-            ((subtotal * serviceChargeRate) / 100).toFixed(2)
+            ((discountedSubtotal * serviceChargeRate) / 100).toFixed(2)
         );
 
         // Final bill
         const totalAmount = Number(
-            (subtotal + taxAmount + serviceChargeAmount).toFixed(2)
+            (
+                discountedSubtotal +
+                taxAmount +
+                serviceChargeAmount
+            ).toFixed(2)
         );
+
 
 
         const orderNumber =
@@ -241,6 +260,8 @@ const placeSharedOrder = async (req, res) => {
                 customerName: customerName.trim(),
                 guestId,
                 subtotal,
+                discountRate,
+                discountAmount,
                 taxRate,
                 taxAmount,
                 serviceChargeRate,
@@ -300,6 +321,8 @@ const placeSharedOrder = async (req, res) => {
                 serviceChargeRate: order.serviceChargeRate,
                 serviceChargeAmount: order.serviceChargeAmount,
                 totalAmount: order.totalAmount,
+                discountRate: order.discountRate,
+                discountAmount: order.discountAmount,
             },
         });
 

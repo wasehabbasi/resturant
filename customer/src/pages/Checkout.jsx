@@ -121,6 +121,13 @@ const Checkout = () => {
             </div>
 
             <div style={styles.item}>
+              <span>Discount ({Number(success.discountRate || 0)}%)</span>
+              <strong style={{ color: "green" }}>
+                - Rs. {Number(success.discountAmount || 0).toLocaleString("en-PK")}
+              </strong>
+            </div>
+
+            <div style={styles.item}>
               <span>Tax ({Number(success.taxRate)}%)</span>
               <strong>Rs. {Number(success.taxAmount).toLocaleString("en-PK")}</strong>
             </div>
