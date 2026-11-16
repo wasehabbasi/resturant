@@ -9,9 +9,14 @@ const {
   ProductIngredient,
   BranchInventory,
   StockMovement,
+  InventoryItem,
 } = require("../models");
 
-const { getBranchRoom } = require("../services/notificationService");
+const {
+  createBranchNotification,
+} = require("../services/notificationService");
+
+const lowStockAlerts = [];
 
 // Get orders for the selected branch
 const getAllOrders = async (req, res) => {
@@ -145,6 +150,12 @@ const updateOrderStatus = async (req, res) => {
             branchId: req.branchId,
             inventoryItemId: { [Op.in]: inventoryIds },
           },
+          include: [
+            {
+              model: InventoryItem,
+              attributes: ["id", "name", "unit"],
+            },
+          ],
           transaction,
           lock: transaction.LOCK.UPDATE,
         });
@@ -211,6 +222,23 @@ const updateOrderStatus = async (req, res) => {
           const newQuantity = Number(
             (previousQuantity - required).toFixed(3)
           );
+
+          const threshold = Number(stock.lowStockThreshold || 0);
+
+          // Check whether stock crossed the low-stock threshold
+          if (
+            threshold > 0 &&
+            previousQuantity > threshold &&
+            newQuantity <= threshold
+          ) {
+            lowStockAlerts.push({
+              itemId: stock.inventoryItemId,
+              itemName: stock.InventoryItem?.name || "Inventory Item",
+              unit: stock.InventoryItem?.unit || "",
+              quantity: newQuantity,
+              threshold,
+            });
+          }
 
           stock.quantity = newQuantity;
           await stock.save({ transaction });
@@ -291,6 +319,35 @@ const updateOrderStatus = async (req, res) => {
     await order.save({ transaction });
 
     await transaction.commit();
+
+    // Create low-stock notifications after successful order acceptance
+    for (const alert of lowStockAlerts) {
+      try {
+        await createBranchNotification({
+          io: req.app.get("io"),
+          restaurantId: req.restaurantId,
+          branchId: req.branchId,
+          type: "low_stock",
+          title: "Low Stock Alert",
+          message: `${alert.itemName} stock is low. Current quantity: ${alert.quantity} ${alert.unit}. Minimum threshold: ${alert.threshold} ${alert.unit}.`,
+          data: {
+            inventoryItemId: alert.itemId,
+            itemName: alert.itemName,
+            quantity: alert.quantity,
+            threshold: alert.threshold,
+            unit: alert.unit,
+            source: "order",
+            orderId: order.id,
+            orderNumber: order.orderNumber,
+          },
+        });
+      } catch (notificationError) {
+        console.error(
+          "ORDER LOW STOCK NOTIFICATION ERROR:",
+          notificationError
+        );
+      }
+    }
 
     const updatedOrder = await Order.findByPk(order.id, {
       include: [
