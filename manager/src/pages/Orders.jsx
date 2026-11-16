@@ -667,13 +667,30 @@ const Orders = () => {
 
                 {/* FOOTER */}
                 <div className="order-card-footer">
-
+                  
                   <div>
-                    <span>Order Total</span>
-                    <h3>
-                      Rs. {formatPrice(order.totalAmount)}
-                    </h3>
+                    <span>Subtotal</span>
+                    <p>Rs. {formatPrice(order.subtotal)}</p>
+
+                    <span>
+                      Discount ({Number(order.discountRate || 0)}%)
+                    </span>
+                    <p style={{ color: "green" }}>
+                      - Rs. {formatPrice(order.discountAmount)}
+                    </p>
+
+                    <span>Tax ({Number(order.taxRate || 0)}%)</span>
+                    <p>Rs. {formatPrice(order.taxAmount)}</p>
+
+                    <span>
+                      Service Charge ({Number(order.serviceChargeRate || 0)}%)
+                    </span>
+                    <p>Rs. {formatPrice(order.serviceChargeAmount)}</p>
+
+                    <span>Grand Total</span>
+                    <h3>Rs. {formatPrice(order.totalAmount)}</h3>
                   </div>
+
 
                   <div className="order-actions">
 
@@ -916,11 +933,36 @@ const Orders = () => {
 
         <hr />
 
+        
         <div className="receipt-totals">
-          <p>Order Total: <strong>Rs. {formatPrice(receiptData.orderTotal)}</strong></p>
+          <p>Subtotal: <strong>Rs. {formatPrice(receiptData.order.subtotal)}</strong></p>
+
+          <p>
+            Discount ({Number(receiptData.order.discountRate || 0)}%):
+            <strong style={{ color: "green" }}>
+              - Rs. {formatPrice(receiptData.order.discountAmount)}
+            </strong>
+          </p>
+
+          <p>
+            Tax ({Number(receiptData.order.taxRate || 0)}%):
+            <strong>Rs. {formatPrice(receiptData.order.taxAmount)}</strong>
+          </p>
+
+          <p>
+            Service Charge ({Number(receiptData.order.serviceChargeRate || 0)}%):
+            <strong>Rs. {formatPrice(receiptData.order.serviceChargeAmount)}</strong>
+          </p>
+
+          <p>
+            Grand Total:
+            <strong>Rs. {formatPrice(receiptData.orderTotal)}</strong>
+          </p>
+
           <p>Paid: <strong>Rs. {formatPrice(receiptData.totalPaid)}</strong></p>
           <p>Remaining: <strong>Rs. {formatPrice(receiptData.remainingAmount)}</strong></p>
         </div>
+
 
         <hr />
 
