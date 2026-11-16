@@ -14,6 +14,10 @@ const Branches = () => {
     address: "",
     city: "",
     phone: "",
+    taxEnabled: false,
+    taxRate: 0,
+    serviceChargeEnabled: false,
+    serviceChargeRate: 0,
   });
 
   const fetchBranches = async () => {
@@ -33,11 +37,26 @@ const Branches = () => {
   }, []);
 
   const handleChange = (e) => {
-    setForm({ ...form, [e.target.name]: e.target.value });
+    const { name, value, type, checked } = e.target;
+
+    setForm((prev) => ({
+      ...prev,
+      [name]: type === "checkbox" ? checked : value,
+    }));
   };
 
   const resetForm = () => {
-    setForm({ name: "", address: "", city: "", phone: "" });
+    setForm({
+      name: "",
+      address: "",
+      city: "",
+      phone: "",
+      taxEnabled: false,
+      taxRate: 0,
+      serviceChargeEnabled: false,
+      serviceChargeRate: 0,
+    });
+
     setEditId(null);
   };
 
@@ -71,6 +90,10 @@ const Branches = () => {
       address: branch.address || "",
       city: branch.city || "",
       phone: branch.phone || "",
+      taxEnabled: Boolean(branch.taxEnabled),
+      taxRate: branch.taxRate ?? 0,
+      serviceChargeEnabled: Boolean(branch.serviceChargeEnabled),
+      serviceChargeRate: branch.serviceChargeRate ?? 0,
     });
 
     window.scrollTo({ top: 0, behavior: "smooth" });
@@ -146,6 +169,56 @@ const Branches = () => {
           placeholder="Contact number"
           value={form.phone}
           onChange={handleChange}
+        />
+
+        <hr />
+
+        <h3>Tax Settings</h3>
+
+        <label>
+          <input
+            type="checkbox"
+            name="taxEnabled"
+            checked={form.taxEnabled}
+            onChange={handleChange}
+          />
+          Enable Tax
+        </label>
+
+        <input
+          type="number"
+          name="taxRate"
+          placeholder="Tax Rate (%)"
+          value={form.taxRate}
+          onChange={handleChange}
+          min="0"
+          max="100"
+          step="0.01"
+        />
+
+        <hr />
+
+        <h3>Service Charge Settings</h3>
+
+        <label>
+          <input
+            type="checkbox"
+            name="serviceChargeEnabled"
+            checked={form.serviceChargeEnabled}
+            onChange={handleChange}
+          />
+          Enable Service Charge
+        </label>
+
+        <input
+          type="number"
+          name="serviceChargeRate"
+          placeholder="Service Charge (%)"
+          value={form.serviceChargeRate}
+          onChange={handleChange}
+          min="0"
+          max="100"
+          step="0.01"
         />
 
         <div className="form-actions">
