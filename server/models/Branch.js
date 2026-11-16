@@ -59,6 +59,16 @@ const Branch = sequelize.define(
       allowNull: false,
       defaultValue: 0,
     },
+    discountEnabled: {
+      type: DataTypes.BOOLEAN,
+      allowNull: false,
+      defaultValue: false,
+    },
+    discountRate: {
+      type: DataTypes.DECIMAL(5, 2),
+      allowNull: false,
+      defaultValue: 0,
+    },
   },
   {
     tableName: "Branches",
