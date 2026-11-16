@@ -16,7 +16,7 @@ const {
   createBranchNotification,
 } = require("../services/notificationService");
 
-const lowStockAlerts = [];
+
 
 // Get orders for the selected branch
 const getAllOrders = async (req, res) => {
@@ -74,7 +74,8 @@ const updateOrderStatus = async (req, res) => {
   const { status } = req.body;
 
   const transaction = await sequelize.transaction();
-
+  const lowStockAlerts = [];
+  
   try {
     const order = await Order.findOne({
       where: {
