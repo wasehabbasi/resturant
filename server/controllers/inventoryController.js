@@ -3,6 +3,11 @@ const {
   BranchInventory,
   StockMovement,
 } = require("../models");
+
+const {
+  createBranchNotification,
+} = require("../services/notificationService");
+
 const { sequelize } = require("../config/database");
 
 // Get inventory items for selected branch
@@ -243,6 +248,38 @@ const updateStock = async (req, res) => {
     );
 
     await transaction.commit();
+
+    // Generate notification when stock crosses low-stock threshold
+    const threshold = Number(stock.lowStockThreshold || 0);
+
+    if (
+      threshold > 0 &&
+      previousQuantity > threshold &&
+      newQuantity <= threshold
+    ) {
+      try {
+        await createBranchNotification({
+          io: req.app.get("io"),
+          restaurantId: req.restaurantId,
+          branchId: req.branchId,
+          type: "low_stock",
+          title: "Low Stock Alert",
+          message: `${item.name} stock is low. Current quantity: ${newQuantity} ${item.unit}. Minimum threshold: ${threshold} ${item.unit}.`,
+          data: {
+            inventoryItemId: item.id,
+            itemName: item.name,
+            quantity: newQuantity,
+            threshold,
+            unit: item.unit,
+          },
+        });
+      } catch (notificationError) {
+        console.error(
+          "LOW STOCK NOTIFICATION ERROR:",
+          notificationError
+        );
+      }
+    }
 
     return res.json({
       success: true,
