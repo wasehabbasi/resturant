@@ -88,7 +88,16 @@ const updateBranch = async (req, res) => {
       });
     }
 
-    const { name, address, city, phone } = req.body;
+    const {
+  name,
+  address,
+  city,
+  phone,
+  taxEnabled,
+  taxRate,
+  serviceChargeEnabled,
+  serviceChargeRate,
+} = req.body;
     const updates = {};
 
     if (name !== undefined) {
@@ -112,6 +121,54 @@ const updateBranch = async (req, res) => {
     if (address !== undefined) updates.address = address?.trim() || null;
     if (city !== undefined) updates.city = city?.trim() || null;
     if (phone !== undefined) updates.phone = phone?.trim() || null;
+
+    if (taxEnabled !== undefined) {
+  if (typeof taxEnabled !== "boolean") {
+    return res.status(400).json({
+      success: false,
+      message: "taxEnabled must be true or false",
+    });
+  }
+
+  updates.taxEnabled = taxEnabled;
+}
+
+if (taxRate !== undefined) {
+  const rate = Number(taxRate);
+
+  if (!Number.isFinite(rate) || rate < 0 || rate > 100) {
+    return res.status(400).json({
+      success: false,
+      message: "Tax rate must be between 0 and 100",
+    });
+  }
+
+  updates.taxRate = rate;
+}
+
+if (serviceChargeEnabled !== undefined) {
+  if (typeof serviceChargeEnabled !== "boolean") {
+    return res.status(400).json({
+      success: false,
+      message: "serviceChargeEnabled must be true or false",
+    });
+  }
+
+  updates.serviceChargeEnabled = serviceChargeEnabled;
+}
+
+if (serviceChargeRate !== undefined) {
+  const rate = Number(serviceChargeRate);
+
+  if (!Number.isFinite(rate) || rate < 0 || rate > 100) {
+    return res.status(400).json({
+      success: false,
+      message: "Service charge rate must be between 0 and 100",
+    });
+  }
+
+  updates.serviceChargeRate = rate;
+}
 
     await branch.update(updates);
 
