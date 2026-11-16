@@ -18,6 +18,8 @@ const Branches = () => {
     taxRate: 0,
     serviceChargeEnabled: false,
     serviceChargeRate: 0,
+    discountEnabled: false,
+    discountRate: 0,
   });
 
   const fetchBranches = async () => {
@@ -55,6 +57,8 @@ const Branches = () => {
       taxRate: 0,
       serviceChargeEnabled: false,
       serviceChargeRate: 0,
+      discountEnabled: false,
+      discountRate: 0,
     });
 
     setEditId(null);
@@ -215,6 +219,31 @@ const Branches = () => {
           name="serviceChargeRate"
           placeholder="Service Charge (%)"
           value={form.serviceChargeRate}
+          onChange={handleChange}
+          min="0"
+          max="100"
+          step="0.01"
+        />
+
+        <hr />
+
+        <h3>Discount Settings</h3>
+
+        <label>
+          <input
+            type="checkbox"
+            name="discountEnabled"
+            checked={form.discountEnabled}
+            onChange={handleChange}
+          />
+          Enable Discount
+        </label>
+
+        <input
+          type="number"
+          name="discountRate"
+          placeholder="Discount Rate (%)"
+          value={form.discountRate}
           onChange={handleChange}
           min="0"
           max="100"

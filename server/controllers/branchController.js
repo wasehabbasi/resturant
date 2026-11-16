@@ -97,6 +97,8 @@ const updateBranch = async (req, res) => {
   taxRate,
   serviceChargeEnabled,
   serviceChargeRate,
+  discountEnabled,
+  discountRate,
 } = req.body;
     const updates = {};
 
@@ -168,6 +170,30 @@ if (serviceChargeRate !== undefined) {
   }
 
   updates.serviceChargeRate = rate;
+}
+
+if (discountEnabled !== undefined) {
+  if (typeof discountEnabled !== "boolean") {
+    return res.status(400).json({
+      success: false,
+      message: "discountEnabled must be true or false",
+    });
+  }
+
+  updates.discountEnabled = discountEnabled;
+}
+
+if (discountRate !== undefined) {
+  const rate = Number(discountRate);
+
+  if (!Number.isFinite(rate) || rate < 0 || rate > 100) {
+    return res.status(400).json({
+      success: false,
+      message: "Discount rate must be between 0 and 100",
+    });
+  }
+
+  updates.discountRate = rate;
 }
 
     await branch.update(updates);
