@@ -94,10 +94,15 @@ const Branches = () => {
       address: branch.address || "",
       city: branch.city || "",
       phone: branch.phone || "",
+
       taxEnabled: Boolean(branch.taxEnabled),
       taxRate: branch.taxRate ?? 0,
+
       serviceChargeEnabled: Boolean(branch.serviceChargeEnabled),
       serviceChargeRate: branch.serviceChargeRate ?? 0,
+
+      discountEnabled: Boolean(branch.discountEnabled),
+      discountRate: branch.discountRate ?? 0,
     });
 
     window.scrollTo({ top: 0, behavior: "smooth" });
