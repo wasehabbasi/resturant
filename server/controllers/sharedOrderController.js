@@ -196,10 +196,33 @@ const placeSharedOrder = async (req, res) => {
             });
         }
 
-        const totalAmount = Number(
+        const subtotal = Number(
             orderItems
                 .reduce((sum, item) => sum + item.subtotal, 0)
                 .toFixed(2)
+        );
+
+        // Branch tax calculation
+        const taxRate = branch.taxEnabled
+            ? Number(branch.taxRate || 0)
+            : 0;
+
+        const taxAmount = Number(
+            ((subtotal * taxRate) / 100).toFixed(2)
+        );
+
+        // Branch service charge calculation
+        const serviceChargeRate = branch.serviceChargeEnabled
+            ? Number(branch.serviceChargeRate || 0)
+            : 0;
+
+        const serviceChargeAmount = Number(
+            ((subtotal * serviceChargeRate) / 100).toFixed(2)
+        );
+
+        // Final bill
+        const totalAmount = Number(
+            (subtotal + taxAmount + serviceChargeAmount).toFixed(2)
         );
 
 
@@ -217,6 +240,11 @@ const placeSharedOrder = async (req, res) => {
                 tableId: table.id,
                 customerName: customerName.trim(),
                 guestId,
+                subtotal,
+                taxRate,
+                taxAmount,
+                serviceChargeRate,
+                serviceChargeAmount,
                 totalAmount,
                 status: "pending",
             },
@@ -266,6 +294,12 @@ const placeSharedOrder = async (req, res) => {
                 customerName: order.customerName,
                 totalAmount: order.totalAmount,
                 status: order.status,
+                subtotal: order.subtotal,
+                taxRate: order.taxRate,
+                taxAmount: order.taxAmount,
+                serviceChargeRate: order.serviceChargeRate,
+                serviceChargeAmount: order.serviceChargeAmount,
+                totalAmount: order.totalAmount,
             },
         });
 
