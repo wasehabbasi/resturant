@@ -114,10 +114,29 @@ const Checkout = () => {
 
           <strong>{success.orderNumber}</strong>
 
-          <p>
-            Total: Rs.{" "}
-            {Number(success.totalAmount).toLocaleString("en-PK")}
-          </p>
+          <div style={{ textAlign: "left", marginTop: "20px" }}>
+            <div style={styles.item}>
+              <span>Subtotal</span>
+              <strong>Rs. {Number(success.subtotal).toLocaleString("en-PK")}</strong>
+            </div>
+
+            <div style={styles.item}>
+              <span>Tax ({Number(success.taxRate)}%)</span>
+              <strong>Rs. {Number(success.taxAmount).toLocaleString("en-PK")}</strong>
+            </div>
+
+            <div style={styles.item}>
+              <span>Service Charge ({Number(success.serviceChargeRate)}%)</span>
+              <strong>Rs. {Number(success.serviceChargeAmount).toLocaleString("en-PK")}</strong>
+            </div>
+
+            <div style={styles.total}>
+              <strong>Grand Total</strong>
+              <strong>
+                Rs. {Number(success.totalAmount).toLocaleString("en-PK")}
+              </strong>
+            </div>
+          </div>
 
           <button
             onClick={() => navigate(`/menu/${token}`)}
