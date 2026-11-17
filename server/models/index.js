@@ -19,6 +19,8 @@ const StockMovement = require("./StockMovement");
 const ProductIngredient = require("./ProductIngredient");
 const Expense = require("./Expense");
 
+const Reservation = require("./Reservation");
+
 // Restaurant relationships
 Restaurant.hasMany(User, { foreignKey: "restaurantId" });
 User.belongsTo(Restaurant, { foreignKey: "restaurantId" });
@@ -196,6 +198,12 @@ Expense.belongsTo(Branch, { foreignKey: "branchId" });
 
 User.hasMany(Expense, { foreignKey: "recordedBy" });
 Expense.belongsTo(User, { foreignKey: "recordedBy" });
+
+Branch.hasMany(Reservation, { foreignKey: "branchId" });
+Reservation.belongsTo(Branch, { foreignKey: "branchId" });
+
+Restaurant.hasMany(Reservation, { foreignKey: "restaurantId" });
+Reservation.belongsTo(Restaurant, { foreignKey: "restaurantId" });
 
 module.exports = {
   User,
