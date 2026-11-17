@@ -110,7 +110,7 @@ function App() {
         <Route
           path="/"
           element={
-            <ProtectedRoute allowedRoles={["manager", "admin"]}>
+            <ProtectedRoute allowedRoles={["manager", "admin", "cashier", "waiter"]}>
               <DashboardLayout>
                 <Dashboard />
               </DashboardLayout>
@@ -132,7 +132,7 @@ function App() {
         <Route
           path="/notifications"
           element={
-            <ProtectedRoute allowedRoles={["manager", "admin"]}>
+            <ProtectedRoute>
               <DashboardLayout>
                 <NotificationHistory />
               </DashboardLayout>
@@ -143,7 +143,7 @@ function App() {
         <Route
           path="/kitchen"
           element={
-            <ProtectedRoute allowedRoles={["manager", "admin"]}>
+            <ProtectedRoute allowedRoles={["manager", "admin", "kitchen"]}>
               <DashboardLayout>
                 <Kitchen />
               </DashboardLayout>
