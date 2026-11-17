@@ -47,15 +47,24 @@ const getSession = () => {
   }
 };
 
-const ProtectedRoute = ({ children }) => {
+
+const ProtectedRoute = ({ children, allowedRoles }) => {
   const session = getSession();
 
   if (!session) {
     return <Navigate to="/login" replace />;
   }
 
+  if (
+    allowedRoles &&
+    !allowedRoles.includes(session.user.role)
+  ) {
+    return <Navigate to="/" replace />;
+  }
+
   return children;
 };
+
 
 const PublicRoute = ({ children }) => {
   const session = getSession();
@@ -189,7 +198,7 @@ function App() {
         <Route
           path="/reservations"
           element={
-            <ProtectedRoute>
+            <ProtectedRoute allowedRoles={["manager", "admin"]}>
               <DashboardLayout>
                 <Reservations />
               </DashboardLayout>
@@ -200,7 +209,7 @@ function App() {
         <Route
           path="/customers"
           element={
-            <ProtectedRoute>
+            <ProtectedRoute allowedRoles={["manager", "admin"]}>
               <DashboardLayout>
                 <Customers />
               </DashboardLayout>
