@@ -16,6 +16,7 @@ import {
   Bell,
   Package,
   Receipt,
+  CalendarDays,
 } from "lucide-react";
 
 const getCurrentUser = () => {
