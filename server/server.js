@@ -28,6 +28,7 @@ const staffRoutes = require("./routes/staffRoutes");
 const inventoryRoutes = require("./routes/inventoryRoutes");
 const expenseRoutes = require("./routes/expenseRoutes");
 const productIngredientRoutes = require("./routes/productIngredientRoutes");
+const reservationRoutes = require("./routes/reservationRoutes");
 
 const app = express();
 const httpServer = http.createServer(app);
@@ -225,6 +226,7 @@ app.use("/api/staff", staffRoutes);
 app.use("/api/inventory", inventoryRoutes);
 app.use("/api/product-ingredients", productIngredientRoutes);
 app.use("/api/expenses", expenseRoutes);
+app.use("/api/reservations", reservationRoutes);
 
 // Error handler
 app.use((err, req, res, next) => {

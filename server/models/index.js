@@ -222,4 +222,5 @@ module.exports = {
   StockMovement,
   ProductIngredient,
   Expense,
+  Reservation,
 };
