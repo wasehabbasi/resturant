@@ -47,6 +47,11 @@ const Sidebar = ({ restaurant }) => {
     { name: "Settings", path: "/settings", icon: Settings },
     { name: "Notifications", path: "/notifications", icon: Bell },
     { name: "Expenses", path: "/expenses", icon: Receipt },
+    {
+      name: "Reservations",
+      path: "/reservations",
+      icon: CalendarDays,
+    },
   ];
 
   const roleMenus = {
