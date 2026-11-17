@@ -121,7 +121,7 @@ function App() {
         <Route
           path="/orders"
           element={
-            <ProtectedRoute allowedRoles={["manager", "admin"]}>
+            <ProtectedRoute allowedRoles={["manager", "admin", "cashier", "waiter"]}>
               <DashboardLayout>
                 <Orders />
               </DashboardLayout>
@@ -132,7 +132,7 @@ function App() {
         <Route
           path="/notifications"
           element={
-            <ProtectedRoute>
+            <ProtectedRoute allowedRoles={["manager", "admin", "cashier", "waiter", "kitchen"]}>
               <DashboardLayout>
                 <NotificationHistory />
               </DashboardLayout>
