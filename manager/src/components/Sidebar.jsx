@@ -17,6 +17,7 @@ import {
   Package,
   Receipt,
   CalendarDays,
+  Users,
 } from "lucide-react";
 
 const getCurrentUser = () => {
@@ -53,6 +54,7 @@ const Sidebar = ({ restaurant }) => {
       path: "/reservations",
       icon: CalendarDays,
     },
+    { name: "Customers", path: "/customers", icon: Users },
   ];
 
   const roleMenus = {

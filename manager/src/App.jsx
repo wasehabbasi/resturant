@@ -21,6 +21,7 @@ import NotificationHistory from "./pages/NotificationHistory";
 import Inventory from "./pages/Inventory";
 import Expenses from "./pages/Expenses";
 import Reservations from "./pages/Reservations";
+import Customers from "./pages/Customers";
 
 const getSession = () => {
   const token =
@@ -191,6 +192,17 @@ function App() {
             <ProtectedRoute>
               <DashboardLayout>
                 <Reservations />
+              </DashboardLayout>
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/customers"
+          element={
+            <ProtectedRoute>
+              <DashboardLayout>
+                <Customers />
               </DashboardLayout>
             </ProtectedRoute>
           }
