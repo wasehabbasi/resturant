@@ -110,7 +110,7 @@ function App() {
         <Route
           path="/"
           element={
-            <ProtectedRoute>
+            <ProtectedRoute allowedRoles={["manager", "admin"]}>
               <DashboardLayout>
                 <Dashboard />
               </DashboardLayout>
@@ -121,7 +121,7 @@ function App() {
         <Route
           path="/orders"
           element={
-            <ProtectedRoute>
+            <ProtectedRoute allowedRoles={["manager", "admin"]}>
               <DashboardLayout>
                 <Orders />
               </DashboardLayout>
@@ -132,7 +132,7 @@ function App() {
         <Route
           path="/notifications"
           element={
-            <ProtectedRoute>
+            <ProtectedRoute allowedRoles={["manager", "admin"]}>
               <DashboardLayout>
                 <NotificationHistory />
               </DashboardLayout>
@@ -143,7 +143,7 @@ function App() {
         <Route
           path="/kitchen"
           element={
-            <ProtectedRoute>
+            <ProtectedRoute allowedRoles={["manager", "admin"]}>
               <DashboardLayout>
                 <Kitchen />
               </DashboardLayout>
@@ -165,7 +165,7 @@ function App() {
         <Route
           path="/products"
           element={
-            <ProtectedRoute>
+            <ProtectedRoute allowedRoles={["manager", "admin"]}>
               <DashboardLayout>
                 <Products />
               </DashboardLayout>
@@ -176,7 +176,7 @@ function App() {
         <Route
           path="/inventory"
           element={
-            <ProtectedRoute>
+            <ProtectedRoute allowedRoles={["manager", "admin"]}>
               <DashboardLayout>
                 <Inventory />
               </DashboardLayout>
@@ -187,7 +187,7 @@ function App() {
         <Route
           path="/expenses"
           element={
-            <ProtectedRoute>
+            <ProtectedRoute allowedRoles={["manager", "admin"]}>
               <DashboardLayout>
                 <Expenses />
               </DashboardLayout>
@@ -220,7 +220,7 @@ function App() {
         <Route
           path="/categories"
           element={
-            <ProtectedRoute>
+            <ProtectedRoute allowedRoles={["manager", "admin"]}>
               <DashboardLayout>
                 <Categories />
               </DashboardLayout>
@@ -231,7 +231,7 @@ function App() {
         <Route
           path="/tables"
           element={
-            <ProtectedRoute>
+            <ProtectedRoute allowedRoles={["manager", "admin"]}>
               <DashboardLayout>
                 <Tables />
               </DashboardLayout>
@@ -242,7 +242,7 @@ function App() {
         <Route
           path="/branches"
           element={
-            <ProtectedRoute>
+            <ProtectedRoute allowedRoles={["manager", "admin"]}>
               <DashboardLayout>
                 <Branches />
               </DashboardLayout>
@@ -253,7 +253,7 @@ function App() {
         <Route
           path="/settings"
           element={
-            <ProtectedRoute>
+            <ProtectedRoute allowedRoles={["manager", "admin"]}>
               <DashboardLayout>
                 <Settings />
               </DashboardLayout>
