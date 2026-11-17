@@ -29,6 +29,7 @@ const inventoryRoutes = require("./routes/inventoryRoutes");
 const expenseRoutes = require("./routes/expenseRoutes");
 const productIngredientRoutes = require("./routes/productIngredientRoutes");
 const reservationRoutes = require("./routes/reservationRoutes");
+const customerRoutes = require("./routes/customerRoutes");
 
 const app = express();
 const httpServer = http.createServer(app);
@@ -227,6 +228,7 @@ app.use("/api/inventory", inventoryRoutes);
 app.use("/api/product-ingredients", productIngredientRoutes);
 app.use("/api/expenses", expenseRoutes);
 app.use("/api/reservations", reservationRoutes);
+app.use("/api/customers", customerRoutes);
 
 // Error handler
 app.use((err, req, res, next) => {
