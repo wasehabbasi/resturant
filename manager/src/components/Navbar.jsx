@@ -209,7 +209,7 @@ const handleMarkAllAsRead = async () => {
     <header className="navbar">
       <div className="navbar-search">
         <Search size={19} />
-        <input type="text" placeholder="Search anything..." />
+        <input type="text" placeholder={t("navbar.search")} />
       </div>
 
       <div className="navbar-right">
@@ -232,15 +232,17 @@ const handleMarkAllAsRead = async () => {
             onChange={handleBranchChange}
             disabled={loadingBranches || branches.length === 0}
           >
-            {loadingBranches && <option>Loading branches...</option>}
+            {loadingBranches && (
+              <option>{t("navbar.loadingBranches")}</option>
+            )}
 
             {!loadingBranches && branches.length === 0 && (
-              <option value="">No active branches</option>
+              <option value="">{t("navbar.noActiveBranches")}</option>
             )}
 
             {branches.map((branch) => (
               <option key={branch.id} value={branch.id}>
-                {branch.name}{branch.isDefault ? " (Default)" : ""}
+                {branch.name}{branch.isDefault ? ` (${t("navbar.default")})` : ""}
               </option>
             ))}
           </select>
@@ -248,7 +250,7 @@ const handleMarkAllAsRead = async () => {
 
         {branchError && (
           <span className="branch-error" title={branchError}>
-            Branch unavailable
+            {t("navbar.branchUnavailable")}
           </span>
         )}
 
@@ -256,7 +258,7 @@ const handleMarkAllAsRead = async () => {
   <button
     className="notification-button"
     type="button"
-    title={`${unreadCount} unread notifications`}
+    title={`${unreadCount} ${t("navbar.unreadNotifications")}`}
     onClick={handleNotificationToggle}
   >
     <Bell size={21} />
@@ -296,7 +298,7 @@ const handleMarkAllAsRead = async () => {
               }`}
               onClick={() => handleMarkAsRead(notification)}
             >
-              <strong>{notification.title}</strong>
+              <strong>{t("navbar.notifications")}</strong>
 
               <p>{notification.message}</p>
 
@@ -318,8 +320,8 @@ const handleMarkAllAsRead = async () => {
           />
 
           <div>
-            <h4>{user?.name || "Restaurant Manager"}</h4>
-            <span>{user?.role || "Manager"}</span>
+            <h4>{user?.name || t("navbar.restaurantManager")}</h4>
+            <span>{user?.role || t("navbar.manager")}</span>
           </div>
         </div>
       </div>
