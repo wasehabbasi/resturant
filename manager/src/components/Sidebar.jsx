@@ -1,6 +1,7 @@
 
 import "./Sidebar.css";
 import { NavLink } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import {
   LayoutDashboard,
   ShoppingBag,
@@ -33,28 +34,25 @@ const getCurrentUser = () => {
 };
 
 const Sidebar = ({ restaurant }) => {
-    const user = getCurrentUser();
+  const { t } = useTranslation();
+  const user = getCurrentUser();
   const role = user?.role;
 
   const allMenuItems = [
-    { name: "Dashboard", path: "/", icon: LayoutDashboard },
-    { name: "Orders", path: "/orders", icon: ShoppingBag },
-    { name: "Kitchen Display", path: "/kitchen", icon: ChefHat },
-    { name: "Products", path: "/products", icon: Utensils },
-    { name: "Inventory", path: "/inventory", icon: Package },
-    { name: "Categories", path: "/categories", icon: Tags },
-    { name: "Tables & QR", path: "/tables", icon: Table2 },
-    { name: "Reports", path: "/reports", icon: BarChart3 },
-    { name: "Branches", path: "/branches", icon: GitBranch },
-    { name: "Settings", path: "/settings", icon: Settings },
-    { name: "Notifications", path: "/notifications", icon: Bell },
-    { name: "Expenses", path: "/expenses", icon: Receipt },
-    {
-      name: "Reservations",
-      path: "/reservations",
-      icon: CalendarDays,
-    },
-    { name: "Customers", path: "/customers", icon: Users },
+    { key: "dashboard", path: "/", icon: LayoutDashboard },
+    { key: "orders", path: "/orders", icon: ShoppingBag },
+    { key: "kitchen", path: "/kitchen", icon: ChefHat },
+    { key: "products", path: "/products", icon: Utensils },
+    { key: "inventory", path: "/inventory", icon: Package },
+    { key: "categories", path: "/categories", icon: Tags },
+    { key: "tables", path: "/tables", icon: Table2 },
+    { key: "reports", path: "/reports", icon: BarChart3 },
+    { key: "branches", path: "/branches", icon: GitBranch },
+    { key: "settings", path: "/settings", icon: Settings },
+    { key: "notifications", path: "/notifications", icon: Bell },
+    { key: "expenses", path: "/expenses", icon: Receipt },
+    { key: "reservations", path: "/reservations", icon: CalendarDays },
+    { key: "customers", path: "/customers", icon: Users },
   ];
 
   const roleMenus = {
@@ -96,11 +94,11 @@ const Sidebar = ({ restaurant }) => {
 
         <div>
           <h2>{restaurant?.name || "Restaurant"}</h2>
-          <span>Management Panel</span>
+          <span>{t("sidebar.managementPanel")}</span>
         </div>
       </div>
 
-      <p className="menu-label">MAIN MENU</p>
+      <p className="menu-label">{t("sidebar.mainMenu")}</p>
 
       <nav className="sidebar-menu">
         {menuItems.map((item) => {
@@ -116,7 +114,7 @@ const Sidebar = ({ restaurant }) => {
               }
             >
               <Icon size={19} />
-              <span>{item.name}</span>
+              <span>{t(`sidebar.${item.key}`)}</span>
             </NavLink>
           );
         })}
@@ -132,7 +130,7 @@ const Sidebar = ({ restaurant }) => {
           }}
         >
           <LogOut size={19} />
-          Logout
+          {t("sidebar.logout")}
         </button>
       </div>
     </aside>

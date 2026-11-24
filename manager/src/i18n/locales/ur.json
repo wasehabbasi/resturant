@@ -1,0 +1,35 @@
+{
+  "sidebar": {
+    "mainMenu": "اہم مینیو",
+    "dashboard": "ڈیش بورڈ",
+    "orders": "آرڈرز",
+    "kitchen": "کچن ڈسپلے",
+    "products": "پروڈکٹس",
+    "inventory": "انوینٹری",
+    "categories": "کیٹیگریز",
+    "tables": "ٹیبلز اور کیو آر",
+    "reports": "رپورٹس",
+    "branches": "برانچز",
+    "settings": "سیٹنگز",
+    "notifications": "نوٹیفکیشنز",
+    "expenses": "اخراجات",
+    "reservations": "ریزرویشنز",
+    "customers": "کسٹمرز",
+    "managementPanel": "مینجمنٹ پینل",
+    "logout": "لاگ آؤٹ"
+  },
+
+  "navbar": {
+    "search": "کچھ بھی تلاش کریں...",
+    "loadingBranches": "برانچز لوڈ ہو رہی ہیں...",
+    "noActiveBranches": "کوئی فعال برانچ موجود نہیں",
+    "default": "ڈیفالٹ",
+    "branchUnavailable": "برانچ دستیاب نہیں",
+    "notifications": "نوٹیفکیشنز",
+    "markAllRead": "تمام پڑھے ہوئے نشان زد کریں",
+    "noNotifications": "ابھی کوئی نوٹیفکیشن نہیں",
+    "unreadNotifications": "غیر پڑھے ہوئے نوٹیفکیشنز",
+    "restaurantManager": "ریسٹورنٹ مینیجر",
+    "manager": "مینیجر"
+    }
+}

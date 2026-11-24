@@ -1,0 +1,35 @@
+{
+  "sidebar": {
+    "mainMenu": "MAIN MENU",
+    "dashboard": "Dashboard",
+    "orders": "Orders",
+    "kitchen": "Kitchen Display",
+    "products": "Products",
+    "inventory": "Inventory",
+    "categories": "Categories",
+    "tables": "Tables & QR",
+    "reports": "Reports",
+    "branches": "Branches",
+    "settings": "Settings",
+    "notifications": "Notifications",
+    "expenses": "Expenses",
+    "reservations": "Reservations",
+    "customers": "Customers",
+    "managementPanel": "Management Panel",
+    "logout": "Logout"
+  },
+
+  "navbar": {
+    "search": "Search anything...",
+    "loadingBranches": "Loading branches...",
+    "noActiveBranches": "No active branches",
+    "default": "Default",
+    "branchUnavailable": "Branch unavailable",
+    "notifications": "Notifications",
+    "markAllRead": "Mark all as read",
+    "noNotifications": "No notifications yet",
+    "unreadNotifications": "unread notifications",
+    "restaurantManager": "Restaurant Manager",
+    "manager": "Manager"
+    }
+}

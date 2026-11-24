@@ -87,3 +87,60 @@ a {
   background: var(--portal-secondary, #c99a43);
   color: #ffffff;
 }
+
+
+/* Urdu RTL Layout */
+html[dir="rtl"] body {
+  direction: rtl;
+  text-align: right;
+  font-family: Tahoma, Arial, sans-serif;
+}
+
+/* Move sidebar to the right */
+html[dir="rtl"] .sidebar {
+  left: auto;
+  right: 0;
+  border-right: none;
+  border-left: 1px solid #e5e7eb;
+}
+
+/* Move main content to the right of sidebar */
+html[dir="rtl"] .main-content {
+  margin-left: 0;
+  margin-right: 260px;
+}
+
+/* Navbar direction */
+html[dir="rtl"] .navbar,
+html[dir="rtl"] .navbar-right,
+html[dir="rtl"] .navbar-search,
+html[dir="rtl"] .profile-info,
+html[dir="rtl"] .branch-selector,
+html[dir="rtl"] .language-selector {
+  direction: rtl;
+}
+
+/* Sidebar menu */
+html[dir="rtl"] .sidebar-logo,
+html[dir="rtl"] .menu-item,
+html[dir="rtl"] .logout-button {
+  direction: rtl;
+}
+
+/* Notification dropdown */
+html[dir="rtl"] .notification-dropdown {
+  right: auto;
+  left: 0;
+}
+
+html[dir="rtl"] .notification-item.unread {
+  border-left: none;
+  border-right: 3px solid var(--portal-secondary, #c99a43);
+}
+
+/* Mobile layout */
+@media (max-width: 768px) {
+  html[dir="rtl"] .main-content {
+    margin-right: 0;
+  }
+}

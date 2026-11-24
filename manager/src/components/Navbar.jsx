@@ -1,11 +1,21 @@
 
 import { useEffect, useState } from "react";
-import { Bell, Search, UserCircle, GitBranch } from "lucide-react";
+import { useTranslation } from "react-i18next";
+import { Bell, Search, UserCircle, GitBranch, Languages } from "lucide-react";
 import { io } from "socket.io-client";
 import api from "../services/api";
 import "./Navbar.css";
 
 const Navbar = () => {
+  const { t, i18n } = useTranslation();
+
+  const changeLanguage = (language) => {
+    i18n.changeLanguage(language);
+    localStorage.setItem("appLanguage", language);
+
+    document.documentElement.lang = language;
+    document.documentElement.dir = language === "ur" ? "rtl" : "ltr";
+  };
   const [branches, setBranches] = useState([]);
   const [selectedBranch, setSelectedBranch] = useState("");
   const [loadingBranches, setLoadingBranches] = useState(true);
@@ -203,6 +213,18 @@ const handleMarkAllAsRead = async () => {
       </div>
 
       <div className="navbar-right">
+
+        <div className="language-selector">
+          <Languages size={18} />
+          <select
+            value={i18n.language.startsWith("ur") ? "ur" : "en"}
+            onChange={(e) => changeLanguage(e.target.value)}
+          >
+            <option value="en">English</option>
+            <option value="ur">اردو</option>
+          </select>
+        </div>
+
         <div className="branch-selector">
           <GitBranch size={18} />
           <select
