@@ -31,5 +31,33 @@
     "unreadNotifications": "غیر پڑھے ہوئے نوٹیفکیشنز",
     "restaurantManager": "ریسٹورنٹ مینیجر",
     "manager": "مینیجر"
-    }
+    },
+
+    "dashboard": {
+        "title": "ڈیش بورڈ",
+        "welcome": "واپسی پر خوش آمدید! آپ کے ریسٹورنٹ کی تفصیلات۔",
+        "overview": "ریسٹورنٹ کا جائزہ",
+        "totalOrders": "کل آرڈرز",
+        "allOrders": "تمام آرڈرز",
+        "totalRevenue": "کل آمدنی",
+        "completedOrders": "صرف مکمل آرڈرز",
+        "menuItems": "ریسٹورنٹ مینیو آئٹمز",
+        "sharedCatalog": "مشترکہ ریسٹورنٹ کیٹلاگ",
+        "guestSessions": "مہمانوں کے سیشنز",
+        "uniqueSessions": "منفرد QR مہمان سیشنز",
+        "loading": "ڈیش بورڈ لوڈ ہو رہا ہے...",
+        "error": "ڈیش بورڈ کا ڈیٹا لوڈ نہیں ہو سکا۔",
+        "retry": "دوبارہ کوشش کریں",
+        "recentOrders": "حالیہ آرڈرز",
+        "viewAll": "تمام دیکھیں",
+        "orderId": "آرڈر نمبر",
+        "customer": "کسٹمر",
+        "table": "ٹیبل",
+        "items": "آئٹمز",
+        "amount": "رقم",
+        "date": "تاریخ",
+        "status": "اسٹیٹس",
+        "noOrders": "کوئی آرڈر نہیں ملا۔",
+        "guest": "مہمان"
+        }
 }

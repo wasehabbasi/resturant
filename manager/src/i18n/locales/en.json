@@ -31,5 +31,33 @@
     "unreadNotifications": "unread notifications",
     "restaurantManager": "Restaurant Manager",
     "manager": "Manager"
+    },
+
+    "dashboard": {
+    "title": "Dashboard",
+    "welcome": "Welcome back! Here's your restaurant overview.",
+    "overview": "Restaurant Overview",
+    "totalOrders": "Total Orders",
+    "allOrders": "All orders",
+    "totalRevenue": "Total Revenue",
+    "completedOrders": "Completed orders only",
+    "menuItems": "Restaurant Menu Items",
+    "sharedCatalog": "Shared restaurant catalog",
+    "guestSessions": "Guest Sessions",
+    "uniqueSessions": "Unique QR guest sessions",
+    "loading": "Loading dashboard...",
+    "error": "Dashboard data could not be loaded.",
+    "retry": "Retry",
+    "recentOrders": "Recent Orders",
+    "viewAll": "View All",
+    "orderId": "Order ID",
+    "customer": "Customer",
+    "table": "Table",
+    "items": "Items",
+    "amount": "Amount",
+    "date": "Date",
+    "status": "Status",
+    "noOrders": "No orders found.",
+    "guest": "Guest"
     }
 }
