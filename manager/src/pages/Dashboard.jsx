@@ -11,6 +11,7 @@ import {
 import StatCard from "../components/StatCard";
 import api from "../services/api";
 import "./Dashboard.css";
+import { useTranslation } from "react-i18next";
 
 const formatCurrency = (amount) =>
   `Rs. ${Number(amount || 0).toLocaleString("en-PK")}`;
@@ -23,6 +24,7 @@ const formatDate = (date) =>
   });
 
 const Dashboard = () => {
+  const { t } = useTranslation();
   const [stats, setStats] = useState(null);
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -81,7 +83,7 @@ const Dashboard = () => {
   if (loading) {
     return (
       <div className="dashboard-page">
-        <h2>Loading dashboard...</h2>
+        <h2>{t("dashboard.loading")}</h2>
       </div>
     );
   }
@@ -89,10 +91,10 @@ const Dashboard = () => {
   if (error) {
     return (
       <div className="dashboard-page">
-        <h2>Dashboard</h2>
-        <p>{error}</p>
+        <h2>{t("dashboard.title")}</h2>
+        <p>{error || t("dashboard.error")}</p>
         <button onClick={() => window.location.reload()}>
-          Retry
+          {t("dashboard.retry")}
         </button>
       </div>
     );
@@ -102,12 +104,12 @@ const Dashboard = () => {
     <div className="dashboard-page">
       <div className="page-heading">
         <div>
-          <h1>Dashboard</h1>
-          <p>Welcome back! Here's your restaurant overview.</p>
+          <h1>{t("dashboard.title")}</h1>
+          <p>{t("dashboard.welcome")}</p>
         </div>
 
         <span className="today-label">
-          Restaurant Overview
+          {t("dashboard.overview")}
         </span>
       </div>
 
@@ -119,28 +121,28 @@ const Dashboard = () => {
 
       <div className="orders-section">
         <div className="section-heading">
-          <h2>Recent Orders</h2>
-          <Link to="/orders">View All</Link>
+          <h2>{t("dashboard.recentOrders")}</h2>
+          <Link to="/orders">{t("dashboard.viewAll")}</Link>
         </div>
 
         <div className="table-wrapper">
           <table>
             <thead>
               <tr>
-                <th>Order ID</th>
-                <th>Customer</th>
-                <th>Table</th>
-                <th>Items</th>
-                <th>Amount</th>
-                <th>Date</th>
-                <th>Status</th>
+                <th>{t("dashboard.orderId")}</th>
+                <th>{t("dashboard.customer")}</th>
+                <th>{t("dashboard.table")}</th>
+                <th>{t("dashboard.items")}</th>
+                <th>{t("dashboard.amount")}</th>
+                <th>{t("dashboard.date")}</th>
+                <th>{t("dashboard.status")}</th>
               </tr>
             </thead>
 
             <tbody>
               {orders.length === 0 ? (
                 <tr>
-                  <td colSpan="7">No orders found.</td>
+                  <td colSpan="7">{t("dashboard.noOrders")}</td>
                 </tr>
               ) : (
                 orders.map((order) => {
@@ -160,7 +162,7 @@ const Dashboard = () => {
                       </td>
 
                       <td>
-                        {order.customerName || "Guest"}
+                        {order.customerName || t("dashboard.guest")}
                       </td>
 
                       <td>
