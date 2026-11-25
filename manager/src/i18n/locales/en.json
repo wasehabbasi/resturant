@@ -135,7 +135,21 @@
       "paid": "Paid",
       "thankYou": "Thank you for visiting!",
       "printReceipt": "Print Receipt",
-      "close": "Close"
+      "close": "Close",
+      "guest": "Guest",
+      "notAvailable": "N/A",
+      "customerLabel": "Customer",
+      "tableLabel": "Table",
+      "orderId": "Order ID",
+      "orderedItems": "Ordered Items",
+      "noItemsFound": "No items found.",
+      "foodItem": "Food Item",
+      "subtotalLabel": "Subtotal",
+      "discountLabel": "Discount",
+      "taxLabel": "Tax",
+      "serviceChargeLabel": "Service Charge",
+      "grandTotalLabel": "Grand Total",
+      "updating": "Updating..."
       
     }
 }

@@ -136,6 +136,20 @@
     "printReceipt": "رسید پرنٹ کریں",
     "close": "بند کریں",
     "remaining": "باقی رقم",
-    "paymentHistory": "ادائیگی کی تاریخ"
+    "paymentHistory": "ادائیگی کی تاریخ",
+    "guest": "مہمان",
+    "notAvailable": "دستیاب نہیں",
+    "customerLabel": "کسٹمر",
+    "tableLabel": "ٹیبل",
+    "orderId": "آرڈر نمبر",
+    "orderedItems": "آرڈر کی اشیاء",
+    "noItemsFound": "کوئی آئٹم نہیں ملا۔",
+    "foodItem": "کھانے کی آئٹم",
+    "subtotalLabel": "ذیلی مجموعہ",
+    "discountLabel": "رعایت",
+    "taxLabel": "ٹیکس",
+    "serviceChargeLabel": "سروس چارج",
+    "grandTotalLabel": "مجموعی رقم",
+    "updating": "اپڈیٹ ہو رہا ہے..."
   }
 }

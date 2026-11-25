@@ -615,21 +615,21 @@ const Orders = () => {
                 <div className="order-customer-info">
 
                   <div>
-                    <span>Customer</span>
+                    <span>{t("orders.customerLabel")}</span>
                     <strong>
-                      {order.customerName || "Guest"}
+                      {order.customerName || t("orders.guest")}
                     </strong>
                   </div>
 
                   <div>
-                    <span>Table</span>
+                    <span>{t("orders.tableLabel")}</span>
                     <strong>
-                      {order.RestaurantTable?.tableNumber || "N/A"}
+                      {order.RestaurantTable?.tableNumber || t("orders.notAvailable")}
                     </strong>
                   </div>
 
                   <div>
-                    <span>Order ID</span>
+                    <span>{t("orders.orderId")}</span>
                     <strong>#{order.id}</strong>
                   </div>
 
@@ -638,10 +638,10 @@ const Orders = () => {
                 {/* ORDER ITEMS */}
                 <div className="order-items">
 
-                  <h4>Ordered Items</h4>
+                  <h4>{t("orders.orderedItems")}</h4>
 
                   {items.length === 0 ? (
-                    <p>No items found.</p>
+                    <p>{t("orders.noItemsFound")}</p>
                   ) : (
                     items.map((item) => (
                       <div
@@ -672,7 +672,7 @@ const Orders = () => {
                 <div className="order-card-footer">
                   
                   <div>
-                    <span>Subtotal</span>
+                    <span>{t("orders.subtotalLabel")}</span>
                     <p>Rs. {formatPrice(order.subtotal)}</p>
 
                     <span>
@@ -690,7 +690,7 @@ const Orders = () => {
                     </span>
                     <p>Rs. {formatPrice(order.serviceChargeAmount)}</p>
 
-                    <span>Grand Total</span>
+                    <span>{t("orders.grandTotalLabel")}</span>
                     <h3>Rs. {formatPrice(order.totalAmount)}</h3>
                   </div>
 
