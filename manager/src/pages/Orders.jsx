@@ -895,35 +895,52 @@ const Orders = () => {
         </div>
       )}
 
-      {receiptData && (
+      
+{receiptData && (
   <div className="modal-overlay receipt-overlay">
     <div className="receipt-modal">
       <div id="print-receipt">
         <div className="receipt-header">
-          <h2>Restaurant Receipt</h2>
-          <p>Payment Receipt</p>
+          <h2>{t("orders.receiptTitle")}</h2>
+          <p>{t("orders.paymentReceipt")}</p>
         </div>
 
         <hr />
 
-        <p><strong>Order:</strong> {receiptData.order.orderNumber}</p>
-        <p><strong>Date:</strong> {new Date(receiptData.order.createdAt).toLocaleString()}</p>
-        <p><strong>Customer:</strong> {receiptData.order.customerName || "Walk-in Customer"}</p>
-        <p><strong>Table:</strong> {receiptData.order.RestaurantTable?.tableNumber || "N/A"}</p>
+        <p>
+          <strong>{t("orders.order")}:</strong>{" "}
+          {receiptData.order.orderNumber}
+        </p>
+
+        <p>
+          <strong>{t("orders.date")}:</strong>{" "}
+          {new Date(receiptData.order.createdAt).toLocaleString()}
+        </p>
+
+        <p>
+          <strong>{t("orders.customer")}:</strong>{" "}
+          {receiptData.order.customerName || t("orders.walkInCustomer")}
+        </p>
+
+        <p>
+          <strong>{t("orders.table")}:</strong>{" "}
+          {receiptData.order.RestaurantTable?.tableNumber || "N/A"}
+        </p>
 
         <hr />
 
-        <h3>Order Items</h3>
+        <h3>{t("orders.orderItems")}</h3>
 
         <table>
           <thead>
             <tr>
-              <th>Item</th>
-              <th>Qty</th>
-              <th>Price</th>
-              <th>Total</th>
+              <th>{t("orders.item")}</th>
+              <th>{t("orders.quantity")}</th>
+              <th>{t("orders.price")}</th>
+              <th>{t("orders.total")}</th>
             </tr>
           </thead>
+
           <tbody>
             {(receiptData.order.OrderItems || []).map((item) => (
               <tr key={item.id}>
@@ -938,40 +955,48 @@ const Orders = () => {
 
         <hr />
 
-        
         <div className="receipt-totals">
-          <p>Subtotal: <strong>Rs. {formatPrice(receiptData.order.subtotal)}</strong></p>
+          <p>
+            {t("orders.subtotal")}:{" "}
+            <strong>Rs. {formatPrice(receiptData.order.subtotal)}</strong>
+          </p>
 
           <p>
-            Discount ({Number(receiptData.order.discountRate || 0)}%):
+            {t("orders.discount")} ({Number(receiptData.order.discountRate || 0)}%):
             <strong style={{ color: "green" }}>
               - Rs. {formatPrice(receiptData.order.discountAmount)}
             </strong>
           </p>
 
           <p>
-            Tax ({Number(receiptData.order.taxRate || 0)}%):
+            {t("orders.tax")} ({Number(receiptData.order.taxRate || 0)}%):
             <strong>Rs. {formatPrice(receiptData.order.taxAmount)}</strong>
           </p>
 
           <p>
-            Service Charge ({Number(receiptData.order.serviceChargeRate || 0)}%):
+            {t("orders.serviceCharge")} ({Number(receiptData.order.serviceChargeRate || 0)}%):
             <strong>Rs. {formatPrice(receiptData.order.serviceChargeAmount)}</strong>
           </p>
 
           <p>
-            Grand Total:
+            {t("orders.grandTotal")}:
             <strong>Rs. {formatPrice(receiptData.orderTotal)}</strong>
           </p>
 
-          <p>Paid: <strong>Rs. {formatPrice(receiptData.totalPaid)}</strong></p>
-          <p>Remaining: <strong>Rs. {formatPrice(receiptData.remainingAmount)}</strong></p>
-        </div>
+          <p>
+            {t("orders.paid")}:{" "}
+            <strong>Rs. {formatPrice(receiptData.totalPaid)}</strong>
+          </p>
 
+          <p>
+            {t("orders.remaining")}:{" "}
+            <strong>Rs. {formatPrice(receiptData.remainingAmount)}</strong>
+          </p>
+        </div>
 
         <hr />
 
-        <h3>Payment History</h3>
+        <h3>{t("orders.paymentHistory")}</h3>
 
         {(receiptData.payments || []).map((payment) => (
           <p key={payment.id}>
@@ -982,17 +1007,23 @@ const Orders = () => {
         ))}
 
         <div className="receipt-footer">
-          <p>Thank you for visiting!</p>
+          <p>{t("orders.thankYou")}</p>
         </div>
       </div>
 
       <div className="receipt-actions">
-        <button onClick={() => window.print()}>Print Receipt</button>
-        <button onClick={() => setReceiptData(null)}>Close</button>
+        <button onClick={() => window.print()}>
+          {t("orders.printReceipt")}
+        </button>
+
+        <button onClick={() => setReceiptData(null)}>
+          {t("orders.close")}
+        </button>
       </div>
     </div>
   </div>
 )}
+
     </div>
   );
 };
