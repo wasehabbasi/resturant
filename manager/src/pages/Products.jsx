@@ -538,7 +538,7 @@ const Products = () => {
       </form>
 
       <div className="management-list">
-        <h3>{t(products.allFoodItems)} ({products.length})</h3>
+        <h3>{t("products.allFoodItems")} ({products.length})</h3>
 
         <div className="product-grid">
           {products.map((product) => {
@@ -561,7 +561,7 @@ const Products = () => {
                 <div className="product-info">
                   <h4>{product.name}</h4>
 
-                  <p>{category?.name || "No category"}</p>
+                  <p>{category?.name || t("products.noCategory")}</p>
 
                   <div className="branch-availability">
                     <div className="availability-info">
