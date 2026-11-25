@@ -702,7 +702,7 @@ const Orders = () => {
                       className="next-status-btn"
                       onClick={() => openPaymentModal(order)}
                     >
-                      Record Payment
+                      {t("orders.recordPayment")}
                     </button>
 
                     <button
@@ -710,7 +710,9 @@ const Orders = () => {
                       onClick={() => openReceipt(order.id)}
                       disabled={receiptLoading}
                     >
-                      {receiptLoading ? "Loading Receipt..." : "View Receipt"}
+                      {receiptLoading
+                        ? t("orders.loadingReceipt")
+                        : t("orders.viewReceipt")}
                     </button>
 
                     {next && (
@@ -766,8 +768,8 @@ const Orders = () => {
           <div className="payment-modal">
             <div className="payment-modal-header">
               <div>
-                <h2>Record Cash Payment</h2>
-                <p>Order: {paymentOrder.orderNumber}</p>
+                <h2>{t("orders.recordCashPayment")}</h2>
+                <p>{t("orders.order")}: {paymentOrder.orderNumber}</p>
               </div>
 
               <button
@@ -780,22 +782,22 @@ const Orders = () => {
             </div>
 
             {paymentLoading ? (
-              <p>Loading payment details...</p>
+              <p>{t("orders.loadingPaymentDetails")}</p>
             ) : paymentSummary && (
               <>
                 <div className="payment-summary">
                   <div>
-                    <span>Order Total</span>
+                    <span>{t("orders.orderTotal")}</span>
                     <strong>Rs. {formatPrice(paymentSummary.orderTotal)}</strong>
                   </div>
 
                   <div>
-                    <span>Total Paid</span>
+                    <span>{t("orders.totalPaid")}</span>
                     <strong>Rs. {formatPrice(paymentSummary.totalPaid)}</strong>
                   </div>
 
                   <div>
-                    <span>Remaining</span>
+                    <span>{t("orders.remaining")}</span>
                     <strong>
                       Rs. {formatPrice(paymentSummary.remainingAmount)}
                     </strong>
@@ -804,12 +806,12 @@ const Orders = () => {
 
                 {Number(paymentSummary.remainingAmount) <= 0 ? (
                   <div className="payment-fully-paid">
-                    This order is fully paid.
+                    {t("orders.fullyPaid")}
                   </div>
                 ) : (
                   <form onSubmit={submitCashPayment}>
                     <label htmlFor="paymentAmount">
-                      Amount to Pay (Rs.)
+                      {t("orders.amountToPay")}
                     </label>
 
                     <input
@@ -821,11 +823,11 @@ const Orders = () => {
                       required
                       value={paymentAmount}
                       onChange={(e) => setPaymentAmount(e.target.value)}
-                      placeholder="Enter amount to pay"
+                      placeholder={t("orders.enterAmount")}
                     />
 
                     <label htmlFor="amountReceived">
-                      Cash Received (Rs.)
+                      {t("orders.cashReceived")}
                     </label>
 
                     <input
@@ -836,15 +838,15 @@ const Orders = () => {
                       required
                       value={amountReceived}
                       onChange={(e) => setAmountReceived(e.target.value)}
-                      placeholder="Enter cash received"
+                      placeholder={t("orders.enterCash")}
                     />
 
                     <p className="payment-hint">
-                      Remaining balance: Rs. {formatPrice(paymentSummary.remainingAmount)}
+                      {t("orders.remainingBalance")}: Rs. {formatPrice(paymentSummary.remainingAmount)}
                     </p>
 
                     <p className="payment-hint">
-                      Amount due: Rs. {formatPrice(paymentSummary.remainingAmount)}
+                      {t("orders.amountDue")}: Rs. {formatPrice(paymentSummary.remainingAmount)}
                     </p>
 
                     <button
@@ -852,16 +854,16 @@ const Orders = () => {
                       className="payment-submit-btn"
                       disabled={paymentSaving}
                     >
-                      {paymentSaving ? "Saving..." : "Confirm Cash Payment"}
+                      {paymentSaving ? t("orders.saving") : t("orders.confirmCashPayment")}
                     </button>
                   </form>
                 )}
 
                 <div className="payment-history">
-                  <h3>Payment History</h3>
+                  <h3>{t("orders.paymentHistory")}</h3>
 
                   {paymentHistory.length === 0 ? (
-                    <p>No payments recorded yet.</p>
+                    <p>{t("orders.noPayments")}</p>
                   ) : (
                     paymentHistory.map((payment) => (
                       <div className="payment-history-row" key={payment.id}>
