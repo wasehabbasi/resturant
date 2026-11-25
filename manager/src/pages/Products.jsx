@@ -319,7 +319,7 @@ const Products = () => {
           <div className="recipe-modal">
             <div className="recipe-modal-header">
               <div>
-                <h2>Product Recipe</h2>
+                <h2>{t("products.recipe")}</h2>
                 <p>{recipeProduct.name}</p>
               </div>
 
@@ -332,7 +332,7 @@ const Products = () => {
             </div>
 
             {recipeLoading ? (
-              <p>Loading recipe...</p>
+              <p>{t("products.loadingRecipe")}</p>
             ) : (
               <>
                 <div className="recipe-ingredients">
@@ -348,7 +348,7 @@ const Products = () => {
                           )
                         }
                       >
-                        <option value="">Select ingredient</option>
+                        <option value="">{t("products.selectIngredient")}</option>
 
                         {inventoryItems.map((item) => (
                           <option
@@ -364,7 +364,7 @@ const Products = () => {
                         type="number"
                         min="0.001"
                         step="0.001"
-                        placeholder="Quantity per product"
+                        placeholder={t("products.quantityPerProduct")}
                         value={ingredient.quantityPerProduct}
                         onChange={(e) =>
                           updateRecipeIngredient(
@@ -387,13 +387,13 @@ const Products = () => {
                         className="recipe-remove-btn"
                         onClick={() => removeRecipeIngredient(index)}
                       >
-                        Remove
+                        {t("products.remove")}
                       </button>
                     </div>
                   ))}
 
                   {recipeIngredients.length === 0 && (
-                    <p>No ingredients added to this recipe yet.</p>
+                    <p>{t("products.noIngredients")}</p>
                   )}
                 </div>
 
@@ -402,7 +402,7 @@ const Products = () => {
                   className="recipe-add-btn"
                   onClick={addRecipeIngredient}
                 >
-                  + Add Ingredient
+                  + {t("products.addIngredient")}
                 </button>
 
                 <div className="recipe-modal-actions">
@@ -411,7 +411,7 @@ const Products = () => {
                     className="recipe-cancel-btn"
                     onClick={() => setRecipeProduct(null)}
                   >
-                    Cancel
+                    {t("products.cancel")}
                   </button>
 
                   <button
@@ -419,7 +419,7 @@ const Products = () => {
                     onClick={saveRecipe}
                     disabled={recipeSaving}
                   >
-                    {recipeSaving ? "Saving..." : "Save Recipe"}
+                    {recipeSaving ? t("products.saving") : t("products.saveRecipe")}
                   </button>
                 </div>
               </>
