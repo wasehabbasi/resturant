@@ -4,6 +4,7 @@ import { useNavigate } from "react-router-dom";
 import Sidebar from "../components/Sidebar";
 import Navbar from "../components/Navbar";
 import api from "../services/api";
+import { useTranslation } from "react-i18next";
 
 const DEFAULT_THEME = {
   primary: "#171c1a",
@@ -12,6 +13,7 @@ const DEFAULT_THEME = {
 };
 
 const DashboardLayout = ({ children }) => {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const [restaurant, setRestaurant] = useState(null);
 
@@ -86,11 +88,11 @@ const DashboardLayout = ({ children }) => {
 
         <div className="dashboard-user-bar">
           <span>
-            Welcome, <strong>{user?.name || "Manager"}</strong>
+            {t("layout.welcome")}, <strong>{user?.name || t("layout.manager")}</strong>
           </span>
 
           <button onClick={handleLogout} className="dashboard-logout">
-            Logout
+            {t("layout.logout")}
           </button>
         </div>
 

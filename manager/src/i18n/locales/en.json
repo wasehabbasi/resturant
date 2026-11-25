@@ -59,5 +59,11 @@
     "status": "Status",
     "noOrders": "No orders found.",
     "guest": "Guest"
+    },
+
+    "layout": {
+      "welcome": "Welcome",
+      "manager": "Manager",
+      "logout": "Logout"
     }
 }
