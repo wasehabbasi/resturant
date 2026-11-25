@@ -151,5 +151,32 @@
     "serviceChargeLabel": "سروس چارج",
     "grandTotalLabel": "مجموعی رقم",
     "updating": "اپڈیٹ ہو رہا ہے..."
+  },
+
+  "kitchen": {
+    "newOrders": "نئے آرڈرز",
+    "accepted": "قبول شدہ",
+    "preparing": "تیاری جاری",
+    "readyToServe": "پیش کرنے کے لیے تیار",
+    "acceptOrder": "آرڈر قبول کریں",
+    "startPreparing": "تیاری شروع کریں",
+    "markReady": "تیار قرار دیں",
+    "loading": "کچن کے آرڈرز لوڈ ہو رہے ہیں...",
+    "title": "کچن ڈسپلے",
+    "description": "آنے والے ریسٹورنٹ آرڈرز کا انتظام اور نگرانی کریں۔",
+    "refresh": "ریفریش",
+    "newOrderReceived": "نیا آرڈر موصول ہوا!",
+    "dismiss": "نوٹیفکیشن بند کریں",
+    "noOrders": "کوئی آرڈر نہیں",
+    "table": "ٹیبل",
+    "guest": "مہمان",
+    "foodItem": "کھانے کی آئٹم",
+    "total": "کل",
+    "updating": "اپڈیٹ ہو رہا ہے...",
+    "readyForServing": "پیش کرنے کے لیے تیار",
+    "notAvailable": "دستیاب نہیں",
+    "loadError": "کچن کے آرڈرز لوڈ نہیں ہو سکے۔",
+    "branchRequired": "براہ کرم برانچ منتخب کریں اور دوبارہ لاگ اِن کریں۔",
+    "updateError": "آرڈر کی صورتحال تبدیل نہیں ہو سکی۔"
   }
 }

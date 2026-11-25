@@ -150,6 +150,32 @@
       "serviceChargeLabel": "Service Charge",
       "grandTotalLabel": "Grand Total",
       "updating": "Updating..."
-      
+    },
+
+    "kitchen": {
+      "newOrders": "New Orders",
+      "accepted": "Accepted",
+      "preparing": "Preparing",
+      "readyToServe": "Ready to Serve",
+      "acceptOrder": "Accept Order",
+      "startPreparing": "Start Preparing",
+      "markReady": "Mark Ready",
+      "loading": "Loading kitchen orders...",
+      "title": "Kitchen Display",
+      "description": "Manage and track incoming restaurant orders.",
+      "refresh": "Refresh",
+      "newOrderReceived": "New Order Received!",
+      "dismiss": "Dismiss notification",
+      "noOrders": "No orders",
+      "table": "Table",
+      "guest": "Guest",
+      "foodItem": "Food Item",
+      "total": "Total",
+      "updating": "Updating...",
+      "readyForServing": "Ready for serving",
+      "notAvailable": "N/A",
+      "loadError": "Unable to load kitchen orders.",
+      "branchRequired": "Please select a branch and login again.",
+      "updateError": "Unable to update order status."
     }
 }
