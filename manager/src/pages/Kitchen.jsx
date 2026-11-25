@@ -7,35 +7,36 @@ import { useTranslation } from "react-i18next";
 import api from "../services/api";
 import "./Kitchen.css";
 
-const columns = [
-  {
-    status: "pending",
-    title: t("kitchen.newOrders"),
-    next: "accepted",
-    action: t("kitchen.acceptOrder"),
-  },
-  {
-    status: "accepted",
-    title: t("kitchen.accepted"),
-    next: "preparing",
-    action: t("kitchen.startPreparing"),
-  },
-  {
-    status: "preparing",
-    title: t("kitchen.preparing"),
-    next: "ready",
-    action: t("kitchen.markReady"),
-  },
-  {
-    status: "ready",
-    title: t("kitchen.readyToServe"),
-    next: null,
-    action: null,
-  },
-];
-
 const Kitchen = () => {
   const { t } = useTranslation();
+
+  const columns = [
+    {
+      status: "pending",
+      title: t("kitchen.newOrders"),
+      next: "accepted",
+      action: t("kitchen.acceptOrder"),
+    },
+    {
+      status: "accepted",
+      title: t("kitchen.accepted"),
+      next: "preparing",
+      action: t("kitchen.startPreparing"),
+    },
+    {
+      status: "preparing",
+      title: t("kitchen.preparing"),
+      next: "ready",
+      action: t("kitchen.markReady"),
+    },
+    {
+      status: "ready",
+      title: t("kitchen.readyToServe"),
+      next: null,
+      action: null,
+    },
+  ];
+
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
   const [updatingId, setUpdatingId] = useState(null);
