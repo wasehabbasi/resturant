@@ -68,7 +68,7 @@ const Products = () => {
       });
       setPriceDrafts(drafts);
     } catch (error) {
-      alert(error.response?.data?.message || "Failed to load data");
+      alert(error.response?.data?.message || t("products.loadError"));
     }
   };
 
@@ -128,16 +128,16 @@ const Products = () => {
 
       if (editId) {
         await api.put(`/products/${editId}`, data);
-        alert("Product updated successfully");
+        alert(t("products.updateSuccess"));
       } else {
         await api.post("/products", data);
-        alert("Product added successfully");
+        alert(t("products.addSuccess"));
       }
 
       resetForm();
       await fetchData();
     } catch (error) {
-      alert(error.response?.data?.message || "Product save failed");
+      alert(error.response?.data?.message || t("products.saveError"));
     } finally {
       setLoading(false);
     }
@@ -160,7 +160,7 @@ const Products = () => {
   };
 
   const handleDelete = async (id) => {
-    if (!window.confirm("Are you sure you want to delete this product?")) {
+    if (!window.confirm(t("products.confirmDelete"))) {
       return;
     }
 
@@ -168,7 +168,7 @@ const Products = () => {
       await api.delete(`/products/${id}`);
       await fetchData();
     } catch (error) {
-      alert(error.response?.data?.message || "Delete failed");
+      alert(error.response?.data?.message || t("products.deleteError"));
     }
   };
 
@@ -180,9 +180,9 @@ const Products = () => {
 
       await fetchData();
 
-      alert("Branch product availability updated");
+      alert(t("products.availabilitySuccess"));
     } catch (error) {
-      alert(error.response?.data?.message || "Availability update failed");
+      alert(error.response?.data?.message || t("products.availabilityError"));
     }
   };
 
@@ -195,7 +195,7 @@ const Products = () => {
       !Number.isFinite(Number(price)) ||
       Number(price) < 0
     ) {
-      alert("Please enter a valid price");
+      alert(t("products.validPrice"));
       return;
     }
 
@@ -204,10 +204,10 @@ const Products = () => {
         priceOverride: Number(price),
       });
 
-      alert("Branch price updated successfully");
+      alert(t("products.priceSuccess"));
       await fetchData();
     } catch (error) {
-      alert(error.response?.data?.message || "Price update failed");
+      alert(error.response?.data?.message || t("products.priceError"));
     }
   };
 
@@ -217,10 +217,10 @@ const Products = () => {
         priceOverride: null,
       });
 
-      alert("Branch price reset to base price");
+      alert(t("products.priceResetSuccess"));
       await fetchData();
     } catch (error) {
-      alert(error.response?.data?.message || "Price reset failed");
+      alert(error.response?.data?.message || t("products.priceResetError"));
     }
   };
 
@@ -243,7 +243,7 @@ const Products = () => {
         }))
       );
     } catch (error) {
-      alert(error.response?.data?.message || "Failed to load recipe");
+      alert(error.response?.data?.message || t("products.recipeLoadError"));
       setRecipeProduct(null);
     } finally {
       setRecipeLoading(false);
@@ -278,14 +278,14 @@ const Products = () => {
     );
 
     if (!validIngredients) {
-      alert("Select an ingredient and enter a valid quantity for every row.");
+      alert(t("products.validIngredients"));
       return;
     }
 
     const ids = recipeIngredients.map((item) => item.inventoryItemId);
 
     if (new Set(ids).size !== ids.length) {
-      alert("An ingredient cannot be added more than once.");
+      alert(t("products.duplicateIngredient"));
       return;
     }
 
@@ -299,10 +299,10 @@ const Products = () => {
         })),
       });
 
-      alert("Product recipe saved successfully.");
+      alert(t("products.recipeSaveSuccess"));
       setRecipeProduct(null);
     } catch (error) {
-      alert(error.response?.data?.message || "Failed to save recipe");
+      alert(error.response?.data?.message || t("products.recipeSaveError"));
     } finally {
       setRecipeSaving(false);
     }
