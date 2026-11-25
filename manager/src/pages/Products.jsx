@@ -538,7 +538,7 @@ const Products = () => {
       </form>
 
       <div className="management-list">
-        <h3>All Food Items ({products.length})</h3>
+        <h3>{t(products.allFoodItems)} ({products.length})</h3>
 
         <div className="product-grid">
           {products.map((product) => {
@@ -555,7 +555,7 @@ const Products = () => {
                     className="product-image"
                   />
                 ) : (
-                  <div className="product-placeholder">No Image</div>
+                  <div className="product-placeholder">{t("products.noImage")}</div>
                 )}
 
                 <div className="product-info">
@@ -565,7 +565,7 @@ const Products = () => {
 
                   <div className="branch-availability">
                     <div className="availability-info">
-                      <span>Branch Availability</span>
+                      <span>{t("products.branchAvailability")}</span>
 
                       <strong
                         className={
@@ -574,7 +574,7 @@ const Products = () => {
                             : "availability-inactive"
                         }
                       >
-                        {product.branchAvailability ? "Available" : "Unavailable"}
+                        {product.branchAvailability ? t("products.available") : t("products.unavailable")}
                       </strong>
                     </div>
 
@@ -588,19 +588,19 @@ const Products = () => {
                       onClick={() => toggleBranchAvailability(product)}
                     >
                       {product.branchAvailability
-                        ? "Mark Unavailable"
-                        : "Mark Available"}
+                        ? t("products.markUnavailable")
+                        : t("products.markAvailable")}
                     </button>
 
                     <small>
                       {product.hasAvailabilityOverride
-                        ? "Custom availability for this branch"
-                        : "Using restaurant default availability"}
+                        ? t("products.customAvailability")
+                        : t("products.defaultAvailability")}
                     </small>
                   </div>
 
                   <strong>
-                    Branch Price: Rs.{" "}
+                    {t("products.branchPrice")}: Rs.{" "}
                     {Number(product.branchPrice).toLocaleString("en-PK")}
                   </strong>
 
@@ -616,7 +616,7 @@ const Products = () => {
                           [product.id]: e.target.value,
                         }))
                       }
-                      placeholder="Branch price"
+                      placeholder={t("products.branchPrice")}
                     />
 
                     <div className="row-actions">
@@ -624,7 +624,7 @@ const Products = () => {
                         type="button"
                         onClick={() => saveBranchPrice(product)}
                       >
-                        Save Price
+                        {t("products.savePrice")}
                       </button>
 
                       {product.hasPriceOverride && (
@@ -632,7 +632,7 @@ const Products = () => {
                           type="button"
                           onClick={() => resetBranchPrice(product)}
                         >
-                          Reset Price
+                          {t("products.resetPrice")}
                         </button>
                       )}
                     </div>
@@ -640,8 +640,8 @@ const Products = () => {
 
                   <small>
                     {product.branchAvailability
-                      ? "Available in this branch"
-                      : "Unavailable in this branch"}
+                      ? t("products.availableInBranch")
+                      : t("products.unavailableInBranch")}
                   </small>
 
                   <div className="row-actions">
@@ -650,7 +650,7 @@ const Products = () => {
                       type="button"
                       onClick={() => openRecipe(product)}
                     >
-                      Manage Recipe
+                      {t("products.manageRecipe")}
                     </button>
                     <button
                       type="button"
