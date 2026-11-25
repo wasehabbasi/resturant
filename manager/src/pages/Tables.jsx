@@ -3,11 +3,13 @@ import { Plus, Pencil, Trash2, QrCode, Download, RefreshCw } from "lucide-react"
 import { QRCodeCanvas } from "qrcode.react";
 import api from "../services/api";
 import "./Tables.css";
+import { useTranslation } from "react-i18next";
 
 const CUSTOMER_URL =
   import.meta.env.VITE_CUSTOMER_URL || "http://localhost:5173";
 
 const Tables = () => {
+  const { t } = useTranslation();
   const [tables, setTables] = useState([]);
   const [tableNumber, setTableNumber] = useState("");
   const [capacity, setCapacity] = useState(4);
