@@ -57,7 +57,7 @@ const Kitchen = () => {
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [t]);
 
   useEffect(() => {
     fetchOrders();
@@ -133,7 +133,7 @@ const Kitchen = () => {
           hour: "2-digit",
           minute: "2-digit",
         })
-      : "N/A";
+      : t("kitchen.notAvailable");
 
   if (loading) {
     return (
