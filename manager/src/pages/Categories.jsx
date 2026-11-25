@@ -95,23 +95,23 @@ const Categories = () => {
     <div className="management-page">
       <div className="management-heading">
         <div>
-          <h1>Categories</h1>
-          <p>Manage your restaurant food categories</p>
+          <h1>{t("categories.title")}</h1>
+          <p>{t("categories.description")}</p>
         </div>
       </div>
 
       <form className="management-form" onSubmit={handleSubmit}>
-        <h3>{editId ? "Edit Category" : "Add New Category"}</h3>
+        <h3>{editId ? t("categories.editCategory") : t("categories.addCategory")}</h3>
 
         <input
-          placeholder="Category name"
+          placeholder={t("categories.categoryName")}
           value={name}
           onChange={(e) => setName(e.target.value)}
           required
         />
 
         <textarea
-          placeholder="Category description"
+          placeholder={t("categories.categoryDescription")}
           value={description}
           onChange={(e) => setDescription(e.target.value)}
         />
@@ -119,26 +119,26 @@ const Categories = () => {
         <div className="form-actions">
           <button type="submit" disabled={loading}>
             <Plus size={17} />
-            {loading ? "Saving..." : editId ? "Update Category" : "Add Category"}
+            {loading ? t("categories.saving") : editId ? t("categories.updateCategory") : t("categories.addCategoryButton")}
           </button>
 
           {editId && (
             <button type="button" className="cancel-btn" onClick={resetForm}>
-              Cancel
+              {t("categories.cancel")}
             </button>
           )}
         </div>
       </form>
 
       <div className="management-list">
-        <h3>All Categories ({categories.length})</h3>
+        <h3>{t("categories.allCategories")} ({categories.length})</h3>
 
         {categories.map((category) => (
           <div className="management-row" key={category.id}>
             <div>
               <strong>{category.name}</strong>
-              <p>{category.description || "No description"}</p>
-              <small>{category.isActive ? "Active" : "Inactive"}</small>
+              <p>{category.description || t("categories.noDescription")}</p>
+              <small>{category.isActive ? t("categories.active") : t("categories.inactive")}</small>
             </div>
 
             <div className="row-actions">
@@ -147,7 +147,7 @@ const Categories = () => {
               </button>
 
               <button onClick={() => toggleStatus(category)}>
-                {category.isActive ? "Disable" : "Enable"}
+                {category.isActive ? t("categories.disable") : t("categories.enable")}
               </button>
 
               <button onClick={() => handleDelete(category.id)}>
