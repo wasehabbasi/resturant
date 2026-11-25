@@ -161,17 +161,17 @@ return (
 
     <div className="management-heading">
       <div>
-        <h1>Tables & QR Management</h1>
-        <p>Manage restaurant tables and generate QR codes</p>
+        <h1>{t("tables.title")}</h1>
+        <p>{t("tables.description")}</p>
       </div>
     </div>
 
     <form className="management-form" onSubmit={handleSubmit}>
-      <h3>{editId ? "Edit Table" : "Add New Table"}</h3>
+      <h3>{editId ? t("tables.editTable") : t("tables.addNewTable")}</h3>
 
       <input
         type="text"
-        placeholder="Table Number (e.g. T01)"
+        placeholder={t("tables.tableNumberPlaceholder")}
         value={tableNumber}
         onChange={(e) => setTableNumber(e.target.value)}
         required
@@ -179,7 +179,7 @@ return (
 
       <input
         type="number"
-        placeholder="Seating Capacity"
+        placeholder={t("tables.seatingCapacity")}
         min="1"
         max="50"
         value={capacity}
