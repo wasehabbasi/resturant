@@ -95,6 +95,26 @@
       "markReady": "Mark Ready",
       "completeOrder": "Complete Order",
       "cancel": "Cancel",
-      "statusUpdated": "Order status updated to {{status}}."
+      "statusUpdated": "Order status updated to {{status}}.",
+      "recordPayment": "Record Payment",
+      "viewReceipt": "View Receipt",
+      "loadingReceipt": "Loading Receipt...",
+      "recordCashPayment": "Record Cash Payment",
+      "order": "Order",
+      "loadingPaymentDetails": "Loading payment details...",
+      "orderTotal": "Order Total",
+      "totalPaid": "Total Paid",
+      "remaining": "Remaining",
+      "fullyPaid": "This order is fully paid.",
+      "amountToPay": "Amount to Pay (Rs.)",
+      "cashReceived": "Cash Received (Rs.)",
+      "enterAmount": "Enter amount to pay",
+      "enterCash": "Enter cash received",
+      "remainingBalance": "Remaining balance",
+      "amountDue": "Amount due",
+      "saving": "Saving...",
+      "confirmCashPayment": "Confirm Cash Payment",
+      "paymentHistory": "Payment History",
+      "noPayments": "No payments recorded yet."
     }
 }
