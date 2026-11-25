@@ -96,6 +96,26 @@
     "markReady": "تیار قرار دیں",
     "completeOrder": "آرڈر مکمل کریں",
     "cancel": "منسوخ کریں",
-    "statusUpdated": "آرڈر کی صورتحال تبدیل ہو کر {{status}} ہو گئی۔"
+    "statusUpdated": "آرڈر کی صورتحال تبدیل ہو کر {{status}} ہو گئی۔",
+    "receiptTitle": "ریسٹورنٹ رسید",
+    "paymentReceipt": "ادائیگی کی رسید",
+    "date": "تاریخ",
+    "customer": "کسٹمر",
+    "walkInCustomer": "واک اِن کسٹمر",
+    "table": "ٹیبل",
+    "orderItems": "آرڈر کی تفصیلات",
+    "item": "آئٹم",
+    "quantity": "تعداد",
+    "price": "قیمت",
+    "total": "کل",
+    "subtotal": "ذیلی مجموعہ",
+    "discount": "رعایت",
+    "tax": "ٹیکس",
+    "serviceCharge": "سروس چارج",
+    "grandTotal": "مجموعی رقم",
+    "paid": "ادا شدہ",
+    "thankYou": "تشریف لانے کا شکریہ!",
+    "printReceipt": "رسید پرنٹ کریں",
+    "close": "بند کریں"
   }
 }

@@ -115,6 +115,27 @@
       "saving": "Saving...",
       "confirmCashPayment": "Confirm Cash Payment",
       "paymentHistory": "Payment History",
-      "noPayments": "No payments recorded yet."
+      "noPayments": "No payments recorded yet.",
+      "receiptTitle": "Restaurant Receipt",
+      "paymentReceipt": "Payment Receipt",
+      "date": "Date",
+      "customer": "Customer",
+      "walkInCustomer": "Walk-in Customer",
+      "table": "Table",
+      "orderItems": "Order Items",
+      "item": "Item",
+      "quantity": "Qty",
+      "price": "Price",
+      "total": "Total",
+      "subtotal": "Subtotal",
+      "discount": "Discount",
+      "tax": "Tax",
+      "serviceCharge": "Service Charge",
+      "grandTotal": "Grand Total",
+      "paid": "Paid",
+      "thankYou": "Thank you for visiting!",
+      "printReceipt": "Print Receipt",
+      "close": "Close"
+      
     }
 }
