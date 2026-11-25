@@ -18,7 +18,7 @@ const Categories = () => {
       const res = await api.get("/categories");
       setCategories(res.data.categories);
     } catch (error) {
-      alert(error.response?.data?.message || "Failed to load categories");
+      alert(error.response?.data?.message || t("categories.loadError"));
     }
   };
 
@@ -30,7 +30,7 @@ const Categories = () => {
     e.preventDefault();
 
     if (!name.trim()) {
-      return alert("Category name is required");
+      return alert(t("categories.nameRequired"));
     }
 
     try {
@@ -40,17 +40,17 @@ const Categories = () => {
 
       if (editId) {
         await api.put(`/categories/${editId}`, data);
-        alert("Category updated successfully");
+        alert(t("categories.updateSuccess"));
       } else {
         await api.post("/categories", data);
-        alert("Category added successfully");
+        alert(t("categories.addSuccess"));
       }
 
       resetForm();
       fetchCategories();
 
     } catch (error) {
-      alert(error.response?.data?.message || "Something went wrong");
+      alert(error.response?.data?.message || t("categories.saveError"));
     } finally {
       setLoading(false);
     }
@@ -69,13 +69,13 @@ const Categories = () => {
   };
 
   const handleDelete = async (id) => {
-    if (!window.confirm("Delete this category?")) return;
+    if (!window.confirm(t("categories.confirmDelete"))) return;
 
     try {
       await api.delete(`/categories/${id}`);
       fetchCategories();
     } catch (error) {
-      alert(error.response?.data?.message || "Delete failed");
+      alert(error.response?.data?.message || t("categories.deleteError"));
     }
   };
 
@@ -87,7 +87,7 @@ const Categories = () => {
 
       fetchCategories();
     } catch (error) {
-      alert(error.response?.data?.message || "Update failed");
+      alert(error.response?.data?.message || t("categories.updateError"));
     }
   };
 
