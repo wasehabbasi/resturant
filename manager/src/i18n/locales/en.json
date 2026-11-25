@@ -65,5 +65,27 @@
       "welcome": "Welcome",
       "manager": "Manager",
       "logout": "Logout"
+    },
+
+    "orders": {
+      "title": "Orders Management",
+      "description": "Manage customer orders and track restaurant activity.",
+      "loading": "Loading restaurant orders...",
+      "enableSound": "Enable Sound",
+      "activateSound": "Activate Sound",
+      "soundOn": "Sound: ON",
+      "refresh": "Refresh",
+      "totalOrders": "Total Orders",
+      "pending": "Pending",
+      "preparing": "Preparing",
+      "completed": "Completed",
+      "revenue": "Value of Accepted and Completed Orders",
+      "search": "Search order, customer or table...",
+      "allOrders": "All Orders",
+      "restaurantOrders": "Restaurant Orders",
+      "ordersFound": "{{count}} orders found",
+      "autoRefresh": "Auto refresh: 5 seconds",
+      "noOrders": "No Orders Found",
+      "customerOrders": "Customer orders will appear here."
     }
 }

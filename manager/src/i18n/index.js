@@ -6,6 +6,11 @@ import ur from "./locales/ur.json";
 
 const savedLanguage = localStorage.getItem("appLanguage") || "en";
 
+const updateDocumentDirection = (language) => {
+  document.documentElement.lang = language;
+  document.documentElement.dir = language === "ur" ? "rtl" : "ltr";
+};
+
 i18n.use(initReactI18next).init({
   resources: {
     en: { translation: en },
@@ -17,5 +22,9 @@ i18n.use(initReactI18next).init({
     escapeValue: false,
   },
 });
+
+updateDocumentDirection(savedLanguage);
+
+i18n.on("languageChanged", updateDocumentDirection);
 
 export default i18n;

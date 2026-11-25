@@ -14,6 +14,8 @@ import api from "../services/api";
 import "./Orders.css";
 import { io } from "socket.io-client";
 
+import { useTranslation } from "react-i18next";
+
 const statuses = [
   "pending",
   "accepted",
@@ -47,6 +49,7 @@ const actionLabels = {
 };
 
 const Orders = () => {
+  const { t } = useTranslation();
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
@@ -419,7 +422,7 @@ const Orders = () => {
     return (
       <div className="orders-loading">
         <RefreshCw className="orders-spin" size={30} />
-        <p>Loading restaurant orders...</p>
+        <p>	{t("orders.loading")}</p>
       </div>
     );
   }
@@ -430,9 +433,9 @@ const Orders = () => {
       {/* PAGE HEADER */}
       <div className="orders-header">
         <div>
-          <h1>Orders Management</h1>
+          <h1>{t("orders.title")}</h1>
           <p>
-            Manage customer orders and track restaurant activity.
+            {t("orders.description")}
           </p>
         </div>
 
@@ -443,10 +446,10 @@ const Orders = () => {
           onClick={toggleSoundAlerts}
         >
           {soundReady
-            ? "Sound: ON"
+            ? t("orders.soundOn")
             : soundEnabled
-              ? "Activate Sound"
-              : "Enable Sound"}
+              ? t("orders.activateSound")
+              : t("orders.enableSound")}
         </button>
 
         <button
@@ -458,7 +461,7 @@ const Orders = () => {
             size={17}
             className={refreshing ? "orders-spin" : ""}
           />
-          Refresh
+          {t("orders.refresh")}
         </button>
       </div>
 
@@ -483,7 +486,7 @@ const Orders = () => {
             <ShoppingBag size={22} />
           </div>
           <div>
-            <span>Total Orders</span>
+            <span>{t("orders.totalOrders")}</span>
             <h2>{orders.length}</h2>
           </div>
         </div>
@@ -493,7 +496,7 @@ const Orders = () => {
             <Clock size={22} />
           </div>
           <div>
-            <span>Pending</span>
+            <span>{t("orders.pending")}</span>
             <h2>{countStatus("pending")}</h2>
           </div>
         </div>
@@ -503,7 +506,7 @@ const Orders = () => {
             <ChefHat size={22} />
           </div>
           <div>
-            <span>Preparing</span>
+            <span>{t("orders.preparing")}</span>
             <h2>{countStatus("preparing")}</h2>
           </div>
         </div>
@@ -513,7 +516,7 @@ const Orders = () => {
             <CheckCircle size={22} />
           </div>
           <div>
-            <span>Completed</span>
+            <span>{t("orders.completed")}</span>
             <h2>{countStatus("completed")}</h2>
           </div>
         </div>
@@ -538,7 +541,7 @@ const Orders = () => {
 
           <input
             type="text"
-            placeholder="Search order, customer or table..."
+            placeholder={t("orders.search")}
             value={search}
             onChange={(e) => setSearch(e.target.value)}
           />
@@ -548,7 +551,7 @@ const Orders = () => {
           value={filter}
           onChange={(e) => setFilter(e.target.value)}
         >
-          <option value="all">All Orders</option>
+          <option value="all">{t("orders.allOrders")}</option>
 
           {statuses.map((status) => (
             <option key={status} value={status}>
@@ -564,12 +567,12 @@ const Orders = () => {
 
         <div className="orders-list-heading">
           <div>
-            <h2>Restaurant Orders</h2>
-            <p>{filteredOrders.length} orders found</p>
+            <h2>{t("orders.restaurantOrders")}</h2>
+            <p>{t("orders.ordersFound", { count: filteredOrders.length })}</p>
           </div>
 
           <span className="orders-live">
-            ● Auto refresh: 5 seconds
+            ● {t("orders.autoRefresh")}
           </span>
         </div>
 
@@ -577,11 +580,9 @@ const Orders = () => {
           <div className="orders-empty">
             <Package size={48} />
 
-            <h3>No Orders Found</h3>
+            <h3>{t("orders.noOrders")}</h3>
 
-            <p>
-              Customer orders will appear here.
-            </p>
+            <p>{t("orders.customerOrders")}</p>
           </div>
         ) : (
           filteredOrders.map((order) => {
