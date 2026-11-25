@@ -270,5 +270,61 @@
     "confirmDelete": "کیا آپ واقعی اس کیٹیگری کو حذف کرنا چاہتے ہیں؟",
     "deleteError": "کیٹیگری حذف نہیں ہو سکی",
     "updateError": "اپڈیٹ نہیں ہو سکی"
+  },
+
+  "common": {
+    "saving": "محفوظ ہو رہا ہے...",
+    "cancel": "منسوخ کریں",
+    "edit": "ترمیم کریں"
+  },
+
+  "tables": {
+    "title": "ٹیبلز اور کیو آر مینجمنٹ",
+    "description": "ریسٹورنٹ کے ٹیبلز اور کیو آر کوڈز کا انتظام کریں",
+    "editTable": "ٹیبل میں ترمیم",
+    "addNewTable": "نیا ٹیبل شامل کریں",
+    "tableNumberPlaceholder": "ٹیبل نمبر (مثلاً T01)",
+    "seatingCapacity": "نشستوں کی گنجائش",
+    "updateTable": "ٹیبل اپڈیٹ کریں",
+    "addTable": "ٹیبل شامل کریں",
+    "table": "ٹیبل",
+    "capacity": "گنجائش",
+    "persons": "افراد",
+    "available": "دستیاب",
+    "inactive": "غیر فعال",
+    "disable": "غیر فعال کریں",
+    "viewOrderHistory": "آرڈرز کی تاریخ دیکھیں",
+    "viewQR": "کیو آر دیکھیں",
+    "download": "ڈاؤن لوڈ کریں",
+    "regenerateQR": "نیا کیو آر بنائیں",
+    "scanMenu": "ریسٹورنٹ مینیو دیکھنے کے لیے اسکین کریں",
+    "downloadQRCode": "کیو آر کوڈ ڈاؤن لوڈ کریں",
+    "noTablesFound": "کوئی ٹیبل موجود نہیں",
+    "addFirstTable": "کیو آر کوڈ بنانے کے لیے اپنا پہلا ٹیبل شامل کریں۔",
+    "loadError": "ٹیبلز لوڈ نہیں ہو سکے",
+    "updateSuccess": "ٹیبل کامیابی سے اپڈیٹ ہو گیا",
+    "createSuccess": "ٹیبل کامیابی سے شامل ہو گیا",
+    "operationError": "آپریشن مکمل نہیں ہو سکا",
+    "confirmDisable": "کیا آپ واقعی اس ٹیبل کو غیر فعال کرنا چاہتے ہیں؟",
+    "disableError": "ٹیبل غیر فعال نہیں ہو سکا",
+    "confirmRegenerateQR": "کیا آپ ٹیبل {{table}} کا کیو آر دوبارہ بنانا چاہتے ہیں؟ پرانا کیو آر کام نہیں کرے گا۔",
+    "regenerateSuccess": "کیو آر کوڈ دوبارہ بن گیا ہے۔ نیا کوڈ ڈاؤن لوڈ کریں۔",
+    "regenerateError": "کیو آر کوڈ دوبارہ نہیں بن سکا",
+    "historyError": "ٹیبل آرڈر ہسٹری لوڈ نہیں ہو سکی",
+    "loadingHistory": "آرڈر ہسٹری لوڈ ہو رہی ہے...",
+    "orderHistory": "آرڈرز کی تاریخ",
+    "combinedBill": "موجودہ مشترکہ بل",
+    "activeOrders": "فعال آرڈرز",
+    "outstandingTotal": "باقی کل رقم",
+    "allOrders": "تمام آرڈرز",
+    "noHistory": "اس ٹیبل کی کوئی آرڈر ہسٹری موجود نہیں۔",
+    "product": "پروڈکٹ",
+    "order": "آرڈر",
+    "orderTotal": "آرڈر کی کل رقم",
+    "status": {
+      "available": "دستیاب",
+      "occupied": "مصروف",
+      "inactive": "غیر فعال"
+    }
   }
 }

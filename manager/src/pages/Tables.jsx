@@ -26,7 +26,7 @@ const Tables = () => {
       const res = await api.get("/tables");
       setTables(res.data.tables);
     } catch (error) {
-      alert(error.response?.data?.message || "Failed to load tables");
+      alert(error.response?.data?.message || t("tables.loadError"));
     }
   };
 
@@ -53,17 +53,17 @@ const Tables = () => {
 
       if (editId) {
         await api.put(`/tables/${editId}`, data);
-        alert("Table updated successfully");
+        alert(t("tables.updateSuccess"));
       } else {
         await api.post("/tables", data);
-        alert("Table created successfully");
+        alert(t("tables.createSuccess"));
       }
 
       resetForm();
       fetchTables();
 
     } catch (error) {
-      alert(error.response?.data?.message || "Operation failed");
+      alert(error.response?.data?.message || t("tables.operationError"));
     } finally {
       setLoading(false);
     }
@@ -77,19 +77,19 @@ const Tables = () => {
   };
 
   const handleDelete = async (id) => {
-    if (!window.confirm("Deactivate this table?")) return;
+    if (!window.confirm(t("tables.confirmDisable"))) return;
 
     try {
       await api.delete(`/tables/${id}`);
       fetchTables();
     } catch (error) {
-      alert(error.response?.data?.message || "Failed to deactivate table");
+      alert(error.response?.data?.message || t("tables.disableError"));
     }
   };
 
   const handleRegenerateQR = async (table) => {
     const confirmed = window.confirm(
-      `Regenerate QR for Table ${table.tableNumber}?\n\nOld QR code will stop working.`
+      t("tables.confirmRegenerateQR", { table: table.tableNumber })
     );
 
     if (!confirmed) return;
@@ -111,10 +111,10 @@ const Tables = () => {
         setSelectedTable(updatedTable);
       }
 
-      alert("QR code regenerated successfully. Download the new QR code.");
+      alert(t("tables.regenerateSuccess"));
     } catch (error) {
       alert(
-        error.response?.data?.message || "Failed to regenerate QR code"
+        error.response?.data?.message || t("tables.regenerateSuccess")
       );
     }
   };
@@ -134,7 +134,7 @@ const Tables = () => {
     } catch (error) {
       setHistoryError(
         error.response?.data?.message ||
-        "Failed to load table order history"
+        t("tables.historyError")
       );
     } finally {
       setHistoryLoading(false);
@@ -226,8 +226,7 @@ return (
               }`}
             >
               {table.availabilityStatus
-                ? table.availabilityStatus.charAt(0).toUpperCase() +
-                  table.availabilityStatus.slice(1)
+                ? t("tables.status." + table.availabilityStatus, { defaultValue: table.availabilityStatus })
                 : table.isActive
                 ? t("tables.available")
                 : t("tables.inactive")}
@@ -381,10 +380,10 @@ return (
           </button>
 
           <h2>
-            Table {historyTable.tableNumber} - Order History
+            {t("tables.table")} {historyTable.tableNumber} - {t("tables.orderHistory")}
           </h2>
 
-          {historyLoading && <p>Loading order history...</p>}
+          {historyLoading && <p>{t("tables.loadingHistory")}</p>}
 
           {historyError && (
             <p style={{ color: "red" }}>{historyError}</p>
@@ -393,22 +392,23 @@ return (
           {tableHistory && (
             <>
               <div className="combined-bill">
-                <h3>Current Combined Bill</h3>
+                <h3>{t("tables.combinedBill")}</h3>
 
                 <p>
-                  Paid: Rs. {Number(order.paidAmount || 0).toFixed(2)}
+                  {t("tables.activeOrders")}:{" "}
+                  {tableHistory.combinedBill?.activeOrdersCount || 0}
                 </p>
 
                 <strong>
-                  Remaining: Rs.{" "}
-                  {Number(order.remainingAmount || 0).toFixed(2)}
+                  {t("tables.outstandingTotal")}: Rs.{" "}
+                  {Number(tableHistory.combinedBill?.total || 0).toFixed(2)}
                 </strong>
               </div>
 
-              <h3>All Orders</h3>
+              <h3>{t("tables.allOrders")}</h3>
 
               {tableHistory.orders.length === 0 ? (
-                <p>No order history found for this table.</p>
+                <p>{t("tables.noHistory")}</p>
               ) : (
                 tableHistory.orders.map((order) => (
                   <div
@@ -417,7 +417,7 @@ return (
                   >
                     <div>
                       <strong>
-                        Order #{order.orderNumber || order.id}
+                        {t("tables.order")} #{order.orderNumber || order.id}
                       </strong>
                       <span> — {order.status}</span>
                     </div>
@@ -429,7 +429,7 @@ return (
                     <div>
                       {(order.OrderItems || []).map((item) => (
                         <p key={item.id}>
-                          {item.Product?.name || "Product"} ×{" "}
+                          {item.Product?.name || t("tables.product")} ×{" "}
                           {item.quantity} — Rs.{" "}
                           {Number(item.subtotal || 0).toFixed(2)}
                         </p>
@@ -437,7 +437,7 @@ return (
                     </div>
 
                     <strong>
-                      Order Total: Rs.{" "}
+                      {t("tables.orderTotal")}: Rs.{" "}
                       {Number(order.totalAmount || 0).toFixed(2)}
                     </strong>
                   </div>

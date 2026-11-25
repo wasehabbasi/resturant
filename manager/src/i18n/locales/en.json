@@ -269,5 +269,61 @@
       "confirmDelete": "Delete this category?",
       "deleteError": "Delete failed",
       "updateError": "Update failed"
+    },
+
+    "common": {
+      "saving": "Saving...",
+      "cancel": "Cancel",
+      "edit": "Edit"
+    },
+
+    "tables": {
+      "title": "Tables & QR Management",
+      "description": "Manage restaurant tables and generate QR codes",
+      "editTable": "Edit Table",
+      "addNewTable": "Add New Table",
+      "tableNumberPlaceholder": "Table Number (e.g. T01)",
+      "seatingCapacity": "Seating Capacity",
+      "updateTable": "Update Table",
+      "addTable": "Add Table",
+      "table": "Table",
+      "capacity": "Capacity",
+      "persons": "persons",
+      "available": "Available",
+      "inactive": "Inactive",
+      "disable": "Disable",
+      "viewOrderHistory": "View Order History",
+      "viewQR": "View QR",
+      "download": "Download",
+      "regenerateQR": "Regenerate QR",
+      "scanMenu": "Scan to view restaurant menu",
+      "downloadQRCode": "Download QR Code",
+      "noTablesFound": "No Tables Found",
+      "addFirstTable": "Add your first restaurant table to generate a QR code.",
+      "loadError": "Failed to load tables",
+      "updateSuccess": "Table updated successfully",
+      "createSuccess": "Table created successfully",
+      "operationError": "Operation failed",
+      "confirmDisable": "Deactivate this table?",
+      "disableError": "Failed to deactivate table",
+      "confirmRegenerateQR": "Regenerate QR for Table {{table}}? Old QR code will stop working.",
+      "regenerateSuccess": "QR code regenerated successfully. Download the new QR code.",
+      "regenerateError": "Failed to regenerate QR code",
+      "historyError": "Failed to load table order history",
+      "loadingHistory": "Loading order history...",
+      "orderHistory": "Order History",
+      "combinedBill": "Current Combined Bill",
+      "activeOrders": "Active Orders",
+      "outstandingTotal": "Outstanding Total",
+      "allOrders": "All Orders",
+      "noHistory": "No order history found for this table.",
+      "product": "Product",
+      "order": "Order",
+      "orderTotal": "Order Total",
+      "status": {
+        "available": "Available",
+        "occupied": "Occupied",
+        "inactive": "Inactive"
+      }
     }
 }
