@@ -2,6 +2,7 @@
 import { useCallback, useEffect, useState } from "react";
 import { io } from "socket.io-client";
 import { RefreshCw, ChefHat, Clock, CheckCircle, X } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 import api from "../services/api";
 import "./Kitchen.css";
@@ -9,31 +10,32 @@ import "./Kitchen.css";
 const columns = [
   {
     status: "pending",
-    title: "New Orders",
+    title: t("kitchen.newOrders"),
     next: "accepted",
-    action: "Accept Order",
+    action: t("kitchen.acceptOrder"),
   },
   {
     status: "accepted",
-    title: "Accepted",
+    title: t("kitchen.accepted"),
     next: "preparing",
-    action: "Start Preparing",
+    action: t("kitchen.startPreparing"),
   },
   {
     status: "preparing",
-    title: "Preparing",
+    title: t("kitchen.preparing"),
     next: "ready",
-    action: "Mark Ready",
+    action: t("kitchen.markReady"),
   },
   {
     status: "ready",
-    title: "Ready to Serve",
+    title: t("kitchen.readyToServe"),
     next: null,
     action: null,
   },
 ];
 
 const Kitchen = () => {
+  const { t } = useTranslation();
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
   const [updatingId, setUpdatingId] = useState(null);
