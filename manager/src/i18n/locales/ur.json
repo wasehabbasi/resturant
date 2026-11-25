@@ -242,5 +242,33 @@
     "recipeLoadError": "ترکیب لوڈ نہیں ہو سکی",
     "recipeSaveSuccess": "پروڈکٹ کی ترکیب کامیابی سے محفوظ ہو گئی۔",
     "recipeSaveError": "ترکیب محفوظ نہیں ہو سکی"
+  },
+
+  "categories": {
+    "title": "کیٹیگریز",
+    "description": "اپنے ریسٹورنٹ کی فوڈ کیٹیگریز کا انتظام کریں",
+    "editCategory": "کیٹیگری میں ترمیم",
+    "addCategory": "نئی کیٹیگری شامل کریں",
+    "categoryName": "کیٹیگری کا نام",
+    "categoryDescription": "کیٹیگری کی تفصیل",
+    "saving": "محفوظ ہو رہا ہے...",
+    "updateCategory": "کیٹیگری اپڈیٹ کریں",
+    "addCategoryButton": "کیٹیگری شامل کریں",
+    "cancel": "منسوخ کریں",
+    "allCategories": "تمام کیٹیگریز",
+    "noDescription": "کوئی تفصیل نہیں",
+    "active": "فعال",
+    "inactive": "غیر فعال",
+    "disable": "غیر فعال کریں",
+    "enable": "فعال کریں",
+    "noCategories": "کوئی کیٹیگری موجود نہیں۔ اپنی پہلی کیٹیگری شامل کریں۔",
+    "nameRequired": "کیٹیگری کا نام ضروری ہے",
+    "loadError": "کیٹیگریز لوڈ نہیں ہو سکیں",
+    "updateSuccess": "کیٹیگری کامیابی سے اپڈیٹ ہو گئی",
+    "addSuccess": "کیٹیگری کامیابی سے شامل ہو گئی",
+    "saveError": "کچھ غلط ہو گیا",
+    "confirmDelete": "کیا آپ واقعی اس کیٹیگری کو حذف کرنا چاہتے ہیں؟",
+    "deleteError": "کیٹیگری حذف نہیں ہو سکی",
+    "updateError": "اپڈیٹ نہیں ہو سکی"
   }
 }

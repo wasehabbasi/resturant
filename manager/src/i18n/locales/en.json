@@ -178,7 +178,7 @@
       "branchRequired": "Please select a branch and login again.",
       "updateError": "Unable to update order status."
     },
-    
+
     "products": {
       "title": "Food Products",
       "description": "Manage your restaurant menu items",
@@ -241,5 +241,33 @@
       "recipeLoadError": "Failed to load recipe",
       "recipeSaveSuccess": "Product recipe saved successfully.",
       "recipeSaveError": "Failed to save recipe"
+    },
+
+    "categories": {
+      "title": "Categories",
+      "description": "Manage your restaurant food categories",
+      "editCategory": "Edit Category",
+      "addCategory": "Add New Category",
+      "categoryName": "Category name",
+      "categoryDescription": "Category description",
+      "saving": "Saving...",
+      "updateCategory": "Update Category",
+      "addCategoryButton": "Add Category",
+      "cancel": "Cancel",
+      "allCategories": "All Categories",
+      "noDescription": "No description",
+      "active": "Active",
+      "inactive": "Inactive",
+      "disable": "Disable",
+      "enable": "Enable",
+      "noCategories": "No categories found. Add your first category.",
+      "nameRequired": "Category name is required",
+      "loadError": "Failed to load categories",
+      "updateSuccess": "Category updated successfully",
+      "addSuccess": "Category added successfully",
+      "saveError": "Something went wrong",
+      "confirmDelete": "Delete this category?",
+      "deleteError": "Delete failed",
+      "updateError": "Update failed"
     }
 }
