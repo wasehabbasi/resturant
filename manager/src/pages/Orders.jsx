@@ -26,12 +26,12 @@ const statuses = [
 ];
 
 const statusLabels = {
-  pending: "Pending",
-  accepted: "Accepted",
-  preparing: "Preparing",
-  ready: "Ready",
-  completed: "Completed",
-  cancelled: "Cancelled",
+  pending: "pending",
+  accepted: "accepted",
+  preparing: "preparing",
+  ready: "ready",
+  completed: "completed",
+  cancelled: "cancelled",
 };
 
 const nextStatus = {
@@ -42,10 +42,10 @@ const nextStatus = {
 };
 
 const actionLabels = {
-  accepted: "Accept Order",
-  preparing: "Start Preparing",
-  ready: "Mark Ready",
-  completed: "Complete Order",
+  accepted: "acceptOrder",
+  preparing: "startPreparing",
+  ready: "markReady",
+  completed: "completeOrder",
 };
 
 const Orders = () => {
@@ -528,7 +528,7 @@ const Orders = () => {
       {/* REVENUE */}
       <div className="orders-revenue">
         <div>
-          <span>Value of Accepted and Completed Orders</span>
+          <span>{t("orders.revenue")}</span>
           <h2>Rs. {formatPrice(totalRevenue)}</h2>
         </div>
 
@@ -723,7 +723,7 @@ const Orders = () => {
                       >
                         {updatingId === order.id
                           ? "Updating..."
-                          : actionLabels[next]}
+                          : t(`orders.${actionLabels[next]}`)}
                       </button>
                     )}
 
