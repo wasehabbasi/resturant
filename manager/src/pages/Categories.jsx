@@ -158,7 +158,7 @@ const Categories = () => {
         ))}
 
         {categories.length === 0 && (
-          <p>No categories found. Add your first category.</p>
+          <p>{t("categories.noCategories")}</p>
         )}
       </div>
     </div>
