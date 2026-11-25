@@ -191,10 +191,10 @@ return (
         <button type="submit" disabled={loading}>
           <Plus size={17} />
           {loading
-            ? "Saving..."
+            ? t("common.saving")
             : editId
-            ? "Update Table"
-            : "Add Table"}
+            ? t("tables.updateTable")
+            : t("tables.addTable")}
         </button>
 
         {editId && (
@@ -203,7 +203,7 @@ return (
             className="cancel-btn"
             onClick={resetForm}
           >
-            Cancel
+            {t("common.cancel")}
           </button>
         )}
       </div>
@@ -215,8 +215,8 @@ return (
 
           <div className="table-card-heading">
             <div>
-              <h3>Table {table.tableNumber}</h3>
-              <p>Capacity: {table.capacity} persons</p>
+              <h3>{t("tables.table")} {table.tableNumber}</h3>
+              <p>{t("tables.capacity")}: {table.capacity} {t("tables.persons")}</p>
             </div>
 
             <span
@@ -229,8 +229,8 @@ return (
                 ? table.availabilityStatus.charAt(0).toUpperCase() +
                   table.availabilityStatus.slice(1)
                 : table.isActive
-                ? "Available"
-                : "Inactive"}
+                ? t("tables.available")
+                : t("tables.inactive")}
             </span>
           </div>
 
