@@ -356,7 +356,9 @@ const Orders = () => {
       });
 
       setMessage(
-        `Order status updated to ${statusLabels[status]}.`
+        t("orders.statusUpdated", {
+          status: t(`orders.${statusLabels[status]}`),
+        })
       );
 
       await fetchOrders();
@@ -555,7 +557,7 @@ const Orders = () => {
 
           {statuses.map((status) => (
             <option key={status} value={status}>
-              {statusLabels[status]}
+              {t(`orders.${statusLabels[status]}`)}
             </option>
           ))}
         </select>
@@ -604,7 +606,7 @@ const Orders = () => {
                   <span
                     className={`order-status status-${order.status}`}
                   >
-                    {statusLabels[order.status] || order.status}
+                    {t(`orders.${statusLabels[order.status]}`) || order.status}
                   </span>
 
                 </div>
@@ -744,7 +746,7 @@ const Orders = () => {
                           }
                         >
                           <XCircle size={15} />
-                          Cancel
+                          {t("orders.cancel")}
                         </button>
                       )}
 
