@@ -430,17 +430,17 @@ const Products = () => {
 
       <div className="management-heading">
         <div>
-          <h1>Food Products</h1>
-          <p>Manage your restaurant menu items</p>
+          <h1>{t("products.title")}</h1>
+          <p>{t("products.description")}</p>
         </div>
       </div>
 
       <form className="management-form" onSubmit={handleSubmit}>
-        <h3>{editId ? "Edit Food Item" : "Add New Food Item"}</h3>
+        <h3>{editId ? t("products.editFoodItem") : t("products.addFoodItem")}</h3>
 
         <input
           name="name"
-          placeholder="Food name"
+          placeholder={t("products.foodName")}
           value={form.name}
           onChange={handleChange}
           required
@@ -448,7 +448,7 @@ const Products = () => {
 
         <textarea
           name="description"
-          placeholder="Food description"
+          placeholder={t("products.foodDescription")}
           value={form.description}
           onChange={handleChange}
         />
@@ -458,7 +458,7 @@ const Products = () => {
           type="number"
           min="0"
           step="0.01"
-          placeholder="Base Price in PKR"
+          placeholder={t("products.basePrice")}
           value={form.price}
           onChange={handleChange}
           required
@@ -470,7 +470,7 @@ const Products = () => {
           onChange={handleChange}
           required
         >
-          <option value="">Select Category</option>
+          <option value="">{t("products.selectCategory")}</option>
 
           {categories.map((category) => (
             <option key={category.id} value={category.id}>
@@ -480,7 +480,7 @@ const Products = () => {
         </select>
 
         <label className="upload-label">
-          Upload Food Image
+          {t("products.uploadImage")}
           <input
             name="image"
             type="file"
@@ -493,8 +493,8 @@ const Products = () => {
           <div className="product-image-preview">
             <p>
               {imagePreview
-                ? "New Image Preview"
-                : "Current Product Image"}
+                ? t("products.newImagePreview")
+                : t("products.currentImage")}
             </p>
 
             <img
@@ -506,13 +506,13 @@ const Products = () => {
             />
 
             {imagePreview && (
-              <small>New image selected. Save to replace the existing image.</small>
+              <small>{t("products.replaceImageNote")}</small>
             )}
           </div>
         )}
 
         {form.image && (
-          <p>Selected: {form.image.name}</p>
+          <p>{t("products.selected")}: {form.image.name}</p>
         )}
 
         <div className="form-actions">
@@ -521,8 +521,8 @@ const Products = () => {
             {loading
               ? "Saving..."
               : editId
-                ? "Update Product"
-                : "Add Product"}
+                ? t("products.updateProduct")
+                : t("products.addProduct")}
           </button>
 
           {editId && (
@@ -531,7 +531,7 @@ const Products = () => {
               className="cancel-btn"
               onClick={resetForm}
             >
-              Cancel
+              {t("products.cancel")}
             </button>
           )}
         </div>
