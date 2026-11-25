@@ -675,7 +675,7 @@ const Products = () => {
         </div>
 
         {products.length === 0 && (
-          <p>No food items found. Add your first product.</p>
+          <p>{t("products.noProducts")}</p>
         )}
       </div>
     </div>
