@@ -52,7 +52,7 @@ const Kitchen = () => {
       console.error("KITCHEN ORDERS ERROR:", err);
       setError(
         err.response?.data?.message ||
-        "Unable to load kitchen orders."
+        t("kitchen.loadError")
       );
     } finally {
       setLoading(false);
@@ -73,7 +73,7 @@ const Kitchen = () => {
       storage.getItem("branchId");
 
     if (!token || !branchId) {
-      setError("Please select a branch and login again.");
+      setError(t("kitchen.branchRequired"));
       return;
     }
 
@@ -115,7 +115,7 @@ const Kitchen = () => {
 
       setError(
         err.response?.data?.message ||
-        "Unable to update order status."
+        t("kitchen.updateError")
       );
     } finally {
       setUpdatingId(null);
@@ -139,7 +139,7 @@ const Kitchen = () => {
     return (
       <div className="kitchen-loading">
         <RefreshCw className="kitchen-spin" size={28} />
-        <p>Loading kitchen orders...</p>
+        <p>{t("kitchen.loading")}</p>
       </div>
     );
   }
@@ -150,9 +150,9 @@ const Kitchen = () => {
         <div>
           <h1>
             <ChefHat size={27} />
-            Kitchen Display
+            {t("kitchen.title")}
           </h1>
-          <p>Manage and track incoming restaurant orders.</p>
+          <p>{t("kitchen.description")}</p>
         </div>
 
         <button
@@ -160,21 +160,21 @@ const Kitchen = () => {
           onClick={fetchOrders}
         >
           <RefreshCw size={16} />
-          Refresh
+          {t("kitchen.refresh")}
         </button>
       </div>
 
       {newOrderAlert && (
         <div className="kitchen-new-order-alert">
           <div>
-            <strong>{newOrderAlert.title || "New Order Received!"}</strong>
+            <strong>{newOrderAlert.title || t("kitchen.newOrderReceived")}</strong>
             <p>{newOrderAlert.message}</p>
           </div>
 
           <button
             type="button"
             onClick={() => setNewOrderAlert(null)}
-            aria-label="Dismiss notification"
+            aria-label={t("kitchen.dismiss")}
           >
             <X size={18} />
           </button>
@@ -217,7 +217,7 @@ const Kitchen = () => {
               <div className="kitchen-column-content">
                 {columnOrders.length === 0 ? (
                   <div className="kitchen-empty">
-                    No orders
+                    {t("kitchen.noOrders")}
                   </div>
                 ) : (
                   columnOrders.map((order) => (
@@ -235,11 +235,11 @@ const Kitchen = () => {
 
                       <div className="kitchen-order-info">
                         <span>
-                          Table:{" "}
-                          {order.RestaurantTable?.tableNumber || "N/A"}
+                          {t("kitchen.table")}:{" "}
+                          {order.RestaurantTable?.tableNumber || t("kitchen.notAvailable")}
                         </span>
                         <span>
-                          {order.customerName || "Guest"}
+                          {order.customerName || t("kitchen.guest")}
                         </span>
                       </div>
 
@@ -251,7 +251,7 @@ const Kitchen = () => {
                           >
                             <strong>
                               {item.quantity} ×{" "}
-                              {item.Product?.name || "Food Item"}
+                              {item.Product?.name || t("kitchen.foodItem")}
                             </strong>
                             <span>
                               Rs. {formatPrice(item.subtotal)}
@@ -261,7 +261,7 @@ const Kitchen = () => {
                       </div>
 
                       <div className="kitchen-order-total">
-                        <span>Total</span>
+                        <span>{t("kitchen.total")}</span>
                         <strong>
                           Rs. {formatPrice(order.totalAmount)}
                         </strong>
@@ -276,13 +276,13 @@ const Kitchen = () => {
                           }
                         >
                           {updatingId === order.id
-                            ? "Updating..."
+                            ? t("kitchen.updating")
                             : column.action}
                         </button>
                       ) : (
                         <div className="kitchen-ready-label">
                           <CheckCircle size={16} />
-                          Ready for serving
+                          {t("kitchen.readyForServing")}
                         </div>
                       )}
                     </article>
