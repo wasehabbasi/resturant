@@ -309,8 +309,8 @@ return (
     {tables.length === 0 && (
       <div className="empty-tables">
         <QrCode size={40} />
-        <h3>No Tables Found</h3>
-        <p>Add your first restaurant table to generate a QR code.</p>
+        <h3>{t("tables.noTablesFound")}</h3>
+        <p>{t("tables.addFirstTable")}</p>
       </div>
     )}
 
