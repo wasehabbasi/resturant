@@ -252,7 +252,7 @@ return (
               type="button"
               onClick={() => handleViewHistory(table)}
             >
-              View Order History
+              {t("tables.viewOrderHistory")}
             </button>
 
             <button
@@ -261,7 +261,7 @@ return (
               onClick={() => setSelectedTable(table)}
             >
               <QrCode size={16} />
-              View QR
+              {t("tables.viewQR")}
             </button>
 
             <button
@@ -270,7 +270,7 @@ return (
               onClick={() => downloadQR(table)}
             >
               <Download size={16} />
-              Download
+              {t("tables.download")}
             </button>
 
             <button
@@ -279,7 +279,7 @@ return (
               onClick={() => handleRegenerateQR(table)}
             >
               <RefreshCw size={16} />
-              Regenerate QR
+              {t("tables.regenerateQR")}
             </button>
 
             <button
@@ -287,7 +287,7 @@ return (
               onClick={() => handleEdit(table)}
             >
               <Pencil size={16} />
-              Edit
+              {t("common.edit")}
             </button>
 
             {table.isActive && (
@@ -297,7 +297,7 @@ return (
                 onClick={() => handleDelete(table.id)}
               >
                 <Trash2 size={16} />
-                Disable
+                {t("tables.disable")}
               </button>
             )}
 
@@ -332,7 +332,7 @@ return (
             ✕
           </button>
 
-          <h2>Table {selectedTable.tableNumber}</h2>
+          <h2>{t("tables.table")} {selectedTable.tableNumber}</h2>
 
           <QRCodeCanvas
             value={getMenuUrl(selectedTable)}
@@ -341,14 +341,14 @@ return (
             includeMargin
           />
 
-          <p>Scan to view restaurant menu</p>
+          <p>{t("tables.scanMenu")}</p>
 
           <button
             type="button"
             onClick={() => downloadQR(selectedTable)}
           >
             <Download size={17} />
-            Download QR Code
+            {t("tables.downloadQRCode")}
           </button>
         </div>
       </div>
