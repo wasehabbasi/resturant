@@ -548,5 +548,24 @@
       "confirmDelete": "Are you sure you want to delete this expense?",
       "deleteSuccess": "Expense deleted successfully",
       "deleteError": "Failed to delete expense"
+    },
+
+    "customers": {
+      "title": "Customers",
+      "description": "View customer history and spending for this branch.",
+      "refresh": "Refresh",
+      "totalCustomers": "Total Customers",
+      "totalOrders": "Total Orders",
+      "totalSpending": "Total Customer Spending",
+      "records": "Customer Records",
+      "searchPlaceholder": "Search customer name or guest ID...",
+      "loading": "Loading customers...",
+      "empty": "No customers found.",
+      "customer": "Customer",
+      "guestId": "Guest ID",
+      "totalSpent": "Total Spent",
+      "lastOrder": "Last Order",
+      "guest": "Guest",
+      "loadError": "Failed to load customers"
     }
 }

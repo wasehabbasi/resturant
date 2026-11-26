@@ -1,10 +1,12 @@
-
 import { useEffect, useMemo, useState } from "react";
 import { Users, ShoppingBag, Wallet, RefreshCw } from "lucide-react";
 import api from "../services/api";
 import "./Management.css";
+import { useTranslation } from "react-i18next";
 
 const Customers = () => {
+  const { t, i18n } = useTranslation();
+  const numberLocale = i18n.language === "ur" ? "ur-PK" : "en-PK";
   const [customers, setCustomers] = useState([]);
   const [search, setSearch] = useState("");
   const [loading, setLoading] = useState(false);
@@ -19,7 +21,7 @@ const Customers = () => {
       setCustomers(res.data.customers || []);
     } catch (err) {
       setError(
-        err.response?.data?.message || "Failed to load customers"
+        err.response?.data?.message || t("customers.loadError")
       );
     } finally {
       setLoading(false);
@@ -52,24 +54,24 @@ const Customers = () => {
   );
 
   const formatAmount = (amount) =>
-    Number(amount || 0).toLocaleString("en-PK", {
+    Number(amount || 0).toLocaleString(numberLocale, {
       minimumFractionDigits: 2,
       maximumFractionDigits: 2,
     });
 
   const formatDate = (date) =>
-    date ? new Date(date).toLocaleDateString("en-PK") : "-";
+    date ? new Date(date).toLocaleDateString(numberLocale) : "-";
 
   return (
     <div className="management-page">
       <div className="management-heading">
         <div>
-          <h1>Customers</h1>
-          <p>View customer history and spending for this branch.</p>
+          <h1>{t("customers.title")}</h1>
+          <p>{t("customers.description")}</p>
         </div>
 
         <button type="button" onClick={fetchCustomers}>
-          <RefreshCw size={16} /> Refresh
+          <RefreshCw size={16} /> {t("customers.refresh")}
         </button>
       </div>
 
@@ -80,29 +82,29 @@ const Customers = () => {
       <div className="management-stats">
         <div className="management-list">
           <Users size={22} />
-          <p>Total Customers</p>
+          <p>{t("customers.totalCustomers")}</p>
           <h2>{customers.length}</h2>
         </div>
 
         <div className="management-list">
           <ShoppingBag size={22} />
-          <p>Total Orders</p>
+          <p>{t("customers.totalOrders")}</p>
           <h2>{totalOrders}</h2>
         </div>
 
         <div className="management-list">
           <Wallet size={22} />
-          <p>Total Customer Spending</p>
+          <p>{t("customers.totalSpending")}</p>
           <h2>Rs. {formatAmount(totalSpent)}</h2>
         </div>
       </div>
 
       <div className="management-list">
-        <h3>Customer Records ({filteredCustomers.length})</h3>
+        <h3>{t("customers.records")} ({filteredCustomers.length})</h3>
 
         <input
           type="search"
-          placeholder="Search customer name or guest ID..."
+          placeholder={t("customers.searchPlaceholder")}
           value={search}
           onChange={(e) => setSearch(e.target.value)}
           style={{
@@ -115,19 +117,19 @@ const Customers = () => {
         />
 
         {loading ? (
-          <p>Loading customers...</p>
+          <p>{t("customers.loading")}</p>
         ) : filteredCustomers.length === 0 ? (
-          <p>No customers found.</p>
+          <p>{t("customers.empty")}</p>
         ) : (
           <div style={{ overflowX: "auto" }}>
             <table style={{ width: "100%", borderCollapse: "collapse" }}>
               <thead>
                 <tr>
-                  <th>Customer</th>
-                  <th>Guest ID</th>
-                  <th>Total Orders</th>
-                  <th>Total Spent</th>
-                  <th>Last Order</th>
+                  <th>{t("customers.customer")}</th>
+                  <th>{t("customers.guestId")}</th>
+                  <th>{t("customers.totalOrders")}</th>
+                  <th>{t("customers.totalSpent")}</th>
+                  <th>{t("customers.lastOrder")}</th>
                 </tr>
               </thead>
 
@@ -135,7 +137,7 @@ const Customers = () => {
                 {filteredCustomers.map((customer, index) => (
                   <tr key={customer.guestId || `${customer.customerName}-${index}`}>
                     <td>
-                      <strong>{customer.customerName || "Guest"}</strong>
+                      <strong>{customer.customerName || t("customers.guest")}</strong>
                     </td>
                     <td>{customer.guestId || "-"}</td>
                     <td>{customer.totalOrders}</td>

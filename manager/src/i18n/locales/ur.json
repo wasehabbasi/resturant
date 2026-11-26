@@ -549,5 +549,24 @@
     "confirmDelete": "کیا آپ واقعی یہ خرچ حذف کرنا چاہتے ہیں؟",
     "deleteSuccess": "خرچ کامیابی سے حذف ہو گیا",
     "deleteError": "خرچ حذف نہیں ہو سکا"
+  },
+
+  "customers": {
+    "title": "کسٹمرز",
+    "description": "اس برانچ کے کسٹمرز کی ہسٹری اور اخراجات دیکھیں۔",
+    "refresh": "ریفریش",
+    "totalCustomers": "کل کسٹمرز",
+    "totalOrders": "کل آرڈرز",
+    "totalSpending": "کسٹمرز کے کل اخراجات",
+    "records": "کسٹمرز کا ریکارڈ",
+    "searchPlaceholder": "کسٹمر کا نام یا گیسٹ آئی ڈی تلاش کریں...",
+    "loading": "کسٹمرز لوڈ ہو رہے ہیں...",
+    "empty": "کوئی کسٹمر نہیں ملا۔",
+    "customer": "کسٹمر",
+    "guestId": "گیسٹ آئی ڈی",
+    "totalSpent": "کل خرچ",
+    "lastOrder": "آخری آرڈر",
+    "guest": "مہمان",
+    "loadError": "کسٹمرز لوڈ نہیں ہو سکے"
   }
 }
