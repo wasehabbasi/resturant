@@ -114,7 +114,7 @@ const Tables = () => {
       alert(t("tables.regenerateSuccess"));
     } catch (error) {
       alert(
-        error.response?.data?.message || t("tables.regenerateSuccess")
+        error.response?.data?.message || t("tables.regenerateError")
       );
     }
   };

@@ -3,8 +3,10 @@ import { useEffect, useState } from "react";
 import { Plus, Package, RefreshCw, History } from "lucide-react";
 import api from "../services/api";
 import "./Management.css";
+import { useTranslation } from "react-i18next";
 
 const Inventory = () => {
+  const { t, i18n } = useTranslation();
   const [items, setItems] = useState([]);
   const [movements, setMovements] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -38,7 +40,7 @@ const Inventory = () => {
       setItems(inventoryRes.data.items || []);
       setMovements(movementRes.data.movements || []);
     } catch (err) {
-      setError(err.response?.data?.message || "Failed to load inventory");
+      setError(err.response?.data?.message || t("inventory.loadError"));
     } finally {
       setLoading(false);
     }
@@ -64,10 +66,10 @@ const Inventory = () => {
         lowStockThreshold: "0",
       });
 
-      setMessage("Inventory item created successfully");
+      setMessage(t("inventory.createSuccess"));
       await fetchData();
     } catch (err) {
-      setError(err.response?.data?.message || "Could not create item");
+      setError(err.response?.data?.message || t("inventory.createError"));
     } finally {
       setSaving(false);
     }
@@ -90,7 +92,7 @@ const Inventory = () => {
         note: stockForm.note,
       });
 
-      setMessage("Stock updated successfully");
+      setMessage(t("inventory.stockUpdateSuccess"));
       setStockForm({
         itemId: "",
         type: "stock_in",
@@ -101,7 +103,7 @@ const Inventory = () => {
 
       await fetchData();
     } catch (err) {
-      setError(err.response?.data?.message || "Stock update failed");
+      setError(err.response?.data?.message || t("inventory.stockUpdateError"));
     } finally {
       setSaving(false);
     }
@@ -115,18 +117,18 @@ const Inventory = () => {
     });
 
   if (loading) {
-    return <div className="management-page">Loading inventory...</div>;
+    return <div className="management-page">{t("inventory.loading")}</div>;
   }
 
   return (
     <div className="management-page">
       <div className="management-heading">
         <div>
-          <h1>Inventory Management</h1>
-          <p>Manage stock and inventory for the selected branch.</p>
+          <h1>{t("inventory.title")}</h1>
+          <p>{t("inventory.description")}</p>
         </div>
         <button type="button" onClick={fetchData}>
-          <RefreshCw size={16} /> Refresh
+          <RefreshCw size={16} /> {t("inventory.refresh")}
         </button>
       </div>
 
@@ -137,31 +139,31 @@ const Inventory = () => {
         <div className="inventory-stat">
           <Package />
           <div>
-            <span>Total Items</span>
+            <span>{t("inventory.totalItems")}</span>
             <h2>{items.length}</h2>
           </div>
         </div>
         <div className="inventory-stat">
           <History />
           <div>
-            <span>Low Stock Items</span>
+            <span>{t("inventory.lowStockItems")}</span>
             <h2>{lowStockCount}</h2>
           </div>
         </div>
       </div>
 
       <form className="management-form" onSubmit={createItem}>
-        <h3><Plus size={18} /> Add Inventory Item</h3>
+        <h3><Plus size={18} /> {t("inventory.addItem")}</h3>
 
         <input
-          placeholder="Item name (e.g. Chicken)"
+          placeholder={t("inventory.itemNamePlaceholder")}
           value={form.name}
           onChange={(e) => setForm({ ...form, name: e.target.value })}
           required
         />
 
         <input
-          placeholder="Unit (kg, litre, pcs)"
+          placeholder={t("inventory.unitPlaceholder")}
           value={form.unit}
           onChange={(e) => setForm({ ...form, unit: e.target.value })}
           required
@@ -171,33 +173,33 @@ const Inventory = () => {
           type="number"
           min="0"
           step="0.001"
-          placeholder="Low stock threshold"
+          placeholder={t("inventory.thresholdPlaceholder")}
           value={form.lowStockThreshold}
           onChange={(e) => setForm({ ...form, lowStockThreshold: e.target.value })}
         />
 
         <textarea
-          placeholder="Description (optional)"
+          placeholder={t("inventory.descriptionPlaceholder")}
           value={form.description}
           onChange={(e) => setForm({ ...form, description: e.target.value })}
         />
 
         <div className="form-actions">
           <button type="submit" disabled={saving}>
-            {saving ? "Saving..." : "Add Item"}
+            {saving ? t("inventory.saving") : t("inventory.addItemButton")}
           </button>
         </div>
       </form>
 
       <form className="management-form" onSubmit={updateStock}>
-        <h3>Update Branch Stock</h3>
+        <h3>{t("inventory.updateBranchStock")}</h3>
 
         <select
           value={stockForm.itemId}
           onChange={(e) => setStockForm({ ...stockForm, itemId: e.target.value })}
           required
         >
-          <option value="">Select inventory item</option>
+          <option value="">{t("inventory.selectItem")}</option>
           {items.map((item) => (
             <option key={item.id} value={item.id}>{item.name}</option>
           ))}
@@ -207,9 +209,9 @@ const Inventory = () => {
           value={stockForm.type}
           onChange={(e) => setStockForm({ ...stockForm, type: e.target.value })}
         >
-          <option value="stock_in">Stock In</option>
-          <option value="stock_out">Stock Out</option>
-          <option value="adjustment">Stock Adjustment (actual quantity)</option>
+          <option value="stock_in">{t("inventory.stockIn")}</option>
+          <option value="stock_out">{t("inventory.stockOut")}</option>
+          <option value="adjustment">{t("inventory.stockAdjustment")}</option>
         </select>
 
         {stockForm.type === "stock_in" && (
@@ -217,7 +219,7 @@ const Inventory = () => {
             type="number"
             min="0.01"
             step="0.01"
-            placeholder="Purchase cost per unit (Rs.)"
+            placeholder={t("inventory.purchaseCostPlaceholder")}
             value={stockForm.unitCost}
             onChange={(e) =>
               setStockForm({
@@ -233,48 +235,48 @@ const Inventory = () => {
           type="number"
           min="0"
           step="0.001"
-          placeholder={stockForm.type === "adjustment" ? "Actual counted stock" : "Quantity"}
+          placeholder={t(stockForm.type === "adjustment" ? "inventory.actualStockPlaceholder" : "inventory.quantityPlaceholder")}
           value={stockForm.quantity}
           onChange={(e) => setStockForm({ ...stockForm, quantity: e.target.value })}
           required
         />
 
         <input
-          placeholder="Note (optional)"
+          placeholder={t("inventory.notePlaceholder")}
           value={stockForm.note}
           onChange={(e) => setStockForm({ ...stockForm, note: e.target.value })}
         />
 
         <div className="form-actions">
           <button type="submit" disabled={saving || items.length === 0}>
-            {saving ? "Updating..." : "Update Stock"}
+            {saving ? t("inventory.updating") : t("inventory.updateStock")}
           </button>
         </div>
       </form>
 
       <div className="management-list">
-        <h3>Branch Inventory ({items.length})</h3>
+        <h3>{t("inventory.branchInventory")} ({items.length})</h3>
 
         {items.length === 0 ? (
-          <p>No inventory items added yet.</p>
+          <p>{t("inventory.noItems")}</p>
         ) : (
           items.map((item) => (
             <div className="management-row" key={item.id}>
               <div>
                 <strong>{item.name}</strong>
-                <p>{item.description || "No description"} · Unit: {item.unit}</p>
+                <p>{item.description || t("inventory.noDescription")} · {t("inventory.unit")}: {item.unit}</p>
                 <small>
-                  Low stock threshold: {formatQuantity(item.lowStockThreshold)} {item.unit}
+                  {t("inventory.lowStockThreshold")}: {formatQuantity(item.lowStockThreshold)} {item.unit}
                 </small>
               </div>
 
               <div className="inventory-quantity">
                 <strong>{formatQuantity(item.quantity)} {item.unit}</strong>
                 <span className={item.isLowStock ? "stock-low" : "stock-ok"}>
-                  {item.isLowStock ? "Low Stock" : "In Stock"}
+                  {item.isLowStock ? t("inventory.lowStock") : t("inventory.inStock")}
                 </span>
                 <small>
-                  Average Cost: Rs. {Number(item.averageCost || 0).toLocaleString("en-PK")} / {item.unit}
+                  {t("inventory.averageCost")}: Rs. {Number(item.averageCost || 0).toLocaleString("en-PK")} / {item.unit}
                 </small>
               </div>
             </div>
@@ -285,24 +287,28 @@ const Inventory = () => {
       </div>
 
       <div className="management-list">
-        <h3>Recent Stock Movements</h3>
+        <h3>{t("inventory.recentMovements")}</h3>
 
         {movements.length === 0 ? (
-          <p>No stock movements recorded yet.</p>
+          <p>{t("inventory.noMovements")}</p>
         ) : (
           movements.map((movement) => (
             <div className="management-row" key={movement.id}>
               <div>
-                <strong>{movement.InventoryItem?.name || "Inventory Item"}</strong>
+                <strong>{movement.InventoryItem?.name || t("inventory.inventoryItem")}</strong>
                 <p>
-                  {movement.type.replace("_", " ").toUpperCase()} ·{" "}
-                  {new Date(movement.createdAt).toLocaleString("en-PK")}
+                  {t("inventory.movementTypes." + movement.type, {
+                    defaultValue: movement.type.replace("_", " "),
+                  })} ·{" "}
+                  {new Date(movement.createdAt).toLocaleString(
+                    i18n.language === "ur" ? "ur-PK" : "en-PK"
+                  )}
                 </p>
-                <small>{movement.note || "No note"}</small>
+                <small>{movement.note || t("inventory.noNote")}</small>
               </div>
               <div className="inventory-quantity">
                 <strong>{formatQuantity(movement.newQuantity)} {movement.InventoryItem?.unit}</strong>
-                <span>Previous: {formatQuantity(movement.previousQuantity)}</span>
+                <span>{t("inventory.previous")}: {formatQuantity(movement.previousQuantity)}</span>
               </div>
             </div>
           ))
