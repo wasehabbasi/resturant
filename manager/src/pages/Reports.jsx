@@ -347,9 +347,9 @@ const Reports = () => {
           <div className="report-card-icon green">
             <TrendingUp size={22} />
           </div>
-          <span>Net Profit</span>
+          <span>{t("reports.netProfit")}</span>
           <h2>{currency(data.summary.thisMonth.profit)}</h2>
-          <small>Revenue minus COGS and expenses</small>
+          <small>{t("reports.profitDescription")}</small>
         </div>
 
         <div className="report-card">
