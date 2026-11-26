@@ -193,7 +193,7 @@ const Register = () => {
               </div>
             </div>
 
-            <ThemePicker theme={portalTheme} onChange={(key, value) => updateTheme(setPortalTheme, portalTheme, key, value)} />
+            <ThemePicker theme={portalTheme} t={t} onChange={(key, value) => updateTheme(setPortalTheme, portalTheme, key, value)} />
           </section>
 
           <section style={styles.section}>
@@ -205,7 +205,7 @@ const Register = () => {
               </div>
             </div>
 
-            <ThemePicker theme={customerTheme} onChange={(key, value) => updateTheme(setCustomerTheme, customerTheme, key, value)} />
+            <ThemePicker theme={customerTheme} t={t} onChange={(key, value) => updateTheme(setCustomerTheme, customerTheme, key, value)} />
           </section>
 
           <div style={styles.submitArea}>
@@ -238,7 +238,7 @@ const Field = ({ label, name, value, onChange, placeholder, type = "text", requi
   </div>
 );
 
-const ThemePicker = ({ theme, onChange }) => (
+const ThemePicker = ({ theme, onChange, t }) => (
   <div style={styles.themeGrid}>
     {[
       ["primary", t("auth.register.primaryColor")],
