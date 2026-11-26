@@ -567,5 +567,45 @@
       "lastOrder": "Last Order",
       "guest": "Guest",
       "loadError": "Failed to load customers"
+    },
+
+    "reservations": {
+      "title": "Reservations",
+      "description": "Manage customer table reservations for this branch.",
+      "refresh": "Refresh",
+      "addReservation": "Add Reservation",
+      "customerName": "Customer name",
+      "phone": "Phone number",
+      "guests": "Number of guests",
+      "date": "Reservation Date",
+      "time": "Reservation Time",
+      "notes": "Notes (optional)",
+      "saving": "Saving...",
+      "records": "Reservation Records",
+      "searchPlaceholder": "Search customer name or phone...",
+      "filterDate": "Filter by date",
+      "loading": "Loading reservations...",
+      "empty": "No reservations found.",
+      "customer": "Customer",
+      "phoneLabel": "Phone",
+      "guestsLabel": "Guests",
+      "status": "Status",
+      "actions": "Actions",
+      "delete": "Delete reservation",
+      "loadError": "Failed to load reservations",
+      "createSuccess": "Reservation created successfully",
+      "createError": "Failed to create reservation",
+      "statusSuccess": "Reservation status updated",
+      "statusError": "Failed to update status",
+      "confirmDelete": "Delete this reservation?",
+      "deleteSuccess": "Reservation deleted",
+      "deleteError": "Failed to delete reservation",
+      "statuses": {
+        "pending": "Pending",
+        "confirmed": "Confirmed",
+        "seated": "Seated",
+        "cancelled": "Cancelled",
+        "no_show": "No Show"
+      }
     }
 }

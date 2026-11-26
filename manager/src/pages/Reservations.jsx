@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { Plus, RefreshCw, Trash2, X } from "lucide-react";
 import api from "../services/api";
 import "./Management.css";
+import { useTranslation } from "react-i18next";
 
 const today = new Date().toLocaleDateString("en-CA");
 
@@ -24,6 +25,7 @@ const statuses = [
 ];
 
 const Reservations = () => {
+  const { t } = useTranslation();
   const [reservations, setReservations] = useState([]);
   const [form, setForm] = useState(initialForm);
   const [search, setSearch] = useState("");
@@ -48,7 +50,7 @@ const Reservations = () => {
       setReservations(res.data.reservations || []);
     } catch (err) {
       setError(
-        err.response?.data?.message || "Failed to load reservations"
+        err.response?.data?.message || t("reservations.loadError")
       );
     } finally {
       setLoading(false);
@@ -72,12 +74,12 @@ const Reservations = () => {
         partySize: Number(form.partySize),
       });
 
-      setMessage("Reservation created successfully");
+      setMessage(t("reservations.createSuccess"));
       setForm(initialForm);
       await fetchReservations();
     } catch (err) {
       setError(
-        err.response?.data?.message || "Failed to create reservation"
+        err.response?.data?.message || t("reservations.createError")
       );
     } finally {
       setSaving(false);
@@ -88,25 +90,25 @@ const Reservations = () => {
     try {
       setError("");
       await api.put(`/reservations/${id}`, { status });
-      setMessage("Reservation status updated");
+      setMessage(t("reservations.statusSuccess"));
       await fetchReservations();
     } catch (err) {
       setError(
-        err.response?.data?.message || "Failed to update status"
+        err.response?.data?.message ||	t("reservations.statusError")
       );
     }
   };
 
   const deleteReservation = async (id) => {
-    if (!window.confirm("Delete this reservation?")) return;
+    if (!window.confirm(t("reservations.confirmDelete"))) return;
 
     try {
       await api.delete(`/reservations/${id}`);
-      setMessage("Reservation deleted");
+      setMessage(	t("reservations.deleteSuccess"));
       await fetchReservations();
     } catch (err) {
       setError(
-        err.response?.data?.message || "Failed to delete reservation"
+        err.response?.data?.message || t("reservations.deleteError")
       );
     }
   };
@@ -115,12 +117,12 @@ const Reservations = () => {
     <div className="management-page">
       <div className="management-heading">
         <div>
-          <h1>Reservations</h1>
-          <p>Manage customer table reservations for this branch.</p>
+          <h1>{t("reservations.title")}</h1>
+          <p>{t("reservations.description")}</p>
         </div>
 
         <button type="button" onClick={fetchReservations}>
-          <RefreshCw size={16} /> Refresh
+          <RefreshCw size={16} />	{t("reservations.refresh")}
         </button>
       </div>
 
@@ -128,10 +130,10 @@ const Reservations = () => {
       {message && <div className="inventory-alert success">{message}</div>}
 
       <form className="management-form" onSubmit={handleSubmit}>
-        <h3><Plus size={18} /> Add Reservation</h3>
+        <h3><Plus size={18} /> {t("reservations.addReservation")}</h3>
 
         <input
-          placeholder="Customer name"
+          placeholder={t("reservations.customerName")}
           value={form.customerName}
           onChange={(e) =>
             setForm({ ...form, customerName: e.target.value })
@@ -141,7 +143,7 @@ const Reservations = () => {
         />
 
         <input
-          placeholder="Phone number"
+          placeholder={t("reservations.phone")}
           value={form.phone}
           onChange={(e) =>
             setForm({ ...form, phone: e.target.value })
@@ -154,7 +156,7 @@ const Reservations = () => {
           type="number"
           min="1"
           max="100"
-          placeholder="Number of guests"
+          placeholder={t("reservations.guests")}
           value={form.partySize}
           onChange={(e) =>
             setForm({ ...form, partySize: e.target.value })
@@ -162,7 +164,7 @@ const Reservations = () => {
           required
         />
 
-        <label>Reservation Date</label>
+        <label>{t("reservations.date")}</label>
         <input
           type="date"
           value={form.reservationDate}
@@ -172,7 +174,7 @@ const Reservations = () => {
           required
         />
 
-        <label>Reservation Time</label>
+        <label>{t("reservations.time")}</label>
         <input
           type="time"
           value={form.reservationTime}
@@ -183,7 +185,7 @@ const Reservations = () => {
         />
 
         <textarea
-          placeholder="Notes (optional)"
+          placeholder={t("reservations.notes")}
           value={form.notes}
           onChange={(e) =>
             setForm({ ...form, notes: e.target.value })
@@ -193,16 +195,16 @@ const Reservations = () => {
         <div className="form-actions">
           <button type="submit" disabled={saving}>
             <Plus size={17} />
-            {saving ? "Saving..." : "Add Reservation"}
+            {saving ? t("reservations.saving") : t("reservations.addReservation")}
           </button>
         </div>
       </form>
 
       <div className="management-list">
-        <h3>Reservation Records ({reservations.length})</h3>
+        <h3>{t("reservations.records")} ({reservations.length})</h3>
 
         <input
-          placeholder="Search customer name or phone..."
+          placeholder={t("reservations.searchPlaceholder")}
           value={search}
           onChange={(e) => setSearch(e.target.value)}
           style={{
@@ -214,7 +216,7 @@ const Reservations = () => {
           }}
         />
 
-        <label>Filter by date</label>
+        <label>{t("reservations.filterDate")}</label>
         <input
           type="date"
           value={date}
@@ -229,21 +231,21 @@ const Reservations = () => {
         />
 
         {loading ? (
-          <p>Loading reservations...</p>
+          <p>{t("reservations.loading")}</p>
         ) : reservations.length === 0 ? (
-          <p>No reservations found.</p>
+          <p>{t("reservations.empty")}</p>
         ) : (
           <div style={{ overflowX: "auto" }}>
             <table style={{ width: "100%", borderCollapse: "collapse" }}>
               <thead>
                 <tr>
-                  <th>Customer</th>
-                  <th>Phone</th>
-                  <th>Guests</th>
-                  <th>Date</th>
-                  <th>Time</th>
-                  <th>Status</th>
-                  <th>Actions</th>
+                  <th>{t("reservations.customer")}</th>
+                  <th>{t("reservations.phoneLabel")}</th>
+                  <th>{t("reservations.guestsLabel")}</th>
+                  <th>{t("reservations.date")}</th>
+                  <th>{t("reservations.time")}</th>
+                  <th>{t("reservations.status")}</th>
+                  <th>{t("reservations.actions")}</th>
                 </tr>
               </thead>
 
@@ -271,7 +273,7 @@ const Reservations = () => {
                       >
                         {statuses.map((status) => (
                           <option key={status} value={status}>
-                            {status.replace("_", " ")}
+                            {t(`reservations.statuses.${status}`)}
                           </option>
                         ))}
                       </select>
@@ -280,7 +282,7 @@ const Reservations = () => {
                       <button
                         type="button"
                         onClick={() => deleteReservation(item.id)}
-                        title="Delete reservation"
+                        title={t("reservations.delete")}
                       >
                         <Trash2 size={16} />
                       </button>
