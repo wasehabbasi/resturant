@@ -80,7 +80,7 @@ const NotificationHistory = () => {
             <div
               key={notification.id}
               className={`notification-history-item ${
-                notification.isRead ? t("notificationHistory.read") : t("notificationHistory.unread")
+                notification.isRead ? "read" : "unread"
               }`}
             >
               <div className="notification-history-icon">
