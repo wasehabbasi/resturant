@@ -515,5 +515,39 @@
       "completed": "مکمل",
       "cancelled": "منسوخ"
     }
+  },
+
+  "expenses": {
+    "title": "اخراجات",
+    "description": "اپنی برانچ کے اخراجات کا انتظام اور ریکارڈ رکھیں",
+    "totalExpenses": "کل اخراجات",
+    "updateExpense": "اخراجات اپڈیٹ کریں",
+    "addNewExpense": "نیا خرچ شامل کریں",
+    "categoryPlaceholder": "کیٹیگری (مثلاً کرایہ، تنخواہ، بجلی)",
+    "descriptionPlaceholder": "تفصیل (اختیاری)",
+    "amountPlaceholder": "رقم پاکستانی روپے میں",
+    "expenseDate": "خرچ کی تاریخ",
+    "cash": "نقد",
+    "bank": "بینک",
+    "card": "کارڈ",
+    "other": "دیگر",
+    "saving": "محفوظ ہو رہا ہے...",
+    "addExpense": "خرچ شامل کریں",
+    "cancel": "منسوخ کریں",
+    "records": "اخراجات کا ریکارڈ",
+    "date": "تاریخ",
+    "category": "کیٹیگری",
+    "description": "تفصیل",
+    "payment": "ادائیگی",
+    "amount": "رقم",
+    "actions": "ایکشنز",
+    "empty": "ابھی تک کوئی خرچ ریکارڈ نہیں ہوا۔",
+    "loadError": "اخراجات لوڈ نہیں ہو سکے",
+    "updateSuccess": "خرچ کامیابی سے اپڈیٹ ہو گیا",
+    "addSuccess": "خرچ کامیابی سے شامل ہو گیا",
+    "saveError": "خرچ محفوظ نہیں ہو سکا",
+    "confirmDelete": "کیا آپ واقعی یہ خرچ حذف کرنا چاہتے ہیں؟",
+    "deleteSuccess": "خرچ کامیابی سے حذف ہو گیا",
+    "deleteError": "خرچ حذف نہیں ہو سکا"
   }
 }

@@ -514,5 +514,39 @@
         "completed": "Completed",
         "cancelled": "Cancelled"
       }
+    },
+
+    "expenses": {
+      "title": "Expenses",
+      "description": "Manage and track your branch expenses",
+      "totalExpenses": "Total Expenses",
+      "updateExpense": "Update Expense",
+      "addNewExpense": "Add New Expense",
+      "categoryPlaceholder": "Category (e.g. Rent, Salary, Electricity)",
+      "descriptionPlaceholder": "Description (optional)",
+      "amountPlaceholder": "Amount in PKR",
+      "expenseDate": "Expense Date",
+      "cash": "Cash",
+      "bank": "Bank",
+      "card": "Card",
+      "other": "Other",
+      "saving": "Saving...",
+      "addExpense": "Add Expense",
+      "cancel": "Cancel",
+      "records": "Expense Records",
+      "date": "Date",
+      "category": "Category",
+      "description": "Description",
+      "payment": "Payment",
+      "amount": "Amount",
+      "actions": "Actions",
+      "empty": "No expenses recorded yet.",
+      "loadError": "Failed to load expenses",
+      "updateSuccess": "Expense updated successfully",
+      "addSuccess": "Expense added successfully",
+      "saveError": "Failed to save expense",
+      "confirmDelete": "Are you sure you want to delete this expense?",
+      "deleteSuccess": "Expense deleted successfully",
+      "deleteError": "Failed to delete expense"
     }
 }
