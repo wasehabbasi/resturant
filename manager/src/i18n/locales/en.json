@@ -607,5 +607,20 @@
         "cancelled": "Cancelled",
         "no_show": "No Show"
       }
+    },
+
+    "notificationHistory": {
+      "title": "Notification History",
+      "description": "View all notifications for your selected branch.",
+      "refresh": "Refresh",
+      "loading": "Loading notifications...",
+      "emptyTitle": "No notifications yet",
+      "emptyDescription": "New notifications will appear here.",
+      "read": "Read",
+      "unread": "Unread",
+      "previous": "Previous",
+      "page": "Page {{page}} of {{totalPages}}",
+      "next": "Next",
+      "loadError": "Unable to load notification history."
     }
 }
