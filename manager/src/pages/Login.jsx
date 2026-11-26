@@ -1,9 +1,11 @@
 
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import { Link, useNavigate } from "react-router-dom";
 import api from "../services/api";
 
 const Login = () => {
+  const { t } = useTranslation();
   const navigate = useNavigate();
 
   const [email, setEmail] = useState("");
@@ -18,7 +20,7 @@ const Login = () => {
     setError("");
 
     if (!email.trim() || !password) {
-      setError("Please enter email and password");
+      setError(t("auth.login.validation"));
       return;
     }
 
@@ -33,11 +35,11 @@ const Login = () => {
       const { token, user } = response.data;
 
       if (!token || !user) {
-        throw new Error("Invalid server response");
+        throw new Error(t("auth.login.invalidResponse"));
       }
 
       if (!["manager", "admin", "cashier", "waiter", "kitchen"].includes(user.role)) {
-        setError("You are not authorized to access this dashboard");
+        setError(t("auth.login.unauthorized"));
         return;
       }
 
@@ -60,7 +62,7 @@ const Login = () => {
       setError(
         err.response?.data?.message ||
         err.message ||
-        "Login failed. Please try again."
+        	t("auth.login.error")
       );
     } finally {
       setLoading(false);
@@ -72,34 +74,33 @@ const Login = () => {
       <div style={styles.left}>
         <div style={styles.brand}>
           <div style={styles.logo}>R</div>
-          <span>RESTAURANT <b>MANAGEMENT</b></span>
+          <span>{t("auth.brand")}</span>
         </div>
 
         <div style={styles.hero}>
-          <span style={styles.tag}>MANAGEMENT PORTAL</span>
+          <span style={styles.tag}>{t("auth.login.portal")}</span>
 
           <h1>
-            Manage your
+            {t("auth.login.hero1")}
             <br />
-            restaurant with
+            {t("auth.login.hero2")}
             <br />
-            <span>confidence.</span>
+            <span>{t("auth.login.hero3")}</span>
           </h1>
 
           <p>
-            A smarter way to manage your restaurant,
-            orders, products and daily operations.
+            {t("auth.login.heroDescription")}
           </p>
 
           <div style={styles.features}>
-            <div>✓ Complete restaurant control</div>
-            <div>✓ Real-time management</div>
-            <div>✓ Simple and secure access</div>
+            <div>✓ {t("auth.login.feature1")}</div>
+            <div>✓ {t("auth.login.feature2")}</div>
+            <div>✓ {t("auth.login.feature3")}</div>
           </div>
         </div>
 
         <div style={styles.footer}>
-          © 2026 Restaurant Management System
+          {t("auth.footer")}
         </div>
       </div>
 
@@ -107,12 +108,12 @@ const Login = () => {
         <form onSubmit={handleLogin} style={styles.card}>
           <div style={styles.mobileLogo}>🍽️ Restaurant</div>
 
-          <div style={styles.welcome}>WELCOME BACK</div>
+          <div style={styles.welcome}>{t("auth.login.welcome")}</div>
 
-          <h2>Sign in to your account</h2>
+          <h2>{t("auth.login.heading")}</h2>
 
           <p style={styles.subtitle}>
-            Enter your credentials to access your dashboard.
+            {t("auth.login.subtitle")}
           </p>
 
           {error && (
@@ -121,11 +122,11 @@ const Login = () => {
             </div>
           )}
 
-          <label style={styles.label}>Email Address</label>
+          <label style={styles.label}>{t("auth.email")}</label>
 
           <input
             type="email"
-            placeholder="Enter your email"
+            placeholder={t("auth.login.emailPlaceholder")}
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             autoComplete="username"
@@ -133,12 +134,12 @@ const Login = () => {
             required
           />
 
-          <label style={styles.label}>Password</label>
+          <label style={styles.label}>{t("auth.password")}</label>
 
           <div style={styles.passwordBox}>
             <input
               type={showPassword ? "text" : "password"}
-              placeholder="Enter your password"
+              placeholder={t("auth.login.passwordPlaceholder")}
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               autoComplete="current-password"
@@ -151,7 +152,7 @@ const Login = () => {
               onClick={() => setShowPassword(!showPassword)}
               style={styles.showButton}
             >
-              {showPassword ? "Hide" : "Show"}
+              {showPassword ? t("auth.hide") : t("auth.show")}
             </button>
           </div>
 
@@ -161,7 +162,7 @@ const Login = () => {
               checked={remember}
               onChange={(e) => setRemember(e.target.checked)}
             />
-            Remember me
+            {t("auth.login.remember")}
           </label>
 
           <button
@@ -172,15 +173,15 @@ const Login = () => {
               opacity: loading ? 0.7 : 1,
             }}
           >
-            {loading ? "Signing in..." : "Sign In →"}
+            {loading ? t("auth.login.loading") : t("auth.login.submit")}
           </button>
 
           <div style={styles.bottom}>
-            Don't have an account? <Link to="/register" style={{ color: "#a67a2c", fontWeight: "bold" }}>Create one</Link>
+            {t("auth.login.noAccount")} <Link to="/register" style={{ color: "#a67a2c", fontWeight: "bold" }}>{t("auth.login.createOne")}</Link>
           </div>
 
           <div style={styles.bottom}>
-            Authorized manager and admin access only.
+            {t("auth.login.accessNote")}
           </div>
         </form>
       </div>

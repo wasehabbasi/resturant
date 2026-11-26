@@ -2,8 +2,10 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import api from "../services/api";
+import { useTranslation } from "react-i18next";
 
 const Register = () => {
+  const { t } = useTranslation();
   const navigate = useNavigate();
 
   const [loading, setLoading] = useState(false);
@@ -48,17 +50,17 @@ const Register = () => {
     setError("");
 
     if (form.password.length < 8) {
-      setError("Password must be at least 8 characters.");
+      setError(t("auth.register.passwordLength"));
       return;
     }
 
     if (form.password !== form.confirmPassword) {
-      setError("Passwords do not match.");
+      setError(t("auth.register.passwordMismatch"));
       return;
     }
 
     if (form.ownerName.trim().length > 25) {
-      setError("Owner name cannot exceed 25 characters.");
+      setError(t("auth.register.ownerNameLength"));
       return;
     }
 
@@ -85,7 +87,7 @@ const Register = () => {
       const { token, user, branch } = response.data;
 
       if (!token || !user) {
-        throw new Error("Invalid server response.");
+        throw new Error(t("auth.login.invalidResponse"));
       }
 
       localStorage.setItem("token", token);
@@ -100,7 +102,7 @@ const Register = () => {
       setError(
         err.response?.data?.message ||
         err.message ||
-        "Registration failed. Please try again."
+        t("auth.register.error")
       );
     } finally {
       setLoading(false);
@@ -112,19 +114,19 @@ const Register = () => {
       <header style={styles.header}>
         <Link to="/login" style={styles.brand}>
           <span style={styles.brandIcon}>R</span>
-          <span>RESTAURANT <b>MANAGEMENT</b></span>
+          <span>{t("auth.brand")}</span>
         </Link>
 
         <div style={styles.headerRight}>
-          Already registered? <Link to="/login" style={styles.loginLink}>Sign in</Link>
+          {t("auth.register.alreadyRegistered")} <Link to="/login" style={styles.loginLink}>{t("auth.login.signIn")}</Link>
         </div>
       </header>
 
       <main style={styles.main}>
         <div style={styles.heading}>
-          <span style={styles.eyebrow}>GET STARTED</span>
-          <h1>Create your restaurant account</h1>
-          <p>Set up your restaurant, first branch and branding in one place.</p>
+          <span style={styles.eyebrow}>{t("auth.register.eyebrow")}</span>
+          <h1>{t("auth.register.heading")}</h1>
+          <p>{t("auth.register.description")}</p>
         </div>
 
         <form onSubmit={handleSubmit}>
@@ -134,16 +136,16 @@ const Register = () => {
             <div style={styles.sectionHeading}>
               <span style={styles.number}>01</span>
               <div>
-                <h2>Owner account</h2>
-                <p>Your personal login information</p>
+                <h2>{t("auth.register.ownerTitle")}</h2>
+                <p>{t("auth.register.ownerDescription")}</p>
               </div>
             </div>
 
             <div style={styles.grid}>
-              <Field label="Owner name" name="ownerName" value={form.ownerName} onChange={updateForm} placeholder="Your full name" required />
-              <Field label="Email address" name="email" type="email" value={form.email} onChange={updateForm} placeholder="you@example.com" required />
-              <Field label="Password" name="password" type="password" value={form.password} onChange={updateForm} placeholder="Minimum 8 characters" required />
-              <Field label="Confirm password" name="confirmPassword" type="password" value={form.confirmPassword} onChange={updateForm} placeholder="Enter password again" required />
+              <Field label={t("auth.register.ownerName")} name="ownerName" value={form.ownerName} onChange={updateForm} placeholder={t("auth.register.ownerNamePlaceholder")} required />
+              <Field label={t("auth.email")} name="email" type="email" value={form.email} onChange={updateForm} placeholder="you@example.com" required />
+              <Field label={t("auth.password")} name="password" type="password" value={form.password} onChange={updateForm} placeholder={t("auth.register.passwordPlaceholder")} required />
+              <Field label={t("auth.register.confirmPassword")} name="confirmPassword" type="password" value={form.confirmPassword} onChange={updateForm} placeholder={t("auth.register.confirmPasswordPlaceholder")} required />
             </div>
           </section>
 
@@ -151,16 +153,16 @@ const Register = () => {
             <div style={styles.sectionHeading}>
               <span style={styles.number}>02</span>
               <div>
-                <h2>Restaurant details</h2>
-                <p>Your restaurant's identity</p>
+                <h2>{t("auth.register.restaurantTitle")}</h2>
+                <p>{t("auth.register.restaurantDescription")}</p>
               </div>
             </div>
 
             <div style={styles.grid}>
-              <Field label="Restaurant name" name="restaurantName" value={form.restaurantName} onChange={updateForm} placeholder="e.g. The Food House" required />
-              <Field label="Restaurant URL slug (optional)" name="restaurantSlug" value={form.restaurantSlug} onChange={updateForm} placeholder="the-food-house" />
+              <Field label={t("auth.register.restaurantName")} name="restaurantName" value={form.restaurantName} onChange={updateForm} placeholder={t("auth.register.restaurantNamePlaceholder")} required />
+              <Field label={t("auth.register.slug")} name="restaurantSlug" value={form.restaurantSlug} onChange={updateForm} placeholder={t("auth.register.slugPlaceholder")} />
               <div style={styles.full}>
-                <Field label="Logo image URL (optional)" name="logo" value={form.logo} onChange={updateForm} placeholder="https://example.com/logo.png" />
+                <Field label={t("auth.register.logo")} name="logo" value={form.logo} onChange={updateForm} placeholder={t("auth.register.logoPlaceholder")} />
               </div>
             </div>
           </section>
@@ -169,16 +171,16 @@ const Register = () => {
             <div style={styles.sectionHeading}>
               <span style={styles.number}>03</span>
               <div>
-                <h2>First branch</h2>
-                <p>You can add more branches later</p>
+                <h2>{t("auth.register.branchTitle")}</h2>
+                <p>{t("auth.register.branchDescription")}</p>
               </div>
             </div>
 
             <div style={styles.grid}>
-              <Field label="Branch name" name="branchName" value={form.branchName} onChange={updateForm} placeholder="Main Branch" required />
-              <Field label="Phone number" name="phone" value={form.phone} onChange={updateForm} placeholder="+92 300 1234567" />
-              <Field label="City" name="city" value={form.city} onChange={updateForm} placeholder="Rawalpindi" />
-              <Field label="Address" name="address" value={form.address} onChange={updateForm} placeholder="Street, area, building" />
+              <Field label=	{t("auth.register.branchName")} name="branchName" value={form.branchName} onChange={updateForm} placeholder={t("auth.register.branchNamePlaceholder")} required />
+              <Field label={t("auth.phone")} name="phone" value={form.phone} onChange={updateForm} placeholder="+92 300 1234567" />
+              <Field label={t("auth.city")} name="city" value={form.city} onChange={updateForm} placeholder={t("auth.register.cityPlaceholder")} />
+              <Field label={t("auth.address")} name="address" value={form.address} onChange={updateForm} placeholder={t("auth.register.addressPlaceholder")} />
             </div>
           </section>
 
@@ -186,8 +188,8 @@ const Register = () => {
             <div style={styles.sectionHeading}>
               <span style={styles.number}>04</span>
               <div>
-                <h2>Portal theme</h2>
-                <p>Colors for your restaurant management dashboard</p>
+                <h2>{t("auth.register.portalTheme")}</h2>
+                <p>{t("auth.register.portalThemeDescription")}</p>
               </div>
             </div>
 
@@ -198,8 +200,8 @@ const Register = () => {
             <div style={styles.sectionHeading}>
               <span style={styles.number}>05</span>
               <div>
-                <h2>Customer website theme</h2>
-                <p>Colors customers will see on your online menu</p>
+                <h2>{t("auth.register.customerTheme")}</h2>
+                <p>{t("auth.register.customerThemeDescription")}</p>
               </div>
             </div>
 
@@ -211,9 +213,9 @@ const Register = () => {
               ...styles.submit,
               opacity: loading ? 0.65 : 1,
             }}>
-              {loading ? "Creating your account..." : "Create Restaurant Account →"}
+              {loading ? t("auth.register.loading") : t("auth.register.submit")}
             </button>
-            <p>By creating an account, you can manage your restaurant and branches from one portal.</p>
+            <p>{t("auth.register.footer")}</p>
           </div>
         </form>
       </main>
@@ -239,9 +241,9 @@ const Field = ({ label, name, value, onChange, placeholder, type = "text", requi
 const ThemePicker = ({ theme, onChange }) => (
   <div style={styles.themeGrid}>
     {[
-      ["primary", "Primary color"],
-      ["secondary", "Secondary color"],
-      ["accent", "Accent color"],
+      ["primary", t("auth.register.primaryColor")],
+      ["secondary", t("auth.register.secondaryColor")],
+      ["accent", t("auth.register.accentColor")],
     ].map(([key, label]) => (
       <div key={key} style={styles.colorField}>
         <label style={styles.label}>{label}</label>
@@ -260,15 +262,15 @@ const ThemePicker = ({ theme, onChange }) => (
         ...styles.previewBar,
         background: theme.primary,
       }}>
-        <span style={{ color: "#fff" }}>Restaurant Preview</span>
+        <span style={{ color: "#fff" }}>{t("auth.register.preview")}</span>
         <span style={{ color: theme.accent }}>●</span>
       </div>
       <div style={styles.previewBody}>
-        <span style={{ color: theme.primary, fontWeight: "bold" }}>Welcome to our restaurant</span>
+        <span style={{ color: theme.primary, fontWeight: "bold" }}>{t("auth.register.welcomePreview")}</span>
         <button type="button" style={{
           ...styles.previewButton,
           background: theme.secondary,
-        }}>View Menu</button>
+        }}>{t("auth.register.viewMenu")}</button>
       </div>
     </div>
   </div>
