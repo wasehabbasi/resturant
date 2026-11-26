@@ -173,7 +173,7 @@ const Expenses = () => {
         <div className="form-actions">
           <button type="submit" disabled={loading}>
             <Plus size={17} />
-            {loading ? t("expenses.saving") : editId ? "Update Expense" : t("expenses.addExpense")}
+            {loading ? t("expenses.saving") : editId ? t("expenses.updateExpense") : t("expenses.addExpense")}
           </button>
 
           {editId && (
