@@ -111,8 +111,10 @@ const Inventory = () => {
 
   const lowStockCount = items.filter((item) => item.isLowStock).length;
 
+  const numberLocale = i18n.language === "ur" ? "ur-PK" : "en-PK";
+
   const formatQuantity = (value) =>
-    Number(value || 0).toLocaleString("en-PK", {
+    Number(value || 0).toLocaleString(numberLocale, {
       maximumFractionDigits: 3,
     });
 
@@ -276,7 +278,7 @@ const Inventory = () => {
                   {item.isLowStock ? t("inventory.lowStock") : t("inventory.inStock")}
                 </span>
                 <small>
-                  {t("inventory.averageCost")}: Rs. {Number(item.averageCost || 0).toLocaleString("en-PK")} / {item.unit}
+                  {t("inventory.averageCost")}: Rs. {Number(item.averageCost || 0).toLocaleString(numberLocale)} / {item.unit}
                 </small>
               </div>
             </div>

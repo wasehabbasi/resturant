@@ -3,8 +3,10 @@ import { useEffect, useState } from "react";
 import { Plus, Pencil, Star, MapPin, Phone, Building2 } from "lucide-react";
 import api from "../services/api";
 import "./Management.css";
+import { useTranslation } from "react-i18next";
 
 const Branches = () => {
+  const { t } = useTranslation();
   const [branches, setBranches] = useState([]);
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
@@ -28,7 +30,7 @@ const Branches = () => {
       const res = await api.get("/branches");
       setBranches(res.data.branches || []);
     } catch (error) {
-      alert(error.response?.data?.message || "Failed to load branches");
+      alert(error.response?.data?.message || t("branches.loadError"));
     } finally {
       setLoading(false);
     }
@@ -72,16 +74,16 @@ const Branches = () => {
 
       if (editId) {
         await api.put(`/branches/${editId}`, form);
-        alert("Branch updated successfully");
+        alert(t("branches.updateSuccess"));
       } else {
         await api.post("/branches", form);
-        alert("Branch created successfully");
+        alert(t("branches.createSuccess"));
       }
 
       resetForm();
       await fetchBranches();
     } catch (error) {
-      alert(error.response?.data?.message || "Unable to save branch");
+      alert(error.response?.data?.message || t("branches.saveError"));
     } finally {
       setSaving(false);
     }
@@ -109,21 +111,21 @@ const Branches = () => {
   };
 
   const setDefault = async (id) => {
-    if (!window.confirm("Set this branch as the default branch?")) return;
+    if (!window.confirm(t("branches.confirmDefault"))) return;
 
     try {
       await api.patch(`/branches/${id}/default`);
       await fetchBranches();
-      alert("Default branch updated");
+      alert(t("branches.defaultSuccess"));
     } catch (error) {
-      alert(error.response?.data?.message || "Unable to set default branch");
+      alert(error.response?.data?.message || t("branches.defaultError"));
     }
   };
 
   const toggleStatus = async (branch) => {
-    const action = branch.isActive ? "deactivate" : "activate";
+    const action = branch.isActive ? t("branches.deactivate").toLowerCase() : t("branches.activate").toLowerCase();
 
-    if (!window.confirm(`Are you sure you want to ${action} this branch?`)) {
+    if (!window.confirm(t("branches.confirmStatus", { action }))) {
       return;
     }
 
@@ -134,7 +136,7 @@ const Branches = () => {
 
       await fetchBranches();
     } catch (error) {
-      alert(error.response?.data?.message || "Unable to update branch");
+      alert(error.response?.data?.message || t("branches.statusError"));
     }
   };
 
@@ -142,17 +144,17 @@ const Branches = () => {
     <div className="management-page">
       <div className="management-heading">
         <div>
-          <h1>Branch Management</h1>
-          <p>Manage your restaurant locations and branches</p>
+          <h1>{t("branches.title")}</h1>
+          <p>{t("branches.description")}</p>
         </div>
       </div>
 
       <form className="management-form" onSubmit={handleSubmit}>
-        <h3>{editId ? "Edit Branch" : "Add New Branch"}</h3>
+        <h3>{t(editId ? "branches.editBranch" : "branches.addNewBranch")}</h3>
 
         <input
           name="name"
-          placeholder="Branch name"
+          placeholder={t("branches.namePlaceholder")}
           value={form.name}
           onChange={handleChange}
           maxLength={150}
@@ -161,28 +163,28 @@ const Branches = () => {
 
         <input
           name="address"
-          placeholder="Complete address"
+          placeholder={t("branches.addressPlaceholder")}
           value={form.address}
           onChange={handleChange}
         />
 
         <input
           name="city"
-          placeholder="City"
+          placeholder={t("branches.cityPlaceholder")}
           value={form.city}
           onChange={handleChange}
         />
 
         <input
           name="phone"
-          placeholder="Contact number"
+          placeholder={t("branches.phonePlaceholder")}
           value={form.phone}
           onChange={handleChange}
         />
 
         <hr />
 
-        <h3>Tax Settings</h3>
+        <h3>{t("branches.taxSettings")}</h3>
 
         <label>
           <input
@@ -191,13 +193,13 @@ const Branches = () => {
             checked={form.taxEnabled}
             onChange={handleChange}
           />
-          Enable Tax
+          {t("branches.enableTax")}
         </label>
 
         <input
           type="number"
           name="taxRate"
-          placeholder="Tax Rate (%)"
+          placeholder={t("branches.taxRatePlaceholder")}
           value={form.taxRate}
           onChange={handleChange}
           min="0"
@@ -207,7 +209,7 @@ const Branches = () => {
 
         <hr />
 
-        <h3>Service Charge Settings</h3>
+        <h3>{t("branches.serviceChargeSettings")}</h3>
 
         <label>
           <input
@@ -216,13 +218,13 @@ const Branches = () => {
             checked={form.serviceChargeEnabled}
             onChange={handleChange}
           />
-          Enable Service Charge
+          {t("branches.enableServiceCharge")}
         </label>
 
         <input
           type="number"
           name="serviceChargeRate"
-          placeholder="Service Charge (%)"
+          placeholder={t("branches.serviceChargeRatePlaceholder")}
           value={form.serviceChargeRate}
           onChange={handleChange}
           min="0"
@@ -232,7 +234,7 @@ const Branches = () => {
 
         <hr />
 
-        <h3>Discount Settings</h3>
+        <h3>{t("branches.discountSettings")}</h3>
 
         <label>
           <input
@@ -241,13 +243,13 @@ const Branches = () => {
             checked={form.discountEnabled}
             onChange={handleChange}
           />
-          Enable Discount
+          {t("branches.enableDiscount")}
         </label>
 
         <input
           type="number"
           name="discountRate"
-          placeholder="Discount Rate (%)"
+          placeholder={t("branches.discountRatePlaceholder")}
           value={form.discountRate}
           onChange={handleChange}
           min="0"
@@ -258,7 +260,7 @@ const Branches = () => {
         <div className="form-actions">
           <button type="submit" disabled={saving}>
             <Plus size={17} />
-            {saving ? "Saving..." : editId ? "Update Branch" : "Add Branch"}
+            {saving ? t("branches.saving") : editId ? t("branches.updateBranch") : t("branches.addBranch")}
           </button>
 
           {editId && (
@@ -267,17 +269,17 @@ const Branches = () => {
               className="cancel-btn"
               onClick={resetForm}
             >
-              Cancel
+              {t("branches.cancel")}
             </button>
           )}
         </div>
       </form>
 
       <div className="management-list">
-        <h3>All Branches ({branches.length})</h3>
+        <h3>{t("branches.allBranches")} ({branches.length})</h3>
 
         {loading ? (
-          <p>Loading branches...</p>
+          <p>{t("branches.loading")}</p>
         ) : (
           <div className="branch-grid">
             {branches.map((branch) => (
@@ -290,31 +292,31 @@ const Branches = () => {
                   <div>
                     <h3>{branch.name}</h3>
                     <span className={branch.isActive ? "branch-active" : "branch-inactive"}>
-                      {branch.isActive ? "Active" : "Inactive"}
+                      {branch.isActive ? t("branches.active") : t("branches.inactive")}
                     </span>
                   </div>
 
                   {branch.isDefault && (
-                    <span className="default-badge">Default</span>
+                    <span className="default-badge">{t("branches.default")}</span>
                   )}
                 </div>
 
                 <div className="branch-details">
                   <p>
                     <MapPin size={16} />
-                    {branch.address || "No address"}
+                    {branch.address || t("branches.noAddress")}
                     {branch.city ? `, ${branch.city}` : ""}
                   </p>
 
                   <p>
                     <Phone size={16} />
-                    {branch.phone || "No phone number"}
+                    {branch.phone || t("branches.noPhone")}
                   </p>
                 </div>
 
                 <div className="row-actions">
                   <button type="button" onClick={() => handleEdit(branch)}>
-                    <Pencil size={16} /> Edit
+                    <Pencil size={16} /> {t("branches.edit")}
                   </button>
 
                   {!branch.isDefault && branch.isActive && (
@@ -322,7 +324,7 @@ const Branches = () => {
                       type="button"
                       onClick={() => setDefault(branch.id)}
                     >
-                      <Star size={16} /> Set Default
+                      <Star size={16} /> {t("branches.setDefault")}
                     </button>
                   )}
 
@@ -330,7 +332,7 @@ const Branches = () => {
                     type="button"
                     onClick={() => toggleStatus(branch)}
                   >
-                    {branch.isActive ? "Deactivate" : "Activate"}
+                    {branch.isActive ? t("branches.deactivate") : t("branches.activate")}
                   </button>
                 </div>
               </div>
@@ -339,7 +341,7 @@ const Branches = () => {
         )}
 
         {!loading && branches.length === 0 && (
-          <p>No branches found.</p>
+          <p>{t("branches.noBranches")}</p>
         )}
       </div>
     </div>
