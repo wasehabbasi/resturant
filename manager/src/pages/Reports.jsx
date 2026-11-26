@@ -10,11 +10,13 @@ import {
 
 import api from "../services/api";
 import "./Reports.css";
-
-const currency = (value) =>
-  `Rs. ${Number(value || 0).toLocaleString("en-PK")}`;
+import { useTranslation } from "react-i18next";
 
 const Reports = () => {
+  const { t, i18n } = useTranslation();
+  const numberLocale = i18n.language === "ur" ? "ur-PK" : "en-PK";
+
+  const currency = (value) => `Rs. ${Number(value || 0).toLocaleString(numberLocale)}`;
   const [data, setData] = useState(null);
   const [period, setPeriod] = useState("daily");
   const [loading, setLoading] = useState(true);
@@ -41,7 +43,7 @@ const Reports = () => {
     } catch (err) {
       setError(
         err.response?.data?.message ||
-        "Unable to load reports."
+        t("reports.loadError")
       );
     } finally {
       setLoading(false);
@@ -50,12 +52,12 @@ const Reports = () => {
 
   const applyDateFilter = () => {
     if (!startDate || !endDate) {
-      setFilterError("Please select both start and end dates.");
+      setFilterError(t("reports.selectBothDates"));
       return;
     }
 
     if (startDate > endDate) {
-      setFilterError("Start date cannot be after end date.");
+      setFilterError(t("reports.invalidDateRange"));
       return;
     }
 
@@ -184,7 +186,7 @@ const Reports = () => {
     return (
       <div className="reports-page reports-message">
         <RefreshCw className="reports-spin" size={28} />
-        <p>Loading sales reports...</p>
+        <p>{t("reports.loading")}</p>
       </div>
     );
   }
@@ -192,8 +194,8 @@ const Reports = () => {
   if (error || !data) {
     return (
       <div className="reports-page reports-message">
-        <p>{error || "No report data available."}</p>
-        <button onClick={fetchReports}>Try Again</button>
+        <p>{error || t("reports.noData")}</p>
+        <button onClick={fetchReports}>{t("reports.tryAgain")}</button>
       </div>
     );
   }
@@ -228,8 +230,8 @@ const Reports = () => {
     <div className="reports-page">
       <div className="reports-header">
         <div>
-          <h1>Sales Reports</h1>
-          <p>Track your restaurant's sales and performance.</p>
+          <h1>{t("reports.title")}</h1>
+          <p>{t("reports.description")}</p>
         </div>
 
         <button
@@ -237,7 +239,7 @@ const Reports = () => {
           onClick={fetchReports}
         >
           <RefreshCw size={16} />
-          Refresh
+          {t("reports.refresh")}
         </button>
 
         <button
@@ -245,20 +247,20 @@ const Reports = () => {
           onClick={exportCSV}
         >
           <Download size={16} />
-          Export CSV
+          	{t("reports.exportCSV")}
         </button>
       </div>
 
       {/* DATE RANGE FILTER */}
       <section className="report-panel report-date-filter">
         <div>
-          <h2>Filter Reports by Date</h2>
-          <p>Select a date range to view filtered reports.</p>
+          <h2>{t("reports.dateFilter")}</h2>
+          <p>{t("reports.dateDescription")}</p>
         </div>
 
         <div className="report-date-controls">
           <label>
-            Start Date
+            	{t("reports.startDate")}
             <input
               type="date"
               value={startDate}
@@ -268,7 +270,7 @@ const Reports = () => {
           </label>
 
           <label>
-            End Date
+            {t("reports.endDate")}
             <input
               type="date"
               value={endDate}
@@ -278,14 +280,14 @@ const Reports = () => {
           </label>
 
           <button onClick={applyDateFilter}>
-            Apply Filter
+            {t("reports.applyFilter")}
           </button>
 
           <button
             className="clear-date-filter"
             onClick={clearDateFilter}
           >
-            Clear
+            {t("reports.clear")}
           </button>
         </div>
 
@@ -300,45 +302,45 @@ const Reports = () => {
           <div className="report-card-icon orange">
             <DollarSign size={22} />
           </div>
-          <span>Today's Revenue</span>
+          <span>{t("reports.todayRevenue")}</span>
           <h2>{currency(data.summary.today.revenue)}</h2>
-          <small>{data.summary.today.totalOrders} orders today</small>
+          <small>{data.summary.today.totalOrders} 	{t("reports.ordersToday")}</small>
         </div>
 
         <div className="report-card">
           <div className="report-card-icon purple">
             <ShoppingBag size={22} />
           </div>
-          <span>Today's Expenses</span>
+          <span>{t("reports.todayExpenses")}</span>
           <h2>{currency(data.summary.today.expenses)}</h2>
-          <small>Recorded expenses today</small>
+          <small>{t("reports.expensesToday")}</small>
         </div>
 
         <div className="report-card">
           <div className="report-card-icon green">
             <TrendingUp size={22} />
           </div>
-          <span>Net Profit</span>
+          <span>{t("reports.netProfit")}</span>
           <h2>{currency(data.summary.today.profit)}</h2>
-          <small>Revenue minus COGS and expenses</small>
+          <small>{t("reports.profitDescription")}</small>
         </div>
 
         <div className="report-card">
           <div className="report-card-icon orange">
             <DollarSign size={22} />
           </div>
-          <span>This Month's Revenue</span>
+          <span>{t("reports.monthRevenue")}</span>
           <h2>{currency(data.summary.thisMonth.revenue)}</h2>
-          <small>{data.summary.thisMonth.totalOrders} orders this month</small>
+          <small>{data.summary.thisMonth.totalOrders} {t("reports.ordersThisMonth")}</small>
         </div>
 
         <div className="report-card">
           <div className="report-card-icon purple">
             <ShoppingBag size={22} />
           </div>
-          <span>This Month's Expenses</span>
+          <span>{t("reports.monthExpenses")}</span>
           <h2>{currency(data.summary.thisMonth.expenses)}</h2>
-          <small>Recorded monthly expenses</small>
+          <small>{t("reports.monthExpensesRecorded")}</small>
         </div>
 
         <div className="report-card">
@@ -354,7 +356,7 @@ const Reports = () => {
           <div className="report-card-icon purple">
             <ShoppingBag size={22} />
           </div>
-          <span>This Month's Ingredient Cost (COGS)</span>
+          <span>{t("reports.monthCOGS")}</span>
           <h2>{currency(data.summary.thisMonth.cogs)}</h2>
         </div>
 
@@ -362,7 +364,7 @@ const Reports = () => {
           <div className="report-card-icon green">
             <TrendingUp size={22} />
           </div>
-          <span>This Month's Gross Profit</span>
+          <span>{t("reports.monthGrossProfit")}</span>
           <h2>{currency(data.summary.thisMonth.grossProfit)}</h2>
         </div>
 
@@ -370,7 +372,7 @@ const Reports = () => {
           <div className="report-card-icon purple">
             <ShoppingBag size={22} />
           </div>
-          <span>Today's Ingredient Cost (COGS)</span>
+          <span>{t("reports.todayCOGS")}</span>
           <h2>{currency(data.summary.today.cogs)}</h2>
         </div>
 
@@ -378,7 +380,7 @@ const Reports = () => {
           <div className="report-card-icon green">
             <TrendingUp size={22} />
           </div>
-          <span>Today's Gross Profit</span>
+          <span>{t("reports.todayGrossProfit")}</span>
           <h2>{currency(data.summary.today.grossProfit)}</h2>
         </div>
       </div>
@@ -389,7 +391,7 @@ const Reports = () => {
             <div className="report-card-icon orange">
               <DollarSign size={22} />
             </div>
-            <span>Selected Range Revenue</span>
+            <span>{t("reports.rangeRevenue")}</span>
             <h2>{currency(data.summary.selectedRange.revenue)}</h2>
           </div>
 
@@ -397,7 +399,7 @@ const Reports = () => {
             <div className="report-card-icon purple">
               <ShoppingBag size={22} />
             </div>
-            <span>Selected Range Expenses</span>
+            <span>{t("reports.rangeExpenses")}</span>
             <h2>{currency(data.summary.selectedRange.expenses)}</h2>
           </div>
 
@@ -405,7 +407,7 @@ const Reports = () => {
             <div className="report-card-icon purple">
               <ShoppingBag size={22} />
             </div>
-            <span>Selected Range COGS</span>
+            <span>{t("reports.rangeCOGS")}</span>
             <h2>{currency(data.summary.selectedRange.cogs)}</h2>
           </div>
 
@@ -413,7 +415,7 @@ const Reports = () => {
             <div className="report-card-icon green">
               <TrendingUp size={22} />
             </div>
-            <span>Selected Range Gross Profit</span>
+            <span>{t("reports.rangeGrossProfit")}</span>
             <h2>{currency(data.summary.selectedRange.grossProfit)}</h2>
           </div>
 
@@ -421,7 +423,7 @@ const Reports = () => {
             <div className="report-card-icon green">
               <TrendingUp size={22} />
             </div>
-            <span>Selected Range Profit</span>
+            <span>{t("reports.rangeProfit")}</span>
             <h2>{currency(data.summary.selectedRange.profit)}</h2>
           </div>
         </div>
@@ -431,8 +433,8 @@ const Reports = () => {
       <section className="report-panel">
         <div className="report-panel-header">
           <div>
-            <h2>Sales Overview</h2>
-            <p>Revenue from completed orders</p>
+            <h2>{t("reports.salesOverview")}</h2>
+            <p>{t("reports.salesDescription")}</p>
           </div>
 
           <div className="report-period">
@@ -440,27 +442,27 @@ const Reports = () => {
               className={period === "daily" ? "active" : ""}
               onClick={() => setPeriod("daily")}
             >
-              Daily
+              {t("reports.daily")}
             </button>
 
             <button
               className={period === "weekly" ? "active" : ""}
               onClick={() => setPeriod("weekly")}
             >
-              Weekly
+              {t("reports.weekly")}
             </button>
 
             <button
               className={period === "monthly" ? "active" : ""}
               onClick={() => setPeriod("monthly")}
             >
-              Monthly
+              {t("reports.monthly")}
             </button>
           </div>
         </div>
 
         {currentSales.length === 0 ? (
-          <p className="report-empty">No sales data available.</p>
+          <p className="report-empty">{t("reports.noSales")}</p>
         ) : (
           <div className="sales-chart">
             {currentSales.map((item) => {
@@ -469,11 +471,11 @@ const Reports = () => {
 
               const label =
                 period === "monthly"
-                  ? new Date(`${item.label}-01T00:00:00`).toLocaleDateString("en-PK", {
+                  ? new Date(`${item.label}-01T00:00:00`).toLocaleDateString(numberLocale, {
                     month: "short",
                     year: "2-digit",
                   })
-                  : new Date(`${item.label}T00:00:00`).toLocaleDateString("en-PK", {
+                  : new Date(`${item.label}T00:00:00`).toLocaleDateString(numberLocale, {
                     day: "2-digit",
                     month: "short",
                     year: period === "weekly" ? "2-digit" : undefined,
@@ -504,13 +506,13 @@ const Reports = () => {
         <section className="report-panel">
           <div className="report-panel-header">
             <div>
-              <h2>Best-Selling Products</h2>
-              <p>Top 5 by quantity sold</p>
+              <h2>{t("reports.bestProducts")}</h2>
+              <p>{t("reports.topFive")}</p>
             </div>
           </div>
 
           {data.topProducts.length === 0 ? (
-            <p className="report-empty">No completed sales yet.</p>
+            <p className="report-empty">{t("reports.noCompletedSales")}</p>
           ) : (
             <div className="top-products-list">
               {data.topProducts.map((product, index) => (
@@ -519,7 +521,7 @@ const Reports = () => {
 
                   <div className="top-product-info">
                     <strong>{product.name}</strong>
-                    <span>{product.totalQuantity} units sold</span>
+                    <span>{product.totalQuantity} {t("reports.unitsSold")}</span>
                   </div>
 
                   <strong>{currency(product.totalRevenue)}</strong>
@@ -532,14 +534,14 @@ const Reports = () => {
         <section className="report-panel">
           <div className="report-panel-header">
             <div>
-              <h2>Order Status</h2>
-              <p>Overall order distribution</p>
+              <h2>{t("reports.orderStatus")}</h2>
+              <p>{t("reports.orderDistribution")}</p>
             </div>
           </div>
 
           <div className="status-total">
             <strong>{totalStatusOrders}</strong>
-            <span>Total Orders</span>
+            <span>{t("reports.totalOrders")}</span>
           </div>
 
           <div className="status-breakdown">
@@ -558,7 +560,9 @@ const Reports = () => {
                             statusColors[item.status] || "#999",
                         }}
                       />
-                      {item.status}
+                      {t(`reports.status.${item.status}`, {
+                        defaultValue: item.status,
+                      })}
                     </span>
 
                     <strong>{item.total}</strong>
