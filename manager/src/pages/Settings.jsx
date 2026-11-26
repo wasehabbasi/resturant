@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { Building2, ImagePlus, Trash2, Save } from "lucide-react";
 import api from "../services/api";
 import "./Settings.css";
+import { useTranslation } from "react-i18next";
 
 const DEFAULT_THEME = {
     primary: "#171c1a",
@@ -11,6 +12,7 @@ const DEFAULT_THEME = {
 };
 
 const Settings = () => {
+    const { t } = useTranslation();
     const [restaurant, setRestaurant] = useState(null);
     const [name, setName] = useState("");
     const [portalTheme, setPortalTheme] = useState(DEFAULT_THEME);
@@ -62,7 +64,7 @@ const Settings = () => {
             } catch (err) {
                 console.error("Load settings error:", err);
                 setError(
-                    err.response?.data?.message || "Unable to load restaurant settings"
+                    err.response?.data?.message || t("settings.loadError")
                 );
             } finally {
                 setLoading(false);
@@ -144,11 +146,11 @@ const Settings = () => {
                 button: data.customerTheme?.accent || DEFAULT_THEME.button,
             });
 
-            setMessage("Settings saved successfully.");
+            setMessage(t("settings.saveSuccess"));
         } catch (err) {
             console.error("Settings save error:", err.response?.data || err);
             setError(
-                err.response?.data?.message || "Unable to update restaurant settings"
+                err.response?.data?.message || t("settings.saveError")
             );
         } finally {
             setSaving(false);
@@ -171,10 +173,10 @@ const Settings = () => {
 
             setRestaurant(response.data.restaurant);
             setSelectedLogo(null);
-            setMessage("Logo uploaded successfully.");
+            setMessage(t("settings.logoUploadSuccess"));
         } catch (err) {
             setError(
-                err.response?.data?.message || "Unable to upload logo"
+                err.response?.data?.message || t("settings.logoUploadError")
             );
         } finally {
             setUploading(false);
@@ -182,7 +184,7 @@ const Settings = () => {
     };
 
     const handleRemoveLogo = async () => {
-        if (!window.confirm("Remove restaurant logo?")) return;
+        if (!window.confirm(t("settings.confirmRemoveLogo"))) return;
 
         try {
             setRemoving(true);
@@ -195,10 +197,10 @@ const Settings = () => {
                 logo: null,
             }));
             setSelectedLogo(null);
-            setMessage("Logo removed successfully.");
+            setMessage(t("settings.logoRemoveSuccess"));
         } catch (err) {
             setError(
-                err.response?.data?.message || "Unable to remove logo"
+                err.response?.data?.message || t("settings.logoRemoveError")
             );
         } finally {
             setRemoving(false);
@@ -206,14 +208,14 @@ const Settings = () => {
     };
 
     if (loading) {
-        return <div className="settings-page">Loading settings...</div>;
+        return <div className="settings-page">{t("settings.loading")}</div>;
     }
 
     return (
         <div className="settings-page">
             <div className="settings-heading">
-                <h1>Restaurant Settings</h1>
-                <p>Manage your restaurant information and branding.</p>
+                <h1>{t("settings.title")}</h1>
+                <p>{t("settings.description")}</p>
             </div>
 
             {message && <div className="settings-success">{message}</div>}
@@ -221,34 +223,34 @@ const Settings = () => {
 
             <form onSubmit={handleSave}>
                 <section className="settings-card">
-                    <h2><Building2 size={19} /> Restaurant Information</h2>
+                    <h2><Building2 size={19} /> {t("settings.restaurantInfo")}</h2>
 
                     <div className="settings-field">
-                        <label>Restaurant Name</label>
+                        <label>{t("settings.restaurantName")}</label>
                         <input
                             value={name}
                             onChange={(e) => setName(e.target.value)}
                             maxLength={150}
                             required
-                            placeholder="Restaurant name"
+                            placeholder={t("settings.restaurantNamePlaceholder")}
                         />
                     </div>
 
                     <div className="settings-field">
-                        <label>Restaurant Slug</label>
+                        <label>{t("settings.restaurantSlug")}</label>
                         <input value={restaurant?.slug || ""} disabled />
                     </div>
                 </section>
 
                 <section className="settings-card">
-                    <h2><ImagePlus size={19} /> Restaurant Logo</h2>
+                    <h2><ImagePlus size={19} /> {t("settings.restaurantLogo")}</h2>
 
                     <div className="logo-management">
                         <div className="logo-preview">
                             {logoUrl ? (
-                                <img src={logoUrl} alt="Restaurant logo" />
+                                <img src={logoUrl} alt={t("settings.restaurantLogo")} />
                             ) : (
-                                <span>No Logo</span>
+                                <span>{t("settings.noLogo")}</span>
                             )}
                         </div>
 
@@ -261,7 +263,7 @@ const Settings = () => {
                                 }
                             />
 
-                            <small>JPG, PNG or WEBP. Maximum 2MB.</small>
+                            <small>{t("settings.logoNote")}</small>
 
                             <div className="settings-actions">
                                 <button
@@ -270,7 +272,7 @@ const Settings = () => {
                                     onClick={handleLogoUpload}
                                     disabled={!selectedLogo || uploading}
                                 >
-                                    {uploading ? "Uploading..." : "Upload Logo"}
+                                    {uploading ? t("settings.uploading") : t("settings.uploadLogo")}
                                 </button>
 
                                 {restaurant?.logo && (
@@ -281,7 +283,7 @@ const Settings = () => {
                                         disabled={removing}
                                     >
                                         <Trash2 size={16} />
-                                        {removing ? "Removing..." : "Remove"}
+                                        {removing ? t("settings.removing") : t("settings.remove")}
                                     </button>
                                 )}
                             </div>
@@ -290,15 +292,15 @@ const Settings = () => {
                 </section>
 
                 <section className="settings-card">
-                    <h2>Portal Theme</h2>
+                    <h2>{t("settings.portalTheme")}</h2>
                     <p className="settings-description">
-                        Colors for your management dashboard.
+                        {t("settings.portalDescription")}
                     </p>
 
                     {[
-                        ["primary", "Primary Color"],
-                        ["secondary", "Secondary Color"],
-                        ["button", "Button Color"],
+                        ["primary", t("settings.primaryColor")],
+                        ["secondary", t("settings.secondaryColor")],
+                        ["button", t("settings.buttonColor")],
                     ].map(([key, label]) => (
                         <div className="settings-color-row" key={key}>
                             <label>{label}</label>
@@ -314,18 +316,18 @@ const Settings = () => {
                 </section>
 
                 <section className="settings-card">
-                    <h2>Customer Menu Theme</h2>
+                    <h2>{t("settings.customerTheme")}</h2>
                     <p className="settings-description">
-                        Colors for your public QR menu.
+                        {t("settings.customerDescription")}
                     </p>
 
                     {[
-                        ["primary", "Primary Color"],
-                        ["secondary", "Secondary Color"],
-                        ["button", "Button Color"],
+                        ["primary", "settings.primaryColor"],
+                        ["secondary", "settings.secondaryColor"],
+                        ["button", "settings.buttonColor"],
                     ].map(([key, label]) => (
                         <div className="settings-color-row" key={key}>
-                            <label>{label}</label>
+                            <label>{t(label)}</label>
                             <input
                                 type="color"
                                 value={customerTheme[key] || DEFAULT_THEME[key]}
@@ -344,7 +346,7 @@ const Settings = () => {
                         disabled={saving}
                     >
                         <Save size={17} />
-                        {saving ? "Saving..." : "Save Changes"}
+                        {saving ? 	t("settings.saving") : t("settings.saveChanges")}
                     </button>
                 </div>
             </form>
